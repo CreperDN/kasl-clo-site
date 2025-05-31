@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: my-catalog-site
+    name: kasl_clo
     env: static
     buildCommand: npm run build
     staticPublishPath: dist
