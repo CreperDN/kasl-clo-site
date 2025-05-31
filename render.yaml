@@ -1,0 +1,6 @@
+services:
+  - type: static
+    name: my-catalog-site
+    env: static
+    buildCommand: npm run build
+    staticPublishPath: dist
