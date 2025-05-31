@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: kasl_clo
+    env: static
+    buildCommand: npm run build
+    staticPublishPath: dist
