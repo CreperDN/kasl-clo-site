@@ -72,7 +72,7 @@ async function fetchFilters(mainCategory, category, sizes, colors) {
   return {};
 }
 async function fetchPhotos(category = 'novinki', size = [], tsvet = [], page = 1) {
-  const url = `${import.meta.env.VITE_API_BASE}/api/product_by_categories_slugs`;
+  const url = "https://cors-proxy-server-4ygc.onrender.com/proxy/api/product_by_categories_slugs";
 
   const headers = {
     "accept": "application/json, text/plain, */*",
