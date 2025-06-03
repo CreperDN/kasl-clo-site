@@ -72,7 +72,7 @@ async function fetchFilters(mainCategory, category, sizes, colors) {
   return {};
 }
 async function fetchPhotos(category = 'novinki', size = [], tsvet = [], page = 1) {
-  const url = "https://modniy-ostrov.com/api/product_by_categories_slugs";
+ const url = "https://modniy-ostrov.com/api/product_by_categories_slugs";
   //const url = "https://cors-proxy-production-37c3.up.railway.app/proxy/api/product_by_categories_slugs";
 
 
