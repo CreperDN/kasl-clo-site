@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import './App.css'
+import PhotoGallery from './PhotoGallery';
 
 async function fetchFilters(mainCategory, category, sizes, colors) {
   let url = "";
@@ -73,8 +74,6 @@ async function fetchFilters(mainCategory, category, sizes, colors) {
 }
 async function fetchPhotos(category = 'novinki', size = [], tsvet = [], page = 1) {
  const url = "https://modniy-ostrov.com/api/product_by_categories_slugs";
-  //const url = "https://cors-proxy-production-37c3.up.railway.app/proxy/api/product_by_categories_slugs";
-
 
   const headers = {
     "accept": "application/json, text/plain, */*",
@@ -165,10 +164,21 @@ function extractDressaPaths(data) {
   const hits = data?.hits?.hits || [];
   hits.forEach((item) => {
     const path = item?._source?.image?.dressaPath;
+    const images = [];
+    item?._source?.images?.forEach((image) => {images.push(image.dressaPath || []);})
+    images.shift();
+    const name = item?._source?.correctedName;
+    const price = item?._source?.priceUAH;
     if (path) {
-      result.push("https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/" + path);
+      result.push({
+        "url":`https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${path}`, 
+        "price":price,
+        "name":name,
+        "images":images,
+      });
     }
   });
+  console.log(result[0]["url"])
   return result;
 }
 
@@ -270,6 +280,7 @@ const COLORS = {
 
 function App() {
   const [filters, setFilters] = useState(null);
+  const [priceIncrease, setPriceIncrease] = useState(300);
   const [sizes, setSizes] = useState([]);
   const [colors, setColors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -409,14 +420,7 @@ async function loadData(mainCategory, category) {
               <strong>Обрана основна категорія:</strong> {selectedMainCategory || 'Не обрано'}<br></br>
               <strong>Обрана категорія:</strong> {selectedCategory || 'Не обрано'}
             </div>
-            <div className="photo-gallery">
-              <h2>Фото товарів</h2>
-              <div className="photo-grid">
-                {photos.map((url, idx) => (
-                  <img key={idx} src={url} alt={`Фото ${idx}`} style={{ width: "200px", margin: "10px" }} />
-                ))}
-              </div>
-            </div>
+            <PhotoGallery photos={photos} priceIncrease={10} />;
             <pre>{JSON.stringify(photosData, null, 2)}</pre>
           </div>
         )}
