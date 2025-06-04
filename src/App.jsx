@@ -177,12 +177,14 @@ function extractDressaPaths(data) {
     images.shift();
     const name = item?._source?.correctedName;
     const price = item?._source?.priceUAH;
+    const oldPrice = item?._source?.oldPriceUAH;
     if (path) {
       result.push({
         "url":`https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${path}`, 
         "price":price,
         "name":name,
         "images":images,
+        "oldPrice":oldPrice,
       });
     }
   });
@@ -305,8 +307,10 @@ function App() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   useEffect(() => {
-  // Скидаємо при зміні категорії, фільтрів
+  
   setPage(1);
+  setColors([]);
+  setSizes([]);
   setPhotosData([]);
   setFullData([]);
 

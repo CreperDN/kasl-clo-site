@@ -60,7 +60,16 @@ export default function PhotoGallery({ photos, priceIncrease }) {
               <figcaption>
                 {info.name}
                 <br />
-                {(info.price / 100 + priceIncrease).toFixed(2)} грн
+                {info.oldPrice != null ? (
+                  <>
+                    <s style={{ color: "gray", marginRight: "8px" }}>
+                      {(info.oldPrice / 100 + priceIncrease).toFixed(2)} грн
+                    </s>
+                    <strong>{(info.price / 100 + priceIncrease).toFixed(2)} грн</strong>
+                  </>
+                ) : (
+                  <strong>{(info.price / 100 + priceIncrease).toFixed(2)} грн</strong>
+                )}
               </figcaption>
             </figure>
           );

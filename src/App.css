@@ -9,6 +9,7 @@
 }
 .sidebar {
   position: fixed;
+  top: 50px; /* або 90px, якщо хедер вищий */
   left: 0;
   width: 280px;
   height: calc(100vh - 50px);
