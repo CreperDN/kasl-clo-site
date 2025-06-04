@@ -116,7 +116,7 @@ async function fetchPhotos(category = 'novinki', size = [], tsvet = [], page = 1
     slugs: slugArray,
     filters: filters,
     page: page,
-    perPage: 20,
+    perPage: 24,
     currentCurrenciesCode: "UAH",
     warehouse: "ua",
     siteVersion: "ua_UA",
@@ -351,10 +351,10 @@ async function loadData(mainCategory, category) {
   return (
     <>
     <header style={styles.header}>
-        <div style={styles.logo}>🛍️ Лого</div>
         <button onClick={() => setIsSidebarVisible(!isSidebarVisible)} style={styles.toggleButton}>
           {isSidebarVisible ? "Сховати фільтри" : "Показати фільтри"}
         </button>
+        <div style={styles.logo}><img src={"/logo.png"} width={"80px"} ></img></div>
       </header>
     <div style={{ display: 'flex', alignItems: 'flex-start' }}>
       {isSidebarVisible && (
@@ -438,7 +438,7 @@ async function loadData(mainCategory, category) {
       </div>
     </aside>)}
       <main style={styles.mainContent}>
-        <PhotoGallery photos={photosData} priceIncrease={10} />;
+        <PhotoGallery photos={photosData} priceIncrease={priceIncrease} />;
             <input type="button" value={isDataVisible ? "Сховати дані" : "Показати дані"}
               onClick={() => setDataVisibility(!isDataVisible)}/>
             {isDataVisible && <pre>{JSON.stringify(fullData, null, 2)}</pre>}
@@ -451,8 +451,34 @@ async function loadData(mainCategory, category) {
 export default App;
 
 const styles = {
+  header: {
+    width: "100%",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#333",
+    padding: "5px 10px",
+    color: "#fff",
+    position: "sticky",
+    top: 0,
+    zIndex: 1000,
+  },
+  logo: {
+    fontSize: "24px",
+    fontWeight: "bold",
+  },
+  toggleButton: {
+    padding: "8px 16px",
+    backgroundColor: "#888",
+    color: "#fff",
+    border: "none",
+    cursor: "pointer",
+    borderRadius: "4px",
+    fontSize: "16px",
+  },
   sidebar: {
     width: '250px',
+    alignItems: "left",
     padding: '20px',
     borderRight: '1px solid #ccc',
     position: 'sticky',
@@ -463,7 +489,7 @@ const styles = {
   },
   mainContent: {
     flex: 1,
-    padding: '20px',
+    padding: '1px',
   },
 };
 
