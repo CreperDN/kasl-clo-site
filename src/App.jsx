@@ -438,7 +438,7 @@ async function loadData(mainCategory, category) {
       </div>
     </aside>)}
       <main style={styles.mainContent}>
-        <PhotoGallery photos={photosData} priceIncrease={10} />;
+        <PhotoGallery photos={photosData} priceIncrease={priceIncrease} />;
             <input type="button" value={isDataVisible ? "Сховати дані" : "Показати дані"}
               onClick={() => setDataVisibility(!isDataVisible)}/>
             {isDataVisible && <pre>{JSON.stringify(fullData, null, 2)}</pre>}
