@@ -302,7 +302,7 @@ function App() {
   const [fullData, setFullData] = useState([]);
   const [page, setPage] = useState(1);
   const [isDataVisible, setDataVisibility] = useState(false);
-  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const sentinelRef = useRef(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
