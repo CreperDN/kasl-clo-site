@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './App.css'
 import PhotoGallery from './PhotoSwiper';
 import "swiper/css";
+import LZString, { compress } from 'lz-string';
 import "swiper/css/navigation";
 
 async function fetchFilters(mainCategory, category, sizes, colors) {
@@ -48,10 +49,9 @@ async function fetchFilters(mainCategory, category, sizes, colors) {
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
       console.log("👉 Взято з localStorage:", cacheKey);
-      return JSON.parse(cached);
+      return JSON.parse(LZString.decompress(cached));
     }
 
-    // 📡 Запит з API
     try {
       const response = await fetch(url, {
         method: 'GET',
@@ -62,13 +62,19 @@ async function fetchFilters(mainCategory, category, sizes, colors) {
 
       if (response.ok) {
         const jsonData = await response.json();
-        localStorage.setItem(cacheKey, JSON.stringify(jsonData)); 
+        const compressed = LZString.compress(JSON.stringify(jsonData));
+        localStorage.setItem(cacheKey, compressed);
         return jsonData;
       } else {
         console.error(`HTTP error! status: ${response.status}`);
       }
-    } catch (error) {
-      console.error('Fetch error:', error);
+    } catch (e) {
+      if (e.name === 'QuotaExceededError') {
+        console.warn('⛔ localStorage переповнений, очищаю...');
+        localStorage.clear(); // або очисти частково
+        // можеш знову спробувати записати:
+        localStorage.setItem(cacheKey, compressed);
+      }
     }
   }
 
@@ -295,14 +301,26 @@ function App() {
   const [page, setPage] = useState(1);
   const [isDataVisible, setDataVisibility] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
+  const sentinelRef = useRef(null);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   useEffect(() => {
-    fetchPhotos(selectedCategory ?? selectedMainCategory, selectedSizes, selectedColors, page)
-      .then(data => {
-        setFullData(data);
-        setPhotosData(extractDressaPaths(data));
-      });
-  }, [selectedCategory, selectedSizes, selectedColors, page]);
+  // Скидаємо при зміні категорії, фільтрів
+  setPage(1);
+  setPhotosData([]);
+  setFullData([]);
+
+  fetchPhotos(
+    selectedCategory ?? selectedMainCategory,
+    selectedSizes,
+    selectedColors,
+    1
+  ).then((data) => {
+    setPhotosData(extractDressaPaths(data));
+    setFullData(data);
+  });
+}, [selectedCategory, selectedMainCategory, selectedSizes, selectedColors]);
+
 
   useEffect(() => {
     loadData(selectedMainCategory, selectedCategory);
@@ -346,7 +364,56 @@ async function loadData(mainCategory, category) {
   setSizes(data?.data?.sizes ?? []);
   setColors(data?.data?.colors ?? []);
   setLoading(false);
-}  
+};
+
+const handleLoadMore = useCallback(async () => {
+  setIsLoadingMore(true);
+  const nextPage = page + 1;
+
+  const data = await fetchPhotos(
+    selectedCategory ?? selectedMainCategory,
+    selectedSizes,
+    selectedColors,
+    nextPage
+  );
+
+  const newPhotos = extractDressaPaths(data);
+
+  setPhotosData(prev => [...prev, ...newPhotos]);
+
+  setFullData(prev => {
+    const merged = { ...prev };
+    merged.hits = {
+      ...prev.hits,
+      hits: [...(prev.hits?.hits || []), ...(data.hits?.hits || [])],
+    };
+    return merged;
+  });
+
+  setPage(nextPage);
+  setIsLoadingMore(false);
+}, [page, selectedCategory, selectedMainCategory, selectedSizes, selectedColors]);
+
+useEffect(() => {
+  if (!sentinelRef.current || isLoadingMore) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (
+        entries[0].isIntersecting &&
+        photosData.length < (fullData?.hits?.total || 0)
+      ) {
+        handleLoadMore();
+      }
+    },
+    { rootMargin: '200px' }
+  );
+
+  observer.observe(sentinelRef.current);
+
+  return () => observer.disconnect();
+}, [photosData, fullData, handleLoadMore, isLoadingMore]);
+
 
   return (
     <>
@@ -356,9 +423,9 @@ async function loadData(mainCategory, category) {
         </button>
         <div style={styles.logo}><img src={"/logo.png"} width={"80px"} ></img></div>
       </header>
-    <div style={{ display: 'flex', alignItems: 'flex-start' }}>
       {isSidebarVisible && (
-      <aside style={styles.sidebar}>
+      <aside style={{...styles.sidebar, transform: isSidebarVisible ? 'translateX(0)' : 'translateX(-100%)',}} className={isSidebarVisible ? "show" : ""}>
+      <button onClick={() => setIsSidebarVisible(false)} style={styles.closeButton}>✖</button>
       <div className="card">
         <div className="filter-section">
               <h3>Основні категорії</h3>
@@ -439,11 +506,16 @@ async function loadData(mainCategory, category) {
     </aside>)}
       <main style={styles.mainContent}>
         <PhotoGallery photos={photosData} priceIncrease={priceIncrease} />;
+          <div ref={sentinelRef} style={{ height: "1px" }}></div>
+          {isLoadingMore && (
+            <div style={{ textAlign: "center", margin: "10px" }}>
+              <span>Завантаження...</span>
+            </div>
+          )}
             <input type="button" value={isDataVisible ? "Сховати дані" : "Показати дані"}
               onClick={() => setDataVisibility(!isDataVisible)}/>
             {isDataVisible && <pre>{JSON.stringify(fullData, null, 2)}</pre>}
         </main>
-     </div>
     </>
   );
 }
@@ -451,22 +523,31 @@ async function loadData(mainCategory, category) {
 export default App;
 
 const styles = {
-  header: {
-    width: "100%",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "#333",
-    padding: "5px 10px",
-    color: "#fff",
-    position: "sticky",
-    top: 0,
-    zIndex: 1000,
-  },
-  logo: {
-    fontSize: "24px",
-    fontWeight: "bold",
-  },
+header: {
+  width: "100%",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  backgroundColor: "#333",
+  padding: "10px 20px",
+  color: "#fff",
+  position: "fixed",        // 🔧 фіксуємо
+  top: 0,
+  left: 0,
+  zIndex: 1002,
+  minHeight: "90px",
+},
+
+logo: {
+  paddingRight:"20px",
+  fontSize: "24px",
+  fontWeight: "bold",
+  display: "flex",
+  alignItems: "center",
+  overflow: "hidden",       
+  maxWidth: "100px",        
+  whiteSpace: "nowrap",
+},
   toggleButton: {
     padding: "8px 16px",
     backgroundColor: "#888",
@@ -476,20 +557,34 @@ const styles = {
     borderRadius: "4px",
     fontSize: "16px",
   },
-  sidebar: {
-    width: '250px',
-    alignItems: "left",
-    padding: '20px',
-    borderRight: '1px solid #ccc',
-    position: 'sticky',
-    top: '0',
-    height: '100vh',
-    overflowY: 'auto',
-    zIndex: 10,
-  },
+sidebar: {
+  position: 'fixed',
+  top: '90px',
+  paddingLeft: "10px",
+  left: 0,
+  width: '280px',
+  height: 'calc(100vh - 50px)', 
+  backgroundColor: '#282828',
+  borderRight: '1px solid #ccc',
+  overflowY: 'auto',
+  zIndex: 1001,
+  transform: 'translateX(-100%)',
+  transition: 'transform 0.3s ease-in-out',
+},
+closeButton: {
+  position: 'absolute',
+  top: '10px',
+  right: '10px',
+  background: 'transparent',
+  border: 'none',
+  fontSize: '20px',
+  cursor: 'pointer',
+},
   mainContent: {
-    flex: 1,
-    padding: '1px',
-  },
+  flex: 1,
+  padding: '10px',
+  paddingTop: '90px', // або стільки, скільки висота хедера
+  overflowX: 'hidden',
+},
 };
 
