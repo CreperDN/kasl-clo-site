@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import './App.css'
-import PhotoGallery from './PhotoGallery';
+import PhotoGallery from './PhotoSwiper';
+import "swiper/css";
+import "swiper/css/navigation";
 
 async function fetchFilters(mainCategory, category, sizes, colors) {
   let url = "";
@@ -178,7 +180,7 @@ function extractDressaPaths(data) {
       });
     }
   });
-  console.log(result[0]["url"])
+  localStorage[""]=result;
   return result;
 }
 
@@ -288,15 +290,17 @@ function App() {
   const [selectedColors, setSelectedColors] = useState([]);
   const [selectedMainCategory, setSelectedMainCategory] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('novinki');
-  const [photos, setPhotos] = useState([]);
   const [photosData, setPhotosData] = useState([]);
+  const [fullData, setFullData] = useState([]);
   const [page, setPage] = useState(1);
+  const [isDataVisible, setDataVisibility] = useState(false);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
 
   useEffect(() => {
     fetchPhotos(selectedCategory ?? selectedMainCategory, selectedSizes, selectedColors, page)
       .then(data => {
-        setPhotosData(data);
-        setPhotos(extractDressaPaths(data));
+        setFullData(data);
+        setPhotosData(extractDressaPaths(data));
       });
   }, [selectedCategory, selectedSizes, selectedColors, page]);
 
@@ -346,6 +350,15 @@ async function loadData(mainCategory, category) {
 
   return (
     <>
+    <header style={styles.header}>
+        <div style={styles.logo}>🛍️ Лого</div>
+        <button onClick={() => setIsSidebarVisible(!isSidebarVisible)} style={styles.toggleButton}>
+          {isSidebarVisible ? "Сховати фільтри" : "Показати фільтри"}
+        </button>
+      </header>
+    <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+      {isSidebarVisible && (
+      <aside style={styles.sidebar}>
       <div className="card">
         <div className="filter-section">
               <h3>Основні категорії</h3>
@@ -420,13 +433,37 @@ async function loadData(mainCategory, category) {
               <strong>Обрана основна категорія:</strong> {selectedMainCategory || 'Не обрано'}<br></br>
               <strong>Обрана категорія:</strong> {selectedCategory || 'Не обрано'}
             </div>
-            <PhotoGallery photos={photos} priceIncrease={10} />;
-            <pre>{JSON.stringify(photosData, null, 2)}</pre>
           </div>
         )}
       </div>
+    </aside>)}
+      <main style={styles.mainContent}>
+        <PhotoGallery photos={photosData} priceIncrease={10} />;
+            <input type="button" value={isDataVisible ? "Сховати дані" : "Показати дані"}
+              onClick={() => setDataVisibility(!isDataVisible)}/>
+            {isDataVisible && <pre>{JSON.stringify(fullData, null, 2)}</pre>}
+        </main>
+     </div>
     </>
   );
 }
 
 export default App;
+
+const styles = {
+  sidebar: {
+    width: '250px',
+    padding: '20px',
+    borderRight: '1px solid #ccc',
+    position: 'sticky',
+    top: '0',
+    height: '100vh',
+    overflowY: 'auto',
+    zIndex: 10,
+  },
+  mainContent: {
+    flex: 1,
+    padding: '20px',
+  },
+};
+

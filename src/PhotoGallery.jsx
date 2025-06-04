@@ -57,11 +57,11 @@ export default function PhotoGallery({ photos, priceIncrease }) {
               </figcaption>
               {totalImages > 1 && (
                 <div style={{ marginTop: "10px" }}>
-                  <button style={styles.navButton} onClick={() => handlePrevImage(idx, totalImages)}>←</button>
-                  <span style={styles.navInfo}>
-                    {safeIndex + 1}/{totalImages}
-                  </span>
-                  <button style={styles.navButton} onClick={() => handleNextImage(idx, totalImages)}>→</button>
+                    <button style={styles.navButton} onClick={() => handlePrevImage(idx, totalImages)}>←</button>
+                    <span style={styles.navInfo}>
+                      {safeIndex + 1}/{totalImages}
+                    </span>
+                    <button style={styles.navButton} onClick={() => handleNextImage(idx, totalImages)}>→</button>
                 </div>
               )}
             </figure>
@@ -96,11 +96,28 @@ navInfo: {
     maxWidth: "1000px",
     margin: "0 auto",
   },
+  galleryContainer: {
+    padding: "10px",
+    maxWidth: "1000px",
+    margin: "0 auto",
+  },
   grid: {
-    display: "flex",
-    flexWrap: "wrap",
-    justifyContent: "center",
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
     gap: "16px",
+  },
+  figure: {
+    border: "1px solid #ccc",
+    padding: "10px",
+    margin: "0",
+    textAlign: "center",
+    boxSizing: "border-box",
+    width: "100%", // важливо для grid
+  },
+  image: {
+    width: "100%",
+    height: "auto",
+    maxWidth: "200px",
   },
   figure: {
     border: "1px solid #ccc",
@@ -116,6 +133,13 @@ navInfo: {
     maxWidth: "200px",
   },
 };
+<style>{`
+  @media (max-width: 600px) {
+    .photo-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+  }
+`}</style>
 
 const responsiveStyles = `
   @media (max-width: 600px) {
