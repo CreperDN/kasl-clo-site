@@ -1,6 +1,7 @@
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, EffectCoverflow } from "swiper/modules";
+import { Link } from "react-router-dom";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -46,6 +47,7 @@ export default function PhotoGallery({ photos, priceIncrease }) {
               >
                 {allImages.map((img, imgIdx) => (
                   <SwiperSlide key={imgIdx} style={styles.swiperSlide}>
+                    <Link to={`/product/${info.slug}`} style={{ product: info }}>
                     <img
                       src={img}
                       alt={`Фото ${idx}-${imgIdx}`}
@@ -53,7 +55,7 @@ export default function PhotoGallery({ photos, priceIncrease }) {
                       onError={(e) => {
                         e.target.src = "/placeholder.png";
                       }}
-                    />
+                    /></Link>
                   </SwiperSlide>
                 ))}
               </Swiper>
