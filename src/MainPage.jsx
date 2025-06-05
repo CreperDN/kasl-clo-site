@@ -312,7 +312,7 @@ export default function MainPage() {
   const [initialized, setInitialized] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [restoringCache, setRestoringCache] = useState(true); // ⬅️ флаг
-  const [restoredFromCache, setRestoredFromCache] = useState(false);
+
 
 useEffect(() => {
   const cached = localStorage.getItem("galleryCache");
@@ -330,7 +330,8 @@ useEffect(() => {
       setFullData(parsed.fullData ?? []);
       setPage(parsed.page ?? 1);
 
-      setRestoredFromCache(true); // ✅ ЗМІНЮЄ СТАН
+      didRestoreFromCache.current = true; 
+
       setInitialized(true);
       setIsReady(true);
       setRestoringCache(false);
@@ -340,6 +341,7 @@ useEffect(() => {
     }
   }
 
+  // Якщо немає кешу
   loadPhotos(1).then(() => {
     setInitialized(true);
     setIsReady(true);
@@ -348,12 +350,13 @@ useEffect(() => {
 }, []);
 
 
-
 useEffect(() => {
-  if (!initialized || restoredFromCache) {
+  if (!initialized) return;
+  if (!didRestoreFromCache.current) {
+    console.log("⛔ Пропускаємо запит: ще не відновлено з кешу");
     return;
   }
-
+  console.log("right");
   setPage(1);
   setColors([]);
   setSizes([]);
@@ -362,7 +365,6 @@ useEffect(() => {
 
   loadPhotos(1);
 }, [selectedCategory, selectedMainCategory, selectedSizes, selectedColors]);
-
 
 
 
