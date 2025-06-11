@@ -452,7 +452,6 @@ useEffect(() => {
 
   // 🖱 Інфініт скролінг
 const handleLoadMore = useCallback(async () => {
-    console.log("handlingLoadMore");
   setIsLoadingMore(true);
 
   const nextPage = page + 1;
@@ -488,7 +487,7 @@ const handleLoadMore = useCallback(async () => {
     }, [selectedMainCategory, selectedCategory, selectedColors, selectedSizes]);
 
   useEffect(() => {
-    if (!sentinelRef.current || isLoadingMore) {console.log(!sentinelRef.current, isLoadingMore); return};
+    if (!sentinelRef.current || isLoadingMore) return;
     const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting && photosData.length < (fullData?.hits?.total || 0)) {
         console.log(photosData.length, fullData?.hits?.total)
@@ -497,7 +496,7 @@ const handleLoadMore = useCallback(async () => {
     }, { rootMargin: '200px' });
     observer.observe(sentinelRef.current);
     return () => observer.disconnect();
-  }, [photosData, fullData, handleLoadMore, isLoadingMore, sentinelRef.current]);
+  }, [photosData, fullData, handleLoadMore, isLoadingMore]);
 
   useEffect(() => {
   const main = searchParams.get("main") || null;
