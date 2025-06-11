@@ -47,7 +47,8 @@ export default function PhotoGallery({ photos, priceIncrease }) {
               >
                 {allImages.map((img, imgIdx) => (
                   <SwiperSlide key={imgIdx} style={styles.swiperSlide}>
-                    <Link to={`/product/${info.slug}`} style={{ product: info }}>
+                    <Link to={`/product/${info.slug}`} style={{ product: info }} 
+                    onClick={() => {sessionStorage.setItem("scrollPosition", window.scrollY.toString());}}>
                     <img
                       src={img}
                       alt={`Фото ${idx}-${imgIdx}`}
