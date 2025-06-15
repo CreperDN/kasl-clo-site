@@ -330,6 +330,21 @@ function extractDressaPaths(data) {
     setSearchParams(params);
   };
 
+  const loadFirstPage = async (mainCategory, category, sizes, colors) => {
+  const data = await fetchPhotos(
+    category ?? mainCategory,
+    sizes ?? [],
+    colors ?? [],
+    1
+  );
+  const newPhotos = extractDressaPaths(data);
+  setPhotosData(newPhotos);
+  setFullData(data);
+  setPage(1);
+  localStorage.setItem('page', '1');
+};
+
+
       async function loadData(mainCategory, category) { 
         const data = await fetchFilters(mainCategory, category, selectedSizes, selectedColors);
         setFilters(data);
@@ -482,21 +497,41 @@ const handleLoadMore = useCallback(async () => {
   setIsLoadingMore(false);
 }}, [page, selectedMainCategory, selectedCategory, selectedSizes, selectedColors]);
 
+useEffect(() => {
+  let isFetching = false;
+
+  const handleScroll = () => {
+    if (
+      isFetching || // локальний захист
+      isLoadingMore ||
+      !isReady ||
+      photosData.length >= (fullData?.hits?.total || 0)
+    ) {
+      return;
+    }
+
+    const scrollTop = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const fullHeight = document.documentElement.scrollHeight;
+
+    if (scrollTop + windowHeight >= fullHeight - 300) {
+      isFetching = true; // заблокували повторний виклик
+      console.log("📦 Завантажуємо ще сторінку");
+      handleLoadMore().finally(() => {
+        isFetching = false;
+      });
+    }
+  };
+
+  window.addEventListener("scroll", handleScroll);
+  return () => window.removeEventListener("scroll", handleScroll);
+}, [isLoadingMore, isReady, photosData.length, fullData?.hits?.total, handleLoadMore]);
+
+
+
     useEffect(() => {
         updateFilters();
     }, [selectedMainCategory, selectedCategory, selectedColors, selectedSizes]);
-
-  useEffect(() => {
-    if (!sentinelRef.current || isLoadingMore) return;
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && photosData.length < (fullData?.hits?.total || 0)) {
-        console.log(photosData.length, fullData?.hits?.total)
-        handleLoadMore();
-      }
-    }, { rootMargin: '200px' });
-    observer.observe(sentinelRef.current);
-    return () => observer.disconnect();
-  }, [photosData, fullData, handleLoadMore, isLoadingMore]);
 
   useEffect(() => {
   const main = searchParams.get("main") || null;
