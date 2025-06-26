@@ -523,17 +523,12 @@ useEffect(() => {
   const sizes = searchParams.get("sizes")?.split(",") ?? [];
   const pageFromUrl = parseInt(searchParams.get("page") || "1");
 
-  setSelectedMainCategory(main);
-  setSelectedCategory(category);
-  setSelectedColors(selectedColorNames);
-  setSelectedSizes(sizes);
-  setPage(pageFromUrl);
   localStorage.setItem('page', `${pageFromUrl}`);
 
 
   loadData(main, category);
   loadPhotos();
-}, [searchParams, selectedFilters]);
+}, [selectedFilters, selectedMainCategory, selectedCategory]);
 
 
         if (!isReady) {

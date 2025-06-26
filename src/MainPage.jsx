@@ -348,7 +348,7 @@ function extractDressaPaths(data) {
 
 
       async function loadData(mainCategory, category) { 
-        const data = await fetchFilters(mainCategory, category, selectedSizes, selectedColors);
+        const data = await fetchFilters(mainCategory, category, selectedFilters);
         setFilters(data?.data);
         console.log(data.data)
         setSizes(data?.data?.sizes ?? []);
@@ -395,6 +395,7 @@ function extractDressaPaths(data) {
         localStorage.setItem('page', '1');
         setPage(1);
         loadData(slug, null);
+        setSelectedFilters({});
         setSelectedColors([]);
         setSelectedSizes([]);
     };
