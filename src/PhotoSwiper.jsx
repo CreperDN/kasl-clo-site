@@ -7,79 +7,88 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/effect-coverflow";
 
-export default function PhotoGallery({ photos, priceIncrease }) {
+export default function PhotoGallery({ products, priceIncrease }) {
+
+  products = Array.isArray(products) ? products : [products];
   return (
     <div className="photo-gallery" style={styles.galleryContainer}>
-      <h2 style={{ textAlign: "center" }}>Фото товарів</h2>
       <div className="photo-grid" style={styles.grid}>
-        {photos.map((info, idx) => {
-          const additionalImages = Array.isArray(info.images)
-            ? info.images.map(
-                (img) =>
-                  `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${img}`
-              )
-            : [];
+    <>
+      {products.map((product) => {
+        
 
-          const allImages = [info.url, ...additionalImages].filter(Boolean);
-          const totalImages = allImages.length;
+        const images = [product.url, ...(product.images || []).map(img =>
+          `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${img}`
+        )];
 
-          if (totalImages === 0) return null;
-
-          return (
-            <figure key={idx} style={styles.figure}>
-              <Swiper
-                modules={[Navigation, Pagination, EffectCoverflow]}
-                effect="coverflow"
-                grabCursor={true}
-                centeredSlides={true}
-                slidesPerView="auto"
-                navigation
-                pagination={{ clickable: true }}
-                loop={true}
-                coverflowEffect={{
-                  rotate: 30,
-                  stretch: 0,
-                  depth: 100,
-                  modifier: 1,
-                  slideShadows: true,
-                }}
-                style={styles.swiper}
-              >
-                {allImages.map((img, imgIdx) => (
-                  <SwiperSlide key={imgIdx} style={styles.swiperSlide}>
-                    <Link to={`/product/${info.slug}`} style={{ product: info }} 
-                    onClick={() => {sessionStorage.setItem("scrollPosition", window.scrollY.toString());}}>
+        return (
+          <figure key={product.hash} style={styles.figure}>
+            <Swiper
+              modules={[Navigation, Pagination, EffectCoverflow]}
+              effect="coverflow"
+              grabCursor={true}
+              centeredSlides={true}
+              slidesPerView="auto"
+              navigation
+              pagination={{ clickable: true }}
+              loop={true}
+              coverflowEffect={{
+                rotate: 30,
+                stretch: 0,
+                depth: 100,
+                modifier: 1,
+                slideShadows: true,
+              }}
+              style={styles.swiper}
+            >
+              {images.map((img, imgIdx) => (
+                <SwiperSlide key={imgIdx} style={styles.swiperSlide}>
+                  <Link
+                    to={`/product/${product.slug}`}
+                    onClick={() =>
+                      sessionStorage.setItem(
+                        "scrollPosition",
+                        window.scrollY.toString()
+                      )
+                    }
+                  >
                     <img
                       src={img}
-                      alt={`Фото ${idx}-${imgIdx}`}
+                      alt={`Фото ${product.name}-${imgIdx}`}
                       style={styles.image}
                       onError={(e) => {
                         e.target.src = "/placeholder.png";
                       }}
-                    /></Link>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-              <figcaption>
-                {info.name}
-                <br />
-                {info.oldPrice != null ? (
-                  <>
-                    <s style={{ color: "gray", marginRight: "8px" }}>
-                      {(info.oldPrice / 100 + priceIncrease).toFixed(2)} грн
-                    </s>
-                    <strong>{(info.price / 100 + priceIncrease).toFixed(2)} грн</strong>
-                  </>
-                ) : (
-                  <strong>{(info.price / 100 + priceIncrease).toFixed(2)} грн</strong>
-                )}
-              </figcaption>
-            </figure>
-          );
-        })}
-      </div>
+                    />
+                  </Link>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+            <figcaption>
+              {product.name}
+              <br />
+              {product.oldPrice != null ? (
+                <>
+                  <s style={{ color: "gray", marginRight: "8px" }}>
+                    {(product.oldPrice / 100 + priceIncrease).toFixed(2)} грн
+                  </s>
+                  <strong>
+                    {(product.price / 100 + priceIncrease).toFixed(2)} грн
+                  </strong>
+                </>
+              ) : (
+                <strong>
+                  {(product.price / 100 + priceIncrease).toFixed(2)} грн
+                </strong>
+              )}
+            </figcaption>
+          </figure>
+        );
+      })}
       <style>{responsiveStyles}</style>
-    </div>
+    </>
+          </div>
+      </div>
   );
 }
 
@@ -104,7 +113,6 @@ const styles = {
   },
   swiper: {
     width: "250px",
-    height: "250px",
     margin: "0 auto 10px",
   },
   swiperSlide: {

@@ -5,7 +5,6 @@ export default function PageLayout({ children, filters }) {
 
   return (
     <div style={styles.pageWrapper}>
-      {/* Хедер */}
       <header style={styles.header}>
         <div style={styles.logo}>🛍️ Лого</div>
         <button onClick={() => setIsSidebarVisible(!isSidebarVisible)} style={styles.toggleButton}>
@@ -13,7 +12,6 @@ export default function PageLayout({ children, filters }) {
         </button>
       </header>
 
-      {/* Контентна частина */}
       <div style={styles.contentWrapper}>
         {isSidebarVisible && (
           <aside style={styles.sidebar}>

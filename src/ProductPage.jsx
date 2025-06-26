@@ -1,5 +1,51 @@
 import { useParams, useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
+import PhotoGallery from './PhotoSwiper';
+import "swiper/css";
+
+const TRANSLATE = {
+    "Бицепс ½": "Біцепс ½",
+    "Высота каблука": "Висота підбора",
+    "Высота сапога": "Висота чобота",
+    "Высота среднего шва": "Висота середнього шва",
+    "Длина внешнего шва": "Довжина зовнішнього шва",
+    "Длина внутреннего шва": "Довжина внутрішнього шва",
+    "Длина до бедра": "Довжина до стегна",
+    "Длина изделия": "Довжина виробу",
+    "Длина изделия (жакет)": "Довжина виробу (жакет)",
+    "Длина изделия (от плеча до талии)": "Довжина виробу (від плеча до талії)",
+    "Длина изделия (сарафан)": "Довжина виробу (сарафан)",
+    "Длина изделия (юбка)": "Довжина виробу (спідниця)",
+    "Длина пояса (аксессуар)": "Довжина поясу (аксесуар)",
+    "Длина рукава": "Довжина рукава",
+    "Длина рукава (жакет)": "Довжина рукава (жакет)",
+    "Длина стельки": "Довжина устілки",
+    "Обхват головы": "Обхват голови",
+    "Полуобхват бёдер": "Напівобхват стегон",
+    "Полуобхват бёдер (брюки)": "Напівобхват стегон (брюки)",
+    "Полуобхват бёдер (жакет)": "Напівобхват стегон (жакет)",
+    "Полуобхват бёдер (сарафан)": "Напівобхват стегон (сарафан)",
+    "Полуобхват бёдер (юбка)": "Напівобхват стегон (спідниця)",
+    "Полуобхват голени": "Напівобхват гомілки",
+    "Полуобхват груди": "Напівобхват грудей",
+    "Полуобхват груди (жакет)": "Напівобхват грудей (жакет)",
+    "Полуобхват груди (сарафан)": "Напівобхват грудей (сарафан)",
+    "Полуобхват талии": "Напівобхват талії",
+    "Полуобхват талии (брюки)": "Напівобхват талії (брюки)",
+    "Полуобхват талии (жакет)": "Напівобхват талії (жакет)",
+    "Полуобхват талии (сарафан)": "Напівобхват талії (сарафан)",
+    "Полуобхват талии (юбка)": "Напівобхват талії (спідниця)",
+    "Посадка спереди/сзади": "Посадка спереду/ззаду",
+    "Разлет плечевой": "Розліт плечовий",
+    "Разлет плечевой (жакет)": "Розліт плечовий (жакет)",
+    "Ширина спинки": "Ширина спинки",
+    "Ширина стельки": "Ширина устілки",
+    "Ширина штанины (внизу)": "Ширина штанини (внизу)",
+    "Ширина штанины (по бедру)": "Ширина штанини (по стегну)",
+    "Ширина пояса": "Ширина пояса",
+    "Длина изделия (от плеча до отрезной линии)": "Довжина виробу (від плеча до відрізної лінії)",
+    "size": "Розмір"
+}
 
 export default function ProductPage() {
   const { slug } = useParams();
@@ -8,6 +54,7 @@ export default function ProductPage() {
   const [similar, setSimilar] = useState([]);
   const [loading, setLoading] = useState(true);
   const [info, setInfo] = useState([]);
+  const priceIncrease = 300;
 
   // --- Основний запит на товар ---
   async function fetchProduct(slug) {
@@ -20,29 +67,17 @@ export default function ProductPage() {
       body: JSON.stringify({ slug, siteVersion: "ua_UA" }),
     });
 
-    const translateResponse = await fetch("https://modniy-ostrov.com/assets/translations/locale-ua.json", {
-      "headers": {
-        "accept": "application/json, text/plain, */*",
-        "accept-language": "uk,ru-RU;q=0.9,ru;q=0.8,en-US;q=0.7,en;q=0.6",
-      },
-      "body": null,
-      "method": "GET"
-    });
-
-    const translate = await translateResponse.json();
-
     if (!response.ok) return null;
     const data = await response.json();
     setInfo(data?.hits?.hits?.[0]?._source.taxons.forEach(e => e.slug))
-    console.log(data?.hits?.hits?.[1]?._source.taxons)
+    console.log(data?.hits?.hits?.[0]?._source)
+    console.log(data?.hits?.hits?.[0]?._source.taxons)
     console.log(data?.hits?.hits?.[0]?._source.taxons.map(e => (e.taxonomy?.trans?.ua.name??e.taxonomy?.name) + ':' + (e.trans?.ua?.name??e.name)))
-    console.log(data?.hits?.hits?.[0]?._source.attachedProducts[0].trans.ua.description)
+    console.log(data?.hits?.hits?.[0]?._source.attachedProducts[0]?.trans.ua.description) // Інші кольори
     console.log(data?.hits?.hits?.[0]?._source.activeSingleSizes)
     console.log(data?.hits?.hits?.[0]?._source.variants.map(e => e.dimensions))
-    console.log(translate)
-
     let measures = [];
-    data?.hits?.hits?.[0]?._source.variants.map(e => e.dimensions.map(ee => measures.push(translate.dimensions[ee.measure.name]+':'+ee.value)))
+    data?.hits?.hits?.[0]?._source.variants.map(e => e.dimensions.map(ee => measures.push(TRANSLATE[ee.measure.name]+':'+ee.value)))
     console.log(measures);
 
     console.log(data?.hits?.hits?.[0]?._source.variants.map(e => e.options[0].sizeDescription))
@@ -107,11 +142,13 @@ export default function ProductPage() {
     const hits = data?.hits?.hits || [];
     return hits.map(hit => {
       const src = hit._source;
+      const images = (src.images || []).map(img => img.dressaPath).slice(1);
       return {
         name: src.correctedName,
         price: src.priceUAH,
         oldPrice: src.oldPriceUAH,
         slug: src.slug,
+        images,
         url: `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${src.image?.dressaPath}`,
       };
     });
@@ -142,50 +179,67 @@ export default function ProductPage() {
   const allImages = [product.url, ...product.images.map(img =>
     `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${img}`
   )];
+  const totalImages = allImages.length;
+
+  if (totalImages === 0) return null;
 
   return (
     <div style={{ padding: "20px" }}>
       <button onClick={() => navigate(-1)} style={{ marginBottom: "20px" }}>
         ← Назад
       </button>
-      <h2>{product.name}</h2>
-      {product.oldPrice && (
-        <p>
-          <s style={{ color: "red" }}>
-            {(product.oldPrice / 100).toFixed(2)} грн
-          </s>
-        </p>
-      )}
-      <p style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
-        {(product.price / 100).toFixed(2)} грн
-      </p>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-        {allImages.map((img, i) => (
-          <img key={i} src={img} alt={`Фото ${i}`} style={{ width: "200px" }} />
-        ))}
-      </div>
-
+      {product && <PhotoGallery products={product} priceIncrease={300} />}
       <hr />
       <h3>Схожі товари:</h3>
-      <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
-        {similar.map((s, i) => (
-          <div key={i} style={{ width: "180px", border: "1px solid #ccc", padding: "10px" }}>
-            <img src={s.url} alt={s.name} style={{ width: "100%" }} />
-            <h4>{s.name}</h4>
-            {s.oldPrice && (
-              <p>
-                <s style={{ color: "red" }}>
-                  {(s.oldPrice / 100).toFixed(2)} грн
-                </s>
-              </p>
-            )}
-            <p style={{ fontWeight: "bold" }}>
-              {(s.price / 100).toFixed(2)} грн
-            </p>
-          </div>
-        ))}
-      </div>
+      {similar.length > 0 && <PhotoGallery products={similar} priceIncrease={300} />}
       {info}
     </div>
   );
 }
+
+const styles = {
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+    gap: "16px",
+  },
+  figure: {
+    border: "1px solid #ccc",
+    padding: "10px",
+    margin: "0",
+    textAlign: "center",
+    boxSizing: "border-box",
+    width: "100%",
+  },
+  swiper: {
+    width: "500px",
+    margin: "0 auto 10px",
+  },
+  swiperSlide: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "200px",
+  },
+  image: {
+    width: "100%",
+    height: "auto",
+    maxWidth: "200px",
+    borderRadius: "10px",
+  },
+};
+const responsiveStyles = `
+  @media (max-width: 600px) {
+    .photo-grid {
+      grid-template-columns: repeat(1, 1fr) !important;
+    }
+
+    .photo-grid figure {
+      width: 100% !important;
+    }
+
+    .photo-grid img {
+      max-width: 100% !important;
+    }
+  }
+`;
