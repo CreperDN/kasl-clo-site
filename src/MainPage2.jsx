@@ -340,49 +340,43 @@ function extractDressaPaths(data) {
     setSearchParams(params);
   };
 
-      async function loadData(mainCategory, category) { 
-        const data = await fetchFilters(mainCategory, category, selectedFilters);
+      async function loadData(mainCategory, category, filters) { 
+        const data = await fetchFilters(mainCategory, category, filters);
         setFilters(data?.data);
         console.log(data.data)
         setLoading(false);
     };
-    const loadPhotos = async (page) => {
+    
+    const loadPhotos = async (page, filtersOverride = null) => {
       const data = await fetchPhotos(
         selectedCategory ?? selectedMainCategory,
-        selectedFilters,
+        filtersOverride ?? selectedFilters,
         page
       );
-
-      console.log(fullData);
-      console.log(data);
 
       if (fullData !== data) {
         setPhotosData(extractDressaPaths(data));
         setFullData(data);
       }
-    };
+};
 
 
     const handleMainCategoryRadioChange = (slug) => {
         setSelectedMainCategory(slug);
         setSelectedCategory(null);
+        setSelectedFilters({})
         localStorage.setItem('page', '1');
         setPage(1);
-        loadData(slug, null);
-        setSelectedFilters({})
+        loadData(slug, null, {});
     };
     const handleCategoryRadioChange = (slug) => {
         localStorage.setItem('page', '1');
         setPage(1);
         setSelectedCategory(slug);
-        loadData(selectedMainCategory, slug)
+        loadData(selectedMainCategory, slug, selectedFilters)
     };
 
-
-  useEffect(() => {
-    const fetchDataFromUrl = async () => {
-
-      const parseFiltersFromSearchParams = (searchParams) => {
+    const parseFiltersFromSearchParams = (searchParams) => {
         const filters = {};
         for (const [key, value] of searchParams.entries()) {
           if (value && !["main", "category", "page"].includes(key)) {
@@ -392,24 +386,26 @@ function extractDressaPaths(data) {
         return filters;
       };
 
+  useEffect(() => {
+    const fetchDataFromUrl = async () => {
+
       const main = searchParams.get("main") || null;
       const category = searchParams.get("category") || null;
       const filters = parseFiltersFromSearchParams(searchParams);
       setSelectedFilters(filters);
-
-      const sizesFromUrl = (searchParams.get("sizes")?.split(",").filter(s => s.trim() !== "") ?? []);
       const pageFromUrl = localStorage.getItem("page") || 1;
 
       setSelectedMainCategory(main);
       setSelectedCategory(category);
       setPage(1);
       localStorage.setItem('page', '1');
+
       setPhotosData([]);
       setFullData({ hits: { hits: [] } });
 
         const data = await fetchPhotos(
           category ?? main,
-          selectedFilters,
+          filters,
           1,
           pageFromUrl*perPage,
         );
@@ -427,7 +423,7 @@ function extractDressaPaths(data) {
       setPage(pageFromUrl);
       localStorage.setItem('page', `${pageFromUrl}`);
       setIsReady(true);
-      await loadData(main, category);
+      await loadData(main, category, filters);
     };
 
     fetchDataFromUrl();
@@ -518,11 +514,12 @@ useEffect(() => {
       const main = searchParams.get("main") || null;
       const category = searchParams.get("category") || null;
       const pageFromUrl = parseInt(searchParams.get("page") || "1");
+      const filtersFromUrl = parseFiltersFromSearchParams(searchParams);
 
       localStorage.setItem('page', `${pageFromUrl}`);
 
-      loadData(main, category);
-      loadPhotos(pageFromUrl);
+      loadData(main, category, filtersFromUrl);
+      loadPhotos(pageFromUrl, filtersFromUrl);
   }
 }, [selectedFilters, selectedMainCategory, selectedCategory]);
 
@@ -537,6 +534,9 @@ useEffect(() => {
             <button onClick={() => setIsSidebarVisible(!isSidebarVisible)} style={styles.toggleButton}>
             {isSidebarVisible ? "Сховати фільтри" : "Показати фільтри"}
             </button>
+
+            <p>{photosData.length}</p>
+            
             <div style={styles.logo}><img src={"/logo.png"} width={"80px"} ></img></div>
         </header>
         {isSidebarVisible && (
