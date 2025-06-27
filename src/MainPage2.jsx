@@ -133,6 +133,7 @@ async function fetchPhotos(category = 'novinki', filters = {}, page = 1, perPage
   };
 
   console.log("📦 POST payload:", payload);
+  console.log("parsedFilters:",parsedFilters)
 
   // Унікальний cacheKey
   const filtersStr = Object.entries(parsedFilters)
@@ -172,7 +173,6 @@ async function fetchPhotos(category = 'novinki', filters = {}, page = 1, perPage
 
   return [];
 }
-
 function extractDressaPaths(data) {
     const result = [];
     const hits = data?.hits?.hits || [];
@@ -301,8 +301,6 @@ function extractDressaPaths(data) {
   const [selectedFilters, setSelectedFilters] = useState({});
   const [priceIncrease, setPriceIncrease] = useState(300);
   const [perPage, setPerPage] = useState(24);
-  const [sizes, setSizes] = useState([]);
-  const [colors, setColors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [selectedColors, setSelectedColors] = useState([]);
@@ -323,49 +321,47 @@ function extractDressaPaths(data) {
     const params = {
       main: selectedMainCategory ?? "",
       category: selectedCategory ?? "",
-      colors: selectedColors.map(c => COLORS[c]).filter(Boolean).join(","),
-      sizes: selectedSizes.join(","),
-
     };
+    for (const key in selectedFilters) {
+      let raw = selectedFilters[key];
+      console.log("RAW for key", key, raw);
+
+      if (raw instanceof Set) raw = Array.from(raw);
+      if (!Array.isArray(raw)) raw = [raw];
+
+      if (raw.length === 0) continue;
+
+      const stringValues = raw.map(String);
+      params[key] =
+      stringValues.length === 1
+          ? stringValues[0]
+          : stringValues.join("-or-");
+    }
     setSearchParams(params);
   };
-
-  const loadFirstPage = async (mainCategory, category, sizes, colors) => {
-  const data = await fetchPhotos(
-    category ?? mainCategory,
-    selectedFilters,
-    1
-  );
-  const newPhotos = extractDressaPaths(data);
-  setPhotosData(newPhotos);
-  setFullData(data);
-  setPage(1);
-  localStorage.setItem('page', '1');
-};
-
 
       async function loadData(mainCategory, category) { 
         const data = await fetchFilters(mainCategory, category, selectedFilters);
         setFilters(data?.data);
         console.log(data.data)
-        setSizes(data?.data?.sizes ?? []);
-        setColors(data?.data?.colors ?? []);
         setLoading(false);
     };
-    const loadPhotos = async () => {
-        if (selectedMainCategory != null){ 
-        const data = await fetchPhotos(
-            selectedCategory ?? selectedMainCategory,
-            selectedFilters,
-            page
-        );
-        console.log(fullData);
-        console.log(data)
-        if (fullData !== data){
+    const loadPhotos = async (page) => {
+      const data = await fetchPhotos(
+        selectedCategory ?? selectedMainCategory,
+        selectedFilters,
+        page
+      );
+
+      console.log(fullData);
+      console.log(data);
+
+      if (fullData !== data) {
         setPhotosData(extractDressaPaths(data));
         setFullData(data);
-    }}
+      }
     };
+
 
     const handleMainCategoryRadioChange = (slug) => {
         setSelectedMainCategory(slug);
@@ -383,23 +379,29 @@ function extractDressaPaths(data) {
     };
 
 
-  // 🧠 Завантаження даних з URL при першому відкритті сторінки
   useEffect(() => {
     const fetchDataFromUrl = async () => {
+
+      const parseFiltersFromSearchParams = (searchParams) => {
+        const filters = {};
+        for (const [key, value] of searchParams.entries()) {
+          if (value && !["main", "category", "page"].includes(key)) {
+            filters[key] = value.split("-or-");
+          }
+        }
+        return filters;
+      };
+
       const main = searchParams.get("main") || null;
       const category = searchParams.get("category") || null;
-      const colorsFromUrl = searchParams.get("colors")?.split(",") ?? [];
-      const selectedColorNames = Object.entries(COLORS)
-        .filter(([name, slug]) => colorsFromUrl.includes(slug))
-        .map(([name]) => name);
+      const filters = parseFiltersFromSearchParams(searchParams);
+      setSelectedFilters(filters);
 
       const sizesFromUrl = (searchParams.get("sizes")?.split(",").filter(s => s.trim() !== "") ?? []);
       const pageFromUrl = localStorage.getItem("page") || 1;
 
       setSelectedMainCategory(main);
       setSelectedCategory(category);
-      setSelectedColors(selectedColorNames);
-      setSelectedSizes(sizesFromUrl);
       setPage(1);
       localStorage.setItem('page', '1');
       setPhotosData([]);
@@ -448,7 +450,7 @@ useEffect(() => {
 const handleLoadMore = useCallback(async () => {
   setIsLoadingMore(true);
 
-  const nextPage = page + 1;
+  const nextPage = parseInt(page) + 1;
 
   const data = await fetchPhotos(
     selectedCategory ?? selectedMainCategory,
@@ -473,7 +475,7 @@ const handleLoadMore = useCallback(async () => {
   setPage(nextPage);
   localStorage.setItem('page', `${nextPage}`);
   setIsLoadingMore(false);
-}}, [page, selectedMainCategory, selectedCategory, selectedSizes, selectedColors]);
+}}, [page]);
 
 useEffect(() => {
   let isFetching = false;
@@ -509,25 +511,19 @@ useEffect(() => {
 
     useEffect(() => {
         updateFilters();
-    }, [selectedMainCategory, selectedCategory, selectedColors, selectedSizes]);
+    }, [selectedMainCategory, selectedCategory, selectedFilters]);
 
   useEffect(() => {
-  const main = searchParams.get("main") || null;
-  const category = searchParams.get("category") || null;
+    if(selectedFilters != null && selectedMainCategory != null){
+      const main = searchParams.get("main") || null;
+      const category = searchParams.get("category") || null;
+      const pageFromUrl = parseInt(searchParams.get("page") || "1");
 
-  const colors = searchParams.get("colors")?.split(",") ?? [];
-  const selectedColorNames = Object.entries(COLORS)
-    .filter(([key, value]) => colors.includes(value))
-    .map(([key]) => key);
+      localStorage.setItem('page', `${pageFromUrl}`);
 
-  const sizes = searchParams.get("sizes")?.split(",") ?? [];
-  const pageFromUrl = parseInt(searchParams.get("page") || "1");
-
-  localStorage.setItem('page', `${pageFromUrl}`);
-
-
-  loadData(main, category);
-  loadPhotos();
+      loadData(main, category);
+      loadPhotos(pageFromUrl);
+  }
 }, [selectedFilters, selectedMainCategory, selectedCategory]);
 
 

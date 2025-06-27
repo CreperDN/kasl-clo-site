@@ -64,6 +64,7 @@ export default function Filters({ filters, selectedFilters, setSelectedFilters})
         <input
         type="checkbox"
         value={size.taxon}
+        checked={Boolean(selectedFilters["s"]?.includes?.(size.taxon))}
         onChange={() => handleCheckboxChange("s",size.taxon)}
         />
         {` ${size.taxon} (${size.count})`}
@@ -75,6 +76,7 @@ export default function Filters({ filters, selectedFilters, setSelectedFilters})
     <input
         type="checkbox"
         value={color.taxon.slug}
+        checked={Boolean(selectedFilters["tsvet"]?.includes?.(color.taxon.slug))}
         onChange={() => handleCheckboxChange("tsvet",color.taxon.slug)}
         />
         <span style={{display: 'inline-block', backgroundColor:`#${color.taxon.colorValue}`, height:16, width:16, border: '2px solid #000'}}></span>
@@ -111,6 +113,7 @@ export default function Filters({ filters, selectedFilters, setSelectedFilters})
                     <input
                       type="checkbox"
                       value={filter.taxon.trans.ua.name??""}
+                      checked={Boolean(selectedFilters[groupsConstantName[filterGroup]]?.includes?.(filter.taxon.slug))}
                       onChange={() =>
                         handleCheckboxChange(groupsConstantName[filterGroup], filter.taxon.slug)
                       }
