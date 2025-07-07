@@ -3,92 +3,79 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import './App.css'
 import PhotoGallery from './PhotoSwiper';
 import Filters from './Filters';
-import "swiper/css";
 import LZString, { compress } from 'lz-string';
-import "swiper/css/navigation";
 
 async function fetchFilters(mainCategory, category, filters) {
-    console.log(filters);
+    console.log("fetchFilters", mainCategory, category, filters);
+
     let url = "";
     let cacheKey = "";
-    if (mainCategory === null){
-        mainCategory = 'novinki';
+    if (mainCategory === "novinki") {
+      url = `https://api.modniy-ostrov.com.ua/api/v2/filters/${mainCategory}`;
+      cacheKey = mainCategory;
+    } else if (category == null) {
+      url = `https://api.modniy-ostrov.com.ua/api/v2/filters/odiezhda/${mainCategory}`;
+      cacheKey = `odiezhda/${mainCategory}`;
+    } else if (category === "sportivnyi-stil"){
+      url = `https://api.modniy-ostrov.com.ua/api/v2/filters/odiezhda/${category}`;
+      cacheKey = `odiezhda/${category}`;
+    } 
+    else {
+      url = `https://api.modniy-ostrov.com.ua/api/v2/filters/odiezhda/${mainCategory}/${category}`;
+      cacheKey = `odiezhda/${mainCategory}/${category}`;
     }
 
-    if (mainCategory != null) {
-        if (mainCategory === "novinki") {
-        url = `https://api.modniy-ostrov.com.ua/api/v2/filters/${mainCategory}`;
-        cacheKey = mainCategory;
-        } else if (category == null) {
-        url = `https://api.modniy-ostrov.com.ua/api/v2/filters/odiezhda/${mainCategory}`;
-        cacheKey = `odiezhda/${mainCategory}`;
-        } else if (category === "sportivnyi-stil"){
-        url = `https://api.modniy-ostrov.com.ua/api/v2/filters/odiezhda/${category}`;
-        cacheKey = `odiezhda/${category}`;
-        } 
-        else {
-        url = `https://api.modniy-ostrov.com.ua/api/v2/filters/odiezhda/${mainCategory}/${category}`;
-        cacheKey = `odiezhda/${mainCategory}/${category}`;
-        }
+    let params = [];
 
-        let params = [];
-
-        for(const key in filters){
-            console.log(key, filters[key].length > 0)
-            if(filters[key].length > 0){
-                params.push(`${key}=` + filters[key].join('.'));
-            }
-        }
-
-        if (params.length > 0) {
-        url = url + '?' + params.join('&');
-        url = url + '&locale=ua'
-        }
-        else{
-            url = url + '?locale=ua'
-        }
-        console.log(params)
-        cacheKey = cacheKey+ params.join("")
-
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) {
-        console.log("👉 Взято з localStorage:", cacheKey);
-        return JSON.parse(LZString.decompress(cached));
-        }
-
-        
-
-        try {
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-            "accept": "application/json"
-            }
-        });
-
-        if (response.ok) {
-            const jsonData = await response.json();
-            const compressed = LZString.compress(JSON.stringify(jsonData));
-            localStorage.setItem(cacheKey, compressed);
-            return jsonData;
-        } else {
-            console.error(`HTTP error! status: ${response.status}`);
-        }
-        } catch (e) {
-        if (e.name === 'QuotaExceededError') {
-            console.warn('⛔ localStorage переповнений, очищаю...');
-            localStorage.clear(); // або очисти частково
-            // можеш знову спробувати записати:
-            localStorage.setItem(cacheKey, compressed);
-        }
+    for(const key in filters){
+        if(filters[key].length > 0){
+            params.push(`${key}=` + filters[key].join('.'));
         }
     }
 
-    return {};
+    if (params.length > 0) {
+      url = url + '?' + params.join('&');
+      url = url + '&locale=ua'
     }
-async function fetchPhotos(category = 'novinki', filters = {}, page = 1, perPage = 24) {
-  if (!category) category = 'novinki';
+    else{
+      url = url + '?locale=ua'
+    }
 
+    console.log(params)
+    cacheKey = cacheKey + params.join("")
+
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      console.log("Взято з localStorage:", cacheKey);
+      return JSON.parse(LZString.decompress(cached));
+    }
+
+    try {
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+        "accept": "application/json"
+        }
+    });
+
+    if (response.ok) {
+        const jsonData = await response.json();
+        const compressed = LZString.compress(JSON.stringify(jsonData));
+        localStorage.setItem(cacheKey, compressed);
+        return jsonData;
+    } else {
+        console.error(`HTTP error! status: ${response.status}`);
+    }
+    } catch (e) {
+    if (e.name === 'QuotaExceededError') {
+        console.warn('⛔ localStorage переповнений, очищаю...');
+        localStorage.clear();
+        localStorage.setItem(cacheKey, compressed);
+    }
+  }
+  return {};
+}
+async function fetchPhotos(category, filters = {}, page = 1, perPage = 24) {
   const url = "https://modniy-ostrov.com/api/product_by_categories_slugs";
 
   const headers = {
@@ -149,7 +136,7 @@ async function fetchPhotos(category = 'novinki', filters = {}, page = 1, perPage
   if (cached) {
     try {
       const parsed = JSON.parse(cached);
-      console.log("📦 Взято з localStorage:", cacheKey);
+      console.log("Взято з localStorage:", cacheKey);
       return parsed;
     } catch (e) {
       console.warn("⚠️ Не вдалося прочитати кеш:", cacheKey);
@@ -199,7 +186,7 @@ function extractDressaPaths(data) {
         });
         }
     });
-    localStorage[""]=result;
+    //localStorage[""]=result;
     return result;
     }
 
@@ -264,49 +251,15 @@ function extractDressaPaths(data) {
         "Жіночі шорти": ["zhienskiie-shorty"],
     },
     };  
-    const COLORS = {
-        "чорний":"chiernyi",
-        "бежевий":"biezhievyi",
-        "зелений":"zielienyi",
-        "блакитний":"gholuboi",
-        "білий":"bielyi",
-        "синій":"sinii",
-        "сірий":"sieryi",
-        "рожевий":"rozovyi",
-        "бордо":"bordo",
-        "коричневий":"korichnievyi",
-        "молочний":"molochnyi",
-        "червоний":"krasnyi",
-        "темно-синій":"tiemno-sinii",
-        "бірюзовий":"biriuzovyi",
-        "пудра":"pudra",
-        "хакі":"khaki",
-        "жовтий":"zhieltyi",
-        "м'ятний":"miatnyi",
-        "темно-зелений":"butylka",
-        "бузковий":"sirienievyi",
-        "фіолетовий":"fiolietovyi",
-        "темно-сірий":"tiomno-sieryi",
-        "теракотовий":"tierrakotovyi",
-        "гірчичний":"ghorchichnyi",
-        "помаранчевий":"oranzhievyi",
-        "фуксія":"fuksiia",
-        "корал":"korall",
-        "персиковий":"piersikovyi",
-        "графіт" : "ghrafit",
-        "бордовий" : "bordovyi", 
-        "молоко":"moloko"
-    }
 
 
     export default function MainPage() {
+  let isFetching = false;
   const [filters, setFilters] = useState(null);
   const [selectedFilters, setSelectedFilters] = useState({});
   const [priceIncrease, setPriceIncrease] = useState(300);
   const [perPage, setPerPage] = useState(24);
-  const [loading, setLoading] = useState(true);
-  const [selectedSizes, setSelectedSizes] = useState([]);
-  const [selectedColors, setSelectedColors] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [selectedMainCategory, setSelectedMainCategory] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [page, setPage] = useState(1);
@@ -318,11 +271,12 @@ function extractDressaPaths(data) {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const isFromScroll = useRef(false);
   const navigate = useNavigate();
 
-  const updateFilters = () => {
+  const updateSearchParams = () => {
     const params = {
-      main: selectedMainCategory ?? "",
+      main: selectedMainCategory ?? "novinki",
       category: selectedCategory ?? "",
     };
     for (const key in selectedFilters) {
@@ -340,71 +294,77 @@ function extractDressaPaths(data) {
           ? stringValues[0]
           : stringValues.join("-or-");
     }
-    setSearchParams(params);
+    params["page"]=page;
+    if(params !== searchParams){
+      setSearchParams(params);
+    }
   };
 
-      async function loadData(mainCategory, category, filters) { 
-        const data = await fetchFilters(mainCategory, category, filters);
-        setFilters(data?.data);
-        console.log(data.data)
-        setLoading(false);
-    };
-    
-    const loadPhotos = async (page, filtersOverride = null) => {
-      const data = await fetchPhotos(
-        selectedCategory ?? selectedMainCategory,
-        filtersOverride ?? selectedFilters,
-        page
-      );
-
-      if (fullData !== data) {
-        setPhotosData(extractDressaPaths(data));
-        setFullData(data);
-      }
-};
-
-
-    const handleMainCategoryRadioChange = (slug) => {
-        setSelectedMainCategory(slug);
-        setSelectedCategory(null);
-        setSelectedFilters({})
-        localStorage.setItem('page', '1');
-        setPage(1);
-        loadData(slug, null, {});
-    };
-    const handleCategoryRadioChange = (slug) => {
-        localStorage.setItem('page', '1');
-        setPage(1);
-        setSelectedCategory(slug);
-        loadData(selectedMainCategory, slug, selectedFilters)
-    };
-
-    const parseFiltersFromSearchParams = (searchParams) => {
-        const filters = {};
-        for (const [key, value] of searchParams.entries()) {
-          if (value && !["main", "category", "page"].includes(key)) {
-            filters[key] = value.split("-or-");
-          }
+  const parseFiltersFromSearchParams = () => {
+      const filters = {};
+      for (const [key, value] of searchParams.entries()) {
+        if (value && !["main", "category", "page"].includes(key)) {
+          filters[key] = value.split("-or-");
         }
-        return filters;
-      };
+      }
+      return filters;
+  };
+
+  async function loadFilters(mainCategory, category, filters) { 
+    if (!loading){
+      const data = await fetchFilters(mainCategory, category, filters);
+      setFilters(data?.data);
+      console.log("Filters", data.data)
+      setLoading(false);
+    }
+  };
+    
+  const loadPhotos = async (main, category, page, filtersOverride = null) => {
+    const data = await fetchPhotos(
+      category ?? main,
+      filtersOverride ?? selectedFilters,
+      page
+    );
+    setPhotosData(extractDressaPaths(data));
+    setFullData(data);
+  };
+
+  const handleMainCategoryRadioChange = (slug) => {
+      setSelectedMainCategory(slug);
+      setSelectedCategory(null);
+      setSelectedFilters({})
+      setPage(1);
+      loadFilters(slug, null, {});
+  };
+
+  const handleCategoryRadioChange = (slug) => {
+      setPage(1);
+      setSelectedCategory(slug);
+      loadFilters(selectedMainCategory, slug, selectedFilters)
+  };
+
+  useEffect(() => {
+    if (isReady){
+    updateSearchParams();
+  }
+  }, [selectedMainCategory, selectedCategory, selectedFilters, page]);
+
+  useEffect(() => {
+    localStorage.setItem('page', page);
+  }, [page]);
 
   useEffect(() => {
     const fetchDataFromUrl = async () => {
-
-      const main = searchParams.get("main") || null;
+      const main = searchParams.get("main") || "novinki";
       const category = searchParams.get("category") || null;
-      const filters = parseFiltersFromSearchParams(searchParams);
+      const filters = parseFiltersFromSearchParams();
       setSelectedFilters(filters);
-      const pageFromUrl = localStorage.getItem("page") || 1;
+      const pageFromUrl = searchParams.get("page") || 1;
 
       setSelectedMainCategory(main);
       setSelectedCategory(category);
-      setPage(1);
-      localStorage.setItem('page', '1');
 
-      setPhotosData([]);
-      setFullData({ hits: { hits: [] } });
+      console.log("Page is loading", category ?? main, filters, 1, pageFromUrl*perPage)
 
         const data = await fetchPhotos(
           category ?? main,
@@ -413,20 +373,12 @@ function extractDressaPaths(data) {
           pageFromUrl*perPage,
         );
         const newPhotos = extractDressaPaths(data);
-        setPhotosData(prev => [...prev, ...newPhotos]);
-        setFullData(prev => {
-          const merged = { ...prev };
-          merged.hits = {
-            ...prev.hits,
-            hits: [...(prev.hits?.hits || []), ...(data?.hits?.hits || [])]
-          };
-          return merged;
-        });
+        setPhotosData(newPhotos);
+        setFullData(data);
 
       setPage(pageFromUrl);
       localStorage.setItem('page', `${pageFromUrl}`);
       setIsReady(true);
-      await loadData(main, category, filters);
     };
 
     fetchDataFromUrl();
@@ -447,6 +399,7 @@ useEffect(() => {
 
   // 🖱 Інфініт скролінг
 const handleLoadMore = useCallback(async () => {
+  if(!isLoadingMore){
   setIsLoadingMore(true);
 
   const nextPage = parseInt(page) + 1;
@@ -471,13 +424,14 @@ const handleLoadMore = useCallback(async () => {
     return merged;
   });
 
+  isFromScroll.current = true;
   setPage(nextPage);
   localStorage.setItem('page', `${nextPage}`);
   setIsLoadingMore(false);
-}}, [page]);
+    }}}, [page]);
 
 useEffect(() => {
-  let isFetching = false;
+  isFetching = false;
 
   const handleScroll = () => {
     if (
@@ -486,6 +440,7 @@ useEffect(() => {
       !isReady ||
       photosData.length >= (fullData?.hits?.total || 0)
     ) {
+      // console.log("useEffect returned :c\n[isLoadingMore, isReady, photosData, fullData?.hits?.total, handleLoadMore]", isFetching, isLoadingMore, !isReady, photosData.length >= (fullData?.hits?.total || 0));
       return;
     }
 
@@ -504,27 +459,36 @@ useEffect(() => {
 
   window.addEventListener("scroll", handleScroll);
   return () => window.removeEventListener("scroll", handleScroll);
-}, [isLoadingMore, isReady, photosData.length, fullData?.hits?.total, handleLoadMore]);
+}, [isLoadingMore, isReady, photosData, fullData?.hits?.total, handleLoadMore]);
 
-
-
-    useEffect(() => {
-        updateFilters();
-    }, [selectedMainCategory, selectedCategory, selectedFilters]);
 
   useEffect(() => {
-    if(selectedFilters != null && selectedMainCategory != null){
-      const main = searchParams.get("main") || null;
+    if (isFetching){
+      return;
+    }
+
+    if (isReady) {
+      if (isFromScroll.current) {
+        console.log("🔁 Пропущено запит із-за скролінгу");
+        isFromScroll.current = false;
+        return;
+    }
+      const main = searchParams.get("main") || "novinki";
       const category = searchParams.get("category") || null;
       const pageFromUrl = parseInt(searchParams.get("page") || "1");
-      const filtersFromUrl = parseFiltersFromSearchParams(searchParams);
+      const filtersFromUrl = parseFiltersFromSearchParams();
 
-      localStorage.setItem('page', `${pageFromUrl}`);
-
-      loadData(main, category, filtersFromUrl);
-      loadPhotos(pageFromUrl, filtersFromUrl);
+      loadFilters(main, category, filtersFromUrl);
+      console.log("[searchParams, isReady]", main, category, pageFromUrl, filtersFromUrl)
+      loadPhotos(main, category, pageFromUrl, filtersFromUrl);
   }
-}, [selectedFilters, selectedMainCategory, selectedCategory]);
+  else{
+      const main = searchParams.get("main") || "novinki";
+      const category = searchParams.get("category") || null;
+      const filtersFromUrl = parseFiltersFromSearchParams();
+      loadFilters(main, category, filtersFromUrl);
+  }
+}, [searchParams]);
 
 
         if (!isReady) {
@@ -589,7 +553,7 @@ useEffect(() => {
                 <h2>Фільтри:</h2>
 
                 <div>
-                <Filters filters = {filters} selectedFilters= {selectedFilters} setSelectedFilters={setSelectedFilters}></Filters>
+                <Filters filters = {filters} selectedFilters= {selectedFilters} setSelectedFilters={setSelectedFilters} setPage={setPage}></Filters>
                 </div>
                 
                 <div style={{ marginTop: '1rem' }}>

@@ -28,7 +28,7 @@ const groupsConstantName = {
   "seasons":"sezon",  "seasons-additional":"", "siluet":"", "sleeves":"rukav", "styles":"stil", "traceries":"pattern", "types":"tip",
 }
 
-export default function Filters({ filters, selectedFilters, setSelectedFilters}) {
+export default function Filters({ filters, selectedFilters, setSelectedFilters, setPage}) {
   const [expandedGroups, setExpandedGroups] = useState({});
 
   const toggleGroup = (group) => {
@@ -39,6 +39,8 @@ export default function Filters({ filters, selectedFilters, setSelectedFilters})
   };
 
   const handleCheckboxChange = (group, value) => {
+    setPage(1);
+    window.scrollTo(0, 0);
     const groupValues = new Set(selectedFilters[group] || []);
     if (groupValues.has(value)) {
       groupValues.delete(value);
@@ -64,8 +66,8 @@ export default function Filters({ filters, selectedFilters, setSelectedFilters})
         <input
         type="checkbox"
         value={size.taxon}
-        checked={Boolean(selectedFilters["s"]?.includes?.(size.taxon))}
-        onChange={() => handleCheckboxChange("s",size.taxon)}
+        checked={Boolean(selectedFilters["s"]?.includes?.(String(size.taxon)))}
+        onChange={() => handleCheckboxChange("s",String(size.taxon))}
         />
         {` ${size.taxon} (${size.count})`}
     </label>
