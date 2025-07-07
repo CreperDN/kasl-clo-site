@@ -260,7 +260,7 @@ function extractDressaPaths(data) {
   const [priceIncrease, setPriceIncrease] = useState(300);
   const [perPage, setPerPage] = useState(24);
   const [loading, setLoading] = useState(false);
-  const [selectedMainCategory, setSelectedMainCategory] = useState(null);
+  const [selectedMainCategory, setSelectedMainCategory] = useState("novinki");
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [page, setPage] = useState(1);
   const [photosData, setPhotosData] = useState([]);
@@ -347,7 +347,7 @@ function extractDressaPaths(data) {
     if (isReady){
     updateSearchParams();
   }
-  }, [selectedMainCategory, selectedCategory, selectedFilters, page]);
+  }, [selectedMainCategory, selectedCategory, selectedFilters, page, isReady]);
 
   useEffect(() => {
     localStorage.setItem('page', page);
