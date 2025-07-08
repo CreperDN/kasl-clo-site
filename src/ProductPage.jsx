@@ -83,7 +83,8 @@ export default function ProductPage() {
     console.log(data?.hits?.hits?.[0]?._source.variants.map(e => e.options[0].sizeDescription))
     console.log(data?.hits?.hits?.[0]?._source.attribures)
     // console.log(data?.hits?.hits?.[0]?._source.trans.ua.name)
-    const source = data?.hits?.hits?.[0]?._source;
+    const source = data?.hits?.hits?.find(hit => hit._source?.slug === slug)?._source;
+
     if (!source) return null;
 
     const images = (source.images || []).map(img => img.dressaPath).slice(1);

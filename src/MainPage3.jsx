@@ -171,7 +171,7 @@ function extractDressaPaths(data) {
         const images = [];
         item?._source?.images?.forEach((image) => {images.push(image.dressaPath || []);})
         images.shift();
-        const name = item?._source?.correctedName;
+        const name = item?._source?.trans.ua.correctedName;
         const slug = item?._source?.slug;
         const price = item?._source?.priceUAH;
         const oldPrice = item?._source?.oldPriceUAH;
