@@ -11,11 +11,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "-": "^0.0.1",
     "lz-string": "^1.5.0",
     "node-fetch": "^3.3.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.2",
+    "react-zoom-pan-pinch": "^3.7.0",
+    "save": "^2.9.0",
     "swiper": "^11.2.8"
   },
   "devDependencies": {
