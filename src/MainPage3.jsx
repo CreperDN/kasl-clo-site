@@ -364,13 +364,13 @@ function extractDressaPaths(data) {
       setSelectedMainCategory(main);
       setSelectedCategory(category);
 
-      console.log("Page is loading", category ?? main, filters, 1, pageFromUrl*perPage)
+      console.log("Page is loading", category ?? main, filters, pageFromUrl, perPage)
 
         const data = await fetchPhotos(
           category ?? main,
           filters,
-          1,
-          pageFromUrl*perPage,
+          pageFromUrl,
+          perPage,
         );
         const newPhotos = extractDressaPaths(data);
         setPhotosData(newPhotos);
@@ -398,68 +398,68 @@ useEffect(() => {
 
 
   // 🖱 Інфініт скролінг
-const handleLoadMore = useCallback(async () => {
-  if(!isLoadingMore){
-  setIsLoadingMore(true);
+// const handleLoadMore = useCallback(async () => {
+//   if(!isLoadingMore){
+//   setIsLoadingMore(true);
 
-  const nextPage = parseInt(page) + 1;
+//   const nextPage = parseInt(page) + 1;
 
-  const data = await fetchPhotos(
-    selectedCategory ?? selectedMainCategory,
-    selectedFilters,
-    nextPage
-  );
+//   const data = await fetchPhotos(
+//     selectedCategory ?? selectedMainCategory,
+//     selectedFilters,
+//     nextPage
+//   );
 
-  if (data.hits.hits.length != 0){
+//   if (data.hits.hits.length != 0){
 
-  const newPhotos = extractDressaPaths(data);
+//   const newPhotos = extractDressaPaths(data);
 
-  setPhotosData(prev => [...prev, ...newPhotos]);
-  setFullData(prev => {
-    const merged = { ...prev };
-    merged.hits = {
-      ...prev.hits,
-      hits: [...(prev.hits?.hits || []), ...(data.hits?.hits || [])],
-    };
-    return merged;
-  });
+//   setPhotosData(prev => [...prev, ...newPhotos]);
+//   setFullData(prev => {
+//     const merged = { ...prev };
+//     merged.hits = {
+//       ...prev.hits,
+//       hits: [...(prev.hits?.hits || []), ...(data.hits?.hits || [])],
+//     };
+//     return merged;
+//   });
 
-  isFromScroll.current = true;
-  setPage(nextPage);
-  localStorage.setItem('page', `${nextPage}`);
-  setIsLoadingMore(false);
-    }}}, [page]);
+//   isFromScroll.current = true;
+//   setPage(nextPage);
+//   localStorage.setItem('page', `${nextPage}`);
+//   setIsLoadingMore(false);
+//     }}}, [page]);
 
-useEffect(() => {
-  isFetching = false;
+// useEffect(() => {
+//   isFetching = false;
 
-  const handleScroll = () => {
-    if (
-      isFetching || // локальний захист
-      isLoadingMore ||
-      !isReady ||
-      photosData.length >= (fullData?.hits?.total || 0)
-    ) {
-      // console.log("useEffect returned :c\n[isLoadingMore, isReady, photosData, fullData?.hits?.total, handleLoadMore]", isFetching, isLoadingMore, !isReady, photosData.length >= (fullData?.hits?.total || 0));
-      return;
-    }
+//   const handleScroll = () => {
+//     if (
+//       isFetching || // локальний захист
+//       isLoadingMore ||
+//       !isReady ||
+//       photosData.length >= (fullData?.hits?.total || 0)
+//     ) {
+//       // console.log("useEffect returned :c\n[isLoadingMore, isReady, photosData, fullData?.hits?.total, handleLoadMore]", isFetching, isLoadingMore, !isReady, photosData.length >= (fullData?.hits?.total || 0));
+//       return;
+//     }
 
-    const scrollTop = window.scrollY;
-    const windowHeight = window.innerHeight;
-    const fullHeight = document.documentElement.scrollHeight;
+//     const scrollTop = window.scrollY;
+//     const windowHeight = window.innerHeight;
+//     const fullHeight = document.documentElement.scrollHeight;
 
-    if (scrollTop + windowHeight >= fullHeight - 300) {
-      isFetching = true; // заблокували повторний виклик
-      console.log("📦 Завантажуємо ще сторінку");
-      handleLoadMore().finally(() => {
-        isFetching = false;
-      });
-    }
-  };
+//     if (scrollTop + windowHeight >= fullHeight - 300) {
+//       isFetching = true; // заблокували повторний виклик
+//       console.log("📦 Завантажуємо ще сторінку");
+//       handleLoadMore().finally(() => {
+//         isFetching = false;
+//       });
+//     }
+//   };
 
-  window.addEventListener("scroll", handleScroll);
-  return () => window.removeEventListener("scroll", handleScroll);
-}, [isLoadingMore, isReady, photosData, fullData?.hits?.total, handleLoadMore]);
+//   window.addEventListener("scroll", handleScroll);
+//   return () => window.removeEventListener("scroll", handleScroll);
+// }, [isLoadingMore, isReady, photosData, fullData?.hits?.total, handleLoadMore]);
 
 
   useEffect(() => {
@@ -564,6 +564,28 @@ useEffect(() => {
         </aside>)}
         <main style={styles.mainContent}>
             {photosData && <PhotoGallery products={photosData} priceIncrease={priceIncrease} />}
+            <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "20px" }}>
+            <button
+              onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+              disabled={page <= 1}
+              style={{ padding: "8px 16px" }}
+            >
+              ← Назад
+            </button>
+            <span style={{ padding: "8px 16px" }}>Сторінка {page}</span>
+            <button
+              onClick={() => {
+                const totalPages = Math.ceil((fullData?.hits?.total || 0) / perPage);
+                if (page < totalPages) {
+                  setPage(prev => prev + 1);
+                }
+              }}
+              disabled={page >= Math.ceil((fullData?.hits?.total || 0) / perPage)}
+              style={{ padding: "8px 16px" }}
+            >
+              Вперед →
+            </button>
+          </div>
             <div ref={sentinelRef} style={{ height: "1px" }}></div>
             {isLoadingMore && (
                 <div style={{ textAlign: "center", margin: "10px" }}>

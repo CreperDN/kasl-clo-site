@@ -253,6 +253,15 @@ return (
       {/* Галерея — ліва частина */}
       <div style={styles.galleryWrapper}>
         {product && <LargeImageGallery product={product} />}
+        <a
+          href={`https://www.instagram.com/direct/t/17844611783624416`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="order-button"
+          onClick={()=>navigator.clipboard.writeText(`Замовлення: ${product.name} (артикул: ${product.slug})`)}
+        >
+          Замовити в Direct
+        </a>
       </div>
 
       {/* Інфо — права частина */}
@@ -320,8 +329,8 @@ return (
 
     {/* Інші товари */}
     <hr />
-    <h3>Інші кольори:</h3>
-    <PhotoGallery products={difColored} priceIncrease={300} />
+    {difColored.length > 0 && <div><h3>Інші кольори:</h3>
+    <PhotoGallery products={difColored} priceIncrease={300} /></div>}
     <h3>Схожі товари:</h3>
     {similar.length > 0 && <PhotoGallery products={similar} priceIncrease={300} />}
   </div>

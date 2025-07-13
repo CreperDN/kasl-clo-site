@@ -1,7 +1,7 @@
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, EffectCoverflow } from "swiper/modules";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -9,6 +9,7 @@ import "swiper/css/effect-coverflow";
 
 export default function PhotoGallery({ products, priceIncrease }) {
 
+  const location = useLocation();
   products = Array.isArray(products) ? products : [products];
   return (
     <div className="photo-gallery" style={styles.galleryContainer}>
@@ -28,7 +29,7 @@ export default function PhotoGallery({ products, priceIncrease }) {
               effect="coverflow"
               grabCursor={true}
               centeredSlides={true}
-              slidesPerView="auto"
+              slidesPerView= "1"
               navigation
               pagination={{ clickable: true }}
               loop={true}
@@ -45,10 +46,10 @@ export default function PhotoGallery({ products, priceIncrease }) {
                 <SwiperSlide key={imgIdx} style={styles.swiperSlide}>
                   <Link
                     to={`/product/${product.slug}`}
-                    onClick={() =>
+                    onClick={() => location.pathname === "/" &&
                       sessionStorage.setItem(
                         "scrollPosition",
-                        window.scrollY.toString()
+                        (window.scrollY+0.7).toString()
                       )
                     }
                   >
@@ -64,8 +65,8 @@ export default function PhotoGallery({ products, priceIncrease }) {
                 </SwiperSlide>
               ))}
             </Swiper>
-            <figcaption>
-              {product.name}
+            <figcaption style = {{lineHeight:"1.2"}}>
+              <small>{product.name}</small>
               <br />
               {product.oldPrice != null ? (
                 <>
@@ -100,7 +101,7 @@ const styles = {
   },
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
     gap: "16px",
   },
   figure: {
@@ -112,19 +113,19 @@ const styles = {
     width: "100%",
   },
   swiper: {
-    width: "250px",
-    margin: "0 auto 10px",
+    width: "300px",
+    margin: "0 auto 5px",
   },
   swiperSlide: {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    width: "200px",
+    width: "250px",
   },
   image: {
     width: "100%",
     height: "auto",
-    maxWidth: "200px",
+    maxWidth: "250px",
     borderRadius: "10px",
   },
 };
