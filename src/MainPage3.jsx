@@ -580,6 +580,7 @@ useEffect(() => {
                 if (page < totalPages) {
                   setPage(prev => parseInt(prev) + 1);
                 }
+                window.scrollTo(0, parseInt(0, 10));
               }}
               disabled={page >= Math.ceil((fullData?.hits?.total || 0) / perPage)}
               style={{ padding: "8px 16px" }}

@@ -62,7 +62,7 @@ export default function LargeImageGallery({ product }) {
       </div>
 
       {/* Модалка */}
-      {isOpen && (
+{isOpen && (
   <div style={styles.modalOverlay} onClick={closeModal}>
     <span style={styles.closeButton} onClick={closeModal}>
       ×
@@ -76,6 +76,7 @@ export default function LargeImageGallery({ product }) {
         modalSwiperRef.current = swiper;
       }}
       onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
+      allowTouchMove={false}
       style={{
         maxWidth: "90vw",
         maxHeight: "90vh",
@@ -94,21 +95,23 @@ export default function LargeImageGallery({ product }) {
             height: "100%",
           }}
         >
+          {/* Цей блок відповідає за перетягування та масштабування */}
           <TransformWrapper
             wheel={{ step: 0.1 }}
             pinch={{ step: 5 }}
-            doubleClick={{ disabled: true }}
-            minScale={1}
-            limitToBounds={true}
+            doubleClick={{ disabled: false }}
+            minScale={0.5}
+            limitToBounds={false}
             centerOnInit={true}
             zoomAnimation={{ animationTime: 200 }}
+            style={{overflow: "visible"}}
           >
             <TransformComponent>
               <img
                 src={img}
                 alt={`Фото ${product.name} повний екран ${i}`}
                 style={styles.modalImage}
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()} // Зупиняємо розповсюдження події, щоб не закривати модалку при кліку на зображення
               />
             </TransformComponent>
           </TransformWrapper>
@@ -183,10 +186,11 @@ const styles = {
   modalImage: {
     maxWidth: "140vw",
     maxHeight: "140vh",
-    objectFit: "contain",
+    // objectFit: "contain",
     borderRadius: "8px",
     userSelect: "none",
     pointerEvents: "auto",
+    overflow: "visible"
   },
   closeButton: {
     position: "fixed",

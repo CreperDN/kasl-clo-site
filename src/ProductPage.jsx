@@ -171,6 +171,21 @@ export default function ProductPage() {
         });
         return { size, ...row, isInStock };
     });
+    console.log(dimensionTable.find(e => e.size==selectedSize && e.isInStock))
+    
+    if (!dimensionTable.find(e => e.size==selectedSize && e.isInStock)){setSelectedSize(null)}
+
+    if(Array.from(new Set(dimensionTable.flatMap(Object.keys))).length < 3){
+      dimensionTable = source.variants?.map(v =>
+        {
+          let sizeDescription = v.options[0].sizeDescription
+          const isInStock = v.inStock;
+          return{sizeDescription, isInStock}
+        }
+      )
+    }
+
+    console.log(dimensionTable)
     setDimensionTable(dimensionTable.sort((a, b) => parseInt(a.size) - parseInt(b.size)));
 
     return {
@@ -265,7 +280,7 @@ export default function ProductPage() {
 
 return (
   <div style={{ padding: "20px" }}>
-    <button onClick={() => navigate(-1)} style={{ marginBottom: "20px" }}>
+    <button onClick={() => navigate(-1)}>
       ← Назад
     </button>
 
@@ -275,8 +290,25 @@ return (
       <div style={styles.galleryWrapper}>
         {product && <LargeImageGallery product={product} />}
 
+              {product.oldPrice != null ? (
+                <div key ={product.oldPrice} style={{ display: "flex", justifyContent: "center" }}>
+                  <s style={{ color: "gray", marginRight: "8px" }}>
+                    {(product.oldPrice / 100 + priceIncrease).toFixed(2)} грн
+                  </s>
+                  <strong>
+                    {(product.price / 100 + priceIncrease).toFixed(2)} грн
+                  </strong>
+                </div>
+              ) : (
+                <div key ={product.oldPrice} style={{ display: "flex", justifyContent: "center" }}>
+                  <strong style = {{}}>
+                    {(product.price / 100 + priceIncrease).toFixed(2)} грн
+                  </strong>
+                </div>
+              )}
+
         {selectedSize && (
-          <div style={{ marginTop: "10px", color: "green", fontSize: "14px" }}>
+          <div style={{ marginTop: "10px", fontSize: "14px" }}>
             Обрано розмір: <strong>{selectedSize}</strong>
           </div>
         )}
@@ -286,7 +318,7 @@ return (
           rel="noopener noreferrer"
           className="order-button"
           onClick={()=>{
-            navigator.clipboard.writeText(`Замовлення: ${product.name}, ${selectedSize ? "Обраний розмір:"+selectedSize+"," : ""} Посилання: https://kasl-clo.onrender.com/product/${product.slug}`);
+            navigator.clipboard.writeText(`Замовлення: ${product.name}, ${selectedSize ? "Обраний розмір:"+selectedSize+"," : ""} Ціна: ${(product.price / 100 + priceIncrease).toFixed(2)} грн, Посилання: https://kasl-clo.onrender.com/product/${product.slug}`);
         }}
         >
           Замовити в Direct
@@ -296,9 +328,9 @@ return (
       {/* Інфо — права частина */}
       <div style={styles.infoWrapper}>
         {/* Таблиця розмірів */}
-        {dimensionTable.length > 0 && (
+        {Array.from(new Set(dimensionTable.flatMap(Object.keys))).length > 2 ? (
         <div style={{ marginTop: "20px" }}>
-          <h3>Таблиця розмірів:</h3>
+          <h3>Виміри виробу:</h3>
           <div style={{ overflowX: "auto", textAlign: "center" }}>
             <table style={{ borderCollapse: "collapse", width: "100%" }}>
               <thead>
@@ -375,7 +407,77 @@ return (
             </table>
           </div>
         </div>
-      )}
+      )
+      :
+      <div style={{ marginTop: "20px" }}>
+          <h3>Розмірна сітка:</h3>
+            <div style={{ overflowX: "auto", textAlign: "center" }}>
+            <table style={{ borderCollapse: "collapse", width: "100%" }}>
+              <thead>
+                <tr>
+                  <th style={thStyle}>Розмір</th>
+                  <th style={thStyle}>Груди</th>
+                  <th style={thStyle}>Талія</th>
+                  <th style={thStyle}>Стегна</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dimensionTable.map((row, rowIndex) =>
+                    <tr
+                      key={rowIndex}
+                      className={`${hoveredRow === rowIndex || hoveredCol === -1 ? "hover-cell" : ""}`}
+                    >
+                      <td
+                        className={`${hoveredRow === rowIndex || hoveredCol === -1 ? "hover-cell" : ""}`}
+                        onMouseEnter={() => {
+                          setHoveredRow(rowIndex);
+                          setHoveredCol(-1);
+                        }}
+                        onMouseLeave={() => {
+                          setHoveredRow(null);
+                          setHoveredCol(null);
+                        }}
+                      >
+                          <button
+                            onClick={() => {
+                              if (row.isInStock) setSelectedSize(Object.keys(row.sizeDescription));
+                              localStorage.setItem("selectedSize", row.size);
+                            }}
+                            disabled={!row.isInStock}
+                            style={{
+                              cursor: row.isInStock ? "pointer" : "not-allowed",
+                              opacity: row.isInStock ? 1 : 0.5,
+                            }}
+                            title={!row.isInStock ? "Розміру нема в наявності" : ""}
+                          >
+                            {Object.keys(row.sizeDescription)}
+                          </button>
+                        </td>
+                      {Object.values(row["sizeDescription"])[0].map((key, colIndex) => (
+                          <td
+                            key={colIndex}
+                            className={`${hoveredRow === rowIndex || hoveredCol === colIndex ? "hover-cell" : ""}`}
+                            onMouseEnter={() => {
+                              setHoveredRow(rowIndex);
+                              setHoveredCol(colIndex);
+                            }}
+                            onMouseLeave={() => {
+                              setHoveredRow(null);
+                              setHoveredCol(null);
+                            }}
+                          >
+                            {key ?? "-"}
+                          </td>
+                        ))}
+                        
+                    </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+      
+      </div>
+      }
 
         <div style={styles.responsiveRow}>
           {/* Опис товару */}
