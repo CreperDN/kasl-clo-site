@@ -22,7 +22,7 @@ export default function PhotoGallery({ products, priceIncrease }) {
           `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${img}`
         )];
 
-        while(images.length < 3){images.forEach(image =>images.push(image))}
+        while(images.length < 4){images.forEach(image =>images.push(image))}
 
         return (
           <figure key={product.hash} style={styles.figure}>
@@ -38,8 +38,8 @@ export default function PhotoGallery({ products, priceIncrease }) {
               coverflowEffect={{
                 rotate: 30,
                 stretch: 0,
-                depth: 100,
-                modifier: 1,
+                depth: 500,
+                modifier: 0,
                 slideShadows: true,
               }}
               style={{ overflow: "visible" }}
@@ -113,8 +113,9 @@ const styles = {
     margin: "0",
     textAlign: "center",
     boxSizing: "border-box",
-    width: "100%",
-    overflow: "hidden"
+    width: '100%',
+    maxWidth: "350px",
+    overflow: "hidden",
   },
   swiper: {
     width: "300px",
@@ -126,7 +127,7 @@ const styles = {
     alignItems: "center",
     width: "250px",
     transformStyle: "preserve-3d", 
-    backfaceVisibility: "hidden"
+    backfaceVisibility: "hidden",
   },
   image: {
     width: "100%",

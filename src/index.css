@@ -66,3 +66,55 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14px;
+}
+
+th,
+td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+/* Рядки на hover */
+tr:hover {
+  background-color: rgba(100, 149, 237, 0.1); /* світло-синій */
+}
+
+/* Клас для підсвічення клітинки (додається JS-ом) */
+td.hover-cell,
+th.hover-cell {
+  background-color: rgba(255, 215, 0, 0.15); /* м’який жовтий */
+}
+
+/* Повідомлення під таблицею */
+.selected-size-msg {
+  margin-top: 10px;
+  color: green;
+  font-size: 14px;
+}
+
+/* Темна тема */
+@media (prefers-color-scheme: dark) {
+  th,
+  td {
+    border: 1px solid #555;
+  }
+
+  tr:hover {
+    background-color: rgba(173, 216, 230, 0.067); /* світло-блакитний у темі */
+  }
+
+  td.hover-cell,
+  th.hover-cell {
+    background-color: rgba(0, 89, 255, 0.078); /* яскравіший жовтий */
+  }
+
+  .selected-size-msg {
+    color: #90ee90; /* світло-зелений */
+  }
+}
+

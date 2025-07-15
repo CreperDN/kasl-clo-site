@@ -12,6 +12,7 @@ export default function LargeImageGallery({ product }) {
       (img) => `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${img}`
     ),
   ];
+  while(images.length < 4){images.forEach(image =>images.push(image))}
 
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
