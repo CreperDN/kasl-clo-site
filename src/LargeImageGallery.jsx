@@ -82,7 +82,6 @@ export default function LargeImageGallery({ product }) {
         height: "auto",
         position: "relative",
       }}
-      onClick={(e) => e.stopPropagation()}
     >
       {images.map((img, i) => (
         <SwiperSlide

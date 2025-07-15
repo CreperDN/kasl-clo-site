@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import './App.css'
 import PhotoGallery from './PhotoSwiper';
 import Filters from './Filters';
+import Loading from './Loading';
 import LZString, { compress } from 'lz-string';
 
 async function fetchFilters(mainCategory, category, filters) {
@@ -492,7 +493,7 @@ useEffect(() => {
 
 
         if (!isReady) {
-        return <div>Завантаження...</div>;
+        return <div><Loading></Loading></div>;
         }
 
     return (
@@ -577,7 +578,7 @@ useEffect(() => {
               onClick={() => {
                 const totalPages = Math.ceil((fullData?.hits?.total || 0) / perPage);
                 if (page < totalPages) {
-                  setPage(prev => prev + 1);
+                  setPage(prev => parseInt(prev) + 1);
                 }
               }}
               disabled={page >= Math.ceil((fullData?.hits?.total || 0) / perPage)}
@@ -589,7 +590,7 @@ useEffect(() => {
             <div ref={sentinelRef} style={{ height: "1px" }}></div>
             {isLoadingMore && (
                 <div style={{ textAlign: "center", margin: "10px" }}>
-                <span>Завантаження...</span>
+                <span></span>
                 </div>
             )}
                 <input type="button" value={isDataVisible ? "Сховати дані" : "Показати дані"}

@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import PhotoGallery from './PhotoSwiper';
+import Loading from './Loading';
 import "swiper/css";
 import LargeImageGallery from './LargeImageGallery';
 
@@ -89,6 +90,7 @@ export default function ProductPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
   const [difColored, setDifColored] = useState([]);
   const [similar, setSimilar] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -116,6 +118,20 @@ export default function ProductPage() {
 
     const images = (source.images || []).map(img => img.dressaPath).slice(1);
 
+    console.log(source)
+    console.log(source.taxons)
+    console.log(source.taxons.map(e => (e.taxonomy?.trans?.ua.name??e.taxonomy?.name) + ':' + (e.trans?.ua?.name??e.name)))
+    console.log(source.attachedProducts[0]?.trans.ua.description) // Інші кольори
+    console.log(source.activeSingleSizes)
+    console.log(source.variants.map(e => e.dimensions))
+    let measures = [];
+    source.variants.map(e => e.dimensions.map(ee => measures.push(TRANSLATE[ee.measure.name]+':'+ee.value)))
+    console.log(measures);
+
+    console.log(source.variants.map(e => e.options[0].sizeDescription))
+    console.log(source.attribures)
+    
+
     const allMeasures = [];
     source.variants?.forEach(v => {
       v.dimensions?.forEach(dim => {
@@ -141,16 +157,17 @@ export default function ProductPage() {
 
     let i = 0;
 
-    const dimensionTable = source.variants?.map(v => {
-      const size = source.activeSingleSizes[i++]
-      const row = {};
-      v.dimensions?.forEach(dim => {
-        const name = TRANSLATE[dim.measure.name] || dim.measure.name;
-        row[name] = dim.value;
-      });
-      return { size, ...row };
+    let dimensionTable = source.variants?.map(v => {
+        const size = v.options[0].value;
+        const row = {};
+        const isInStock = v.inStock;
+        v.dimensions?.forEach(dim => {
+          const name = TRANSLATE[dim.measure.name] || dim.measure.name;
+          row[name] = dim.value;
+        });
+        return { size, ...row, isInStock };
     });
-    setDimensionTable(dimensionTable);
+    setDimensionTable(dimensionTable.sort((a, b) => parseInt(a.size) - parseInt(b.size)));
 
     return {
       id: source.id,
@@ -235,7 +252,7 @@ export default function ProductPage() {
     load();
   }, [slug]);
 
-  if (loading) return <p>Завантаження...</p>;
+  if (loading) return <p><Loading></Loading></p>;
   if (!product) return <p>Товар не знайдено</p>;
 
   const allImages = [product.url, ...product.images.map(img =>
@@ -275,8 +292,8 @@ return (
                 <thead>
                   <tr>
                     <th style={thStyle}>Розмір</th>
-                    {Object.keys(dimensionTable[0])
-                      .filter(key => key !== "size")
+                    {Array.from(new Set(dimensionTable.flatMap(Object.keys)))
+                      .filter(key => !["size", "isInStock"].includes(key))
                       .map((key, i) => (
                         <th key={i} style={thStyle}>{key}</th>
                       ))}
@@ -284,12 +301,12 @@ return (
                 </thead>
                 <tbody>
                   {dimensionTable.map((row, i) => (
-                    <tr key={i}>
-                      <td style={tdStyle}>{row.size}</td>
-                      {Object.keys(row)
-                        .filter(key => key !== "size")
+                    Object.keys(row).length > 2 && <tr key={i}>
+                      <td style={tdStyle}><button onClick = {() => setSelectedSize(row.size)}>{row.size}</button></td>
+                      {Array.from(new Set(dimensionTable.flatMap(Object.keys)))
+                        .filter(key => !["size", "isInStock"].includes(key))
                         .map((key, j) => (
-                          <td key={j} style={tdStyle}>{row[key]}</td>
+                          <td key={j} style={tdStyle}>{row[key]??"-"}</td>
                         ))}
                     </tr>
                   ))}
@@ -314,7 +331,7 @@ return (
               <h3>Характеристика:</h3>
               <ul>
                 {characteristics.map((m, i) =>
-                  (!["Материал.сайт", undefined, "Одежда", "Фотомодель", "Метка на сайте"].includes(m.taxonomy?.trans?.ua.name ?? m.taxonomy?.name)) && (
+                  (!["Материал.сайт", undefined, "Одежда", "Фотомодель", "Метка на сайте"].includes(m.taxonomy?.trans?.ua?.name ?? m.taxonomy?.name)) && (
                     <li key={i}>
                       {(m.taxonomy?.trans?.ua.name ?? TRANSLATE[m.taxonomy?.name] ?? m.taxonomy?.name) + ": " + (m.trans?.ua?.name ?? m.name)}
                     </li>

@@ -22,6 +22,8 @@ export default function PhotoGallery({ products, priceIncrease }) {
           `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${img}`
         )];
 
+        while(images.length < 3){images.forEach(image =>images.push(image))}
+
         return (
           <figure key={product.hash} style={styles.figure}>
             <Swiper
@@ -29,10 +31,10 @@ export default function PhotoGallery({ products, priceIncrease }) {
               effect="coverflow"
               grabCursor={true}
               centeredSlides={true}
-              slidesPerView= "1"
+              slidesPerView={1.2} // дозволяє частково показати сусідні
+              loop={true}
               navigation
               pagination={{ clickable: true }}
-              loop={true}
               coverflowEffect={{
                 rotate: 30,
                 stretch: 0,
@@ -40,8 +42,9 @@ export default function PhotoGallery({ products, priceIncrease }) {
                 modifier: 1,
                 slideShadows: true,
               }}
-              style={styles.swiper}
+              style={{ overflow: "visible" }}
             >
+
               {images.map((img, imgIdx) => (
                 <SwiperSlide key={imgIdx} style={styles.swiperSlide}>
                   <Link
@@ -111,6 +114,7 @@ const styles = {
     textAlign: "center",
     boxSizing: "border-box",
     width: "100%",
+    overflow: "hidden"
   },
   swiper: {
     width: "300px",
@@ -121,6 +125,8 @@ const styles = {
     justifyContent: "center",
     alignItems: "center",
     width: "250px",
+    transformStyle: "preserve-3d", 
+    backfaceVisibility: "hidden"
   },
   image: {
     width: "100%",
