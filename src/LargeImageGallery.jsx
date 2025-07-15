@@ -7,9 +7,9 @@ import "swiper/css/navigation";
 
 export default function LargeImageGallery({ product }) {
   const images = [
-    product.url,
+    product.url.replace('medium',"extra_large"),
     ...(product.images || []).map(
-      (img) => `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${img}`
+      (img) => `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_extra_large/${img}`
     ),
   ];
   while(images.length < 4){images.forEach(image =>images.push(image))}
