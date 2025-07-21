@@ -49,12 +49,13 @@ export default function PhotoGallery({ products, priceIncrease }) {
                 <SwiperSlide key={imgIdx} style={styles.swiperSlide}>
                   <Link
                     to={`/product/${product.slug}`}
-                    onClick={() => location.pathname === "/" &&
+                    onClick={() => {location.pathname === "/" &&
                       sessionStorage.setItem(
                         "scrollPosition",
                         (window.scrollY+0.7).toString()
                       )
-                    }
+                      window.scrollTo(0, parseInt(0, 10));
+                    }}
                   >
                     <img
                       src={img}

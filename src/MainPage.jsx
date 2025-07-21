@@ -3,178 +3,167 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import './App.css'
 import PhotoGallery from './PhotoSwiper';
 import Filters from './Filters';
-import "swiper/css";
+import Loading from './Loading';
 import LZString, { compress } from 'lz-string';
-import "swiper/css/navigation";
 
+async function fetchFilters(mainCategory, category, filters) {
+    console.log("fetchFilters", mainCategory, category, filters);
 
-async function fetchFilters(mainCategory, category, sizes, colors) {
-    console.log(sizes);
     let url = "";
     let cacheKey = "";
-    if (mainCategory === null){
-        mainCategory = 'novinki';
+    if (mainCategory === "novinki") {
+      url = `https://api.modniy-ostrov.com.ua/api/v2/filters/${mainCategory}`;
+      cacheKey = mainCategory;
+    } else if (category == null) {
+      url = `https://api.modniy-ostrov.com.ua/api/v2/filters/odiezhda/${mainCategory}`;
+      cacheKey = `odiezhda/${mainCategory}`;
+    } else if (category === "sportivnyi-stil"){
+      url = `https://api.modniy-ostrov.com.ua/api/v2/filters/odiezhda/${category}`;
+      cacheKey = `odiezhda/${category}`;
+    } 
+    else {
+      url = `https://api.modniy-ostrov.com.ua/api/v2/filters/odiezhda/${mainCategory}/${category}`;
+      cacheKey = `odiezhda/${mainCategory}/${category}`;
     }
 
-    if (mainCategory != null) {
-        if (mainCategory === "novinki") {
-        url = `https://api.modniy-ostrov.com.ua/api/v2/filters/${mainCategory}`;
-        cacheKey = mainCategory;
-        } else if (category == null) {
-        url = `https://api.modniy-ostrov.com.ua/api/v2/filters/odiezhda/${mainCategory}`;
-        cacheKey = `odiezhda/${mainCategory}`;
-        } else if (category === "sportivnyi-stil"){
-        url = `https://api.modniy-ostrov.com.ua/api/v2/filters/odiezhda/${category}`;
-        cacheKey = `odiezhda/${category}`;
-        } 
-        else {
-        url = `https://api.modniy-ostrov.com.ua/api/v2/filters/odiezhda/${mainCategory}/${category}`;
-        cacheKey = `odiezhda/${mainCategory}/${category}`;
-        }
+    let params = [];
 
-        let params = [];
-        if (sizes != []) {
-        params.push('s=' + sizes.join('.'));
-        }
-        if (colors != []) {
-        const colorValues = colors
-            .map(color => COLORS[color])  
-            .filter(Boolean); 
-
-            if (colorValues.length === 1) {
-            params.push('tsvet=' + String(colorValues[0]));
-            } else if (colorValues.length > 1) {
-            params.push('tsvet=' + colorValues.join("."));
-            }
-        }
-        if (params.length > 0) {
-        url = url + '?' + params.join('&');
-        }
-        console.log(params)
-        cacheKey = cacheKey+ params.join("")
-
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) {
-        console.log("👉 Взято з localStorage:", cacheKey);
-        return JSON.parse(LZString.decompress(cached));
-        }
-
-        try {
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-            "accept": "application/json"
-            }
-        });
-
-        if (response.ok) {
-            const jsonData = await response.json();
-            const compressed = LZString.compress(JSON.stringify(jsonData));
-            localStorage.setItem(cacheKey, compressed);
-            return jsonData;
-        } else {
-            console.error(`HTTP error! status: ${response.status}`);
-        }
-        } catch (e) {
-        if (e.name === 'QuotaExceededError') {
-            console.warn('⛔ localStorage переповнений, очищаю...');
-            localStorage.clear(); // або очисти частково
-            // можеш знову спробувати записати:
-            localStorage.setItem(cacheKey, compressed);
-        }
+    for(const key in filters){
+        if(filters[key].length > 0){
+            params.push(`${key}=` + filters[key].join('.'));
         }
     }
 
-    return {};
+    if (params.length > 0) {
+      url = url + '?' + params.join('&');
+      url = url + '&locale=ua'
     }
-async function fetchPhotos(category = 'novinki', size = [], tsvet = [], page = 1, perpage = 24) {
-    if (category === null){
-        category = "novinki"
-    }
-    const url = "https://modniy-ostrov.com/api/product_by_categories_slugs";
-
-    const headers = {
-        "accept": "application/json, text/plain, */*",
-        "content-type": "application/json",
-    };
-
-    const filters = {};
-
-    // ✅ Перетворення розмірів на рядки
-    const sizeValues = size.map(s => typeof s === 'object' && s.taxon ? s.taxon : s);
-    if (sizeValues.length === 1) {
-        filters.s = String(sizeValues[0]);
-    } else if (sizeValues.length > 1) {
-        filters.s = sizeValues.map(String).join("-or-");
+    else{
+      url = url + '?locale=ua'
     }
 
-    // ✅ Перетворення кольорів на slug
-    const colorValues = tsvet
-        .map(color => COLORS[color]) 
-        .filter(Boolean); // відкинути undefined
+    console.log(params)
+    cacheKey = cacheKey + params.join("")
 
-    if (colorValues.length === 1) {
-        filters.tsvet = String(colorValues[0]);
-    } else if (colorValues.length > 1) {
-        filters.tsvet = colorValues.join("-or-");
-    }
-
-    // ✅ Перевірка на масив slug
-    category = category.includes("/") ? category.split("/")[1] : category;
-    let slugArray = Array.isArray(category) ? category : [category];
-
-    // Спеціальний випадок для "plat-ia"
-    if (slugArray.length === 1 && slugArray[0] === "plat-ia") {
-        slugArray = ["plat-ia-2"];
-    }
-
-    const payload = {
-        slugs: slugArray,
-        filters: filters,
-        page: page,
-        perPage: perpage,
-        currentCurrenciesCode: "UAH",
-        warehouse: "ua",
-        siteVersion: "ua_UA",
-    };
-
-    console.log("📦 POST payload:", payload);
-
-    // 🧠 Створюємо унікальний ключ для кешу
-    const cacheKey = `photos_${slugArray.join(',')}_s=${filters.s || ''}_t=${filters.tsvet || ''}_p=${page}`;
     const cached = localStorage.getItem(cacheKey);
-
     if (cached) {
-        try {
-        const parsed = JSON.parse(cached);
-        console.log("📦 Взято з localStorage:", cacheKey);
-        return parsed;
-        } catch (e) {
-        console.warn("⚠️ Не вдалося прочитати кеш:", cacheKey);
-        }
+      console.log("Взято з localStorage:", cacheKey);
+      return JSON.parse(LZString.decompress(cached));
     }
 
-    // 🛰️ Якщо немає в кеші — робимо запит
     try {
-        const response = await fetch(url, {
-        method: "POST",
-        headers: headers,
-        body: JSON.stringify(payload),
-        });
-
-        if (response.ok) {
-        const data = await response.json();
-        // localStorage.setItem(cacheKey, JSON.stringify(data)); // ✅ Зберігаємо у localStorage
-        return data;
-        } else {
-        console.error("❌ Помилка статусу:", response.status);
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+        "accept": "application/json"
         }
-    } catch (error) {
-        console.error("❌ Fetch error:", error);
-    }
+    });
 
-    return [];
+    if (response.ok) {
+        const jsonData = await response.json();
+        const compressed = LZString.compress(JSON.stringify(jsonData));
+        localStorage.setItem(cacheKey, compressed);
+        return jsonData;
+    } else {
+        console.error(`HTTP error! status: ${response.status}`);
     }
+    } catch (e) {
+    if (e.name === 'QuotaExceededError') {
+        console.warn('⛔ localStorage переповнений, очищаю...');
+        localStorage.clear();
+        localStorage.setItem(cacheKey, compressed);
+    }
+  }
+  return {};
+}
+async function fetchPhotos(category, filters = {}, page = 1, perPage = 24) {
+  const url = "https://modniy-ostrov.com/api/product_by_categories_slugs";
+
+  const headers = {
+    "accept": "application/json, text/plain, */*",
+    "content-type": "application/json",
+  };
+
+  const parsedFilters = {};
+
+  for (const key in filters) {
+    let raw = filters[key];
+
+    if (raw instanceof Set) raw = Array.from(raw);
+    if (!Array.isArray(raw)) raw = [raw];
+
+    if (raw.length === 0) continue;
+
+    // Загальний випадок
+    const stringValues = raw.map(String);
+    parsedFilters[key] =
+    stringValues.length === 1
+        ? stringValues[0]
+        : stringValues.join("-or-");
+  }
+
+  // Обробка категорій
+  category = Array.isArray(category) ? category : [category];
+  let slugArray = category;
+
+  if (slugArray.length === 1 && slugArray[0] === "plat-ia") {
+    slugArray = ["plat-ia-2"];
+  }
+  if (slugArray[0] === "zhienskaia-povsiednievnaia-odiezhda/zhienskiie-kostiumy"){
+    slugArray = ["zhienskiie-kostiumy"];
+  }
+
+  const payload = {
+    slugs: slugArray,
+    filters: parsedFilters,
+    page: page,
+    perPage: perPage,
+    currentCurrenciesCode: "UAH",
+    warehouse: "ua",
+    siteVersion: "ua_UA",
+  };
+
+  console.log("📦 POST payload:", payload);
+  console.log("parsedFilters:",parsedFilters)
+
+  // Унікальний cacheKey
+  const filtersStr = Object.entries(parsedFilters)
+    .map(([k, v]) => `${k}=${v}`)
+    .join("&");
+
+  const cacheKey = `photos_${slugArray.join(",")}_${filtersStr}_p=${page}`;
+  const cached = localStorage.getItem(cacheKey);
+
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      console.log("Взято з localStorage:", cacheKey);
+      return parsed;
+    } catch (e) {
+      console.warn("⚠️ Не вдалося прочитати кеш:", cacheKey);
+    }
+  }
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(payload),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      // localStorage.setItem(cacheKey, JSON.stringify(data)); // можеш увімкнути
+      return data;
+    } else {
+      console.error("❌ Помилка статусу:", response.status);
+    }
+  } catch (error) {
+    console.error("❌ Fetch error:", error);
+  }
+
+  return [];
+}
 function extractDressaPaths(data) {
     const result = [];
     const hits = data?.hits?.hits || [];
@@ -183,7 +172,7 @@ function extractDressaPaths(data) {
         const images = [];
         item?._source?.images?.forEach((image) => {images.push(image.dressaPath || []);})
         images.shift();
-        const name = item?._source?.correctedName;
+        const name = item?._source?.trans.ua.correctedName;
         const slug = item?._source?.slug;
         const price = item?._source?.priceUAH;
         const oldPrice = item?._source?.oldPriceUAH;
@@ -198,7 +187,7 @@ function extractDressaPaths(data) {
         });
         }
     });
-    localStorage[""]=result;
+    //localStorage[""]=result;
     return result;
     }
 
@@ -263,52 +252,16 @@ function extractDressaPaths(data) {
         "Жіночі шорти": ["zhienskiie-shorty"],
     },
     };  
-    const COLORS = {
-        "чорний":"chiernyi",
-        "бежевий":"biezhievyi",
-        "зелений":"zielienyi",
-        "блакитний":"gholuboi",
-        "білий":"bielyi",
-        "синій":"sinii",
-        "сірий":"sieryi",
-        "рожевий":"rozovyi",
-        "бордо":"bordo",
-        "коричневий":"korichnievyi",
-        "молочний":"molochnyi",
-        "червоний":"krasnyi",
-        "темно-синій":"tiemno-sinii",
-        "бірюзовий":"biriuzovyi",
-        "пудра":"pudra",
-        "хакі":"khaki",
-        "жовтий":"zhieltyi",
-        "м'ятний":"miatnyi",
-        "темно-зелений":"butylka",
-        "бузковий":"sirienievyi",
-        "фіолетовий":"fiolietovyi",
-        "темно-сірий":"tiomno-sieryi",
-        "теракотовий":"tierrakotovyi",
-        "гірчичний":"ghorchichnyi",
-        "помаранчевий":"oranzhievyi",
-        "фуксія":"fuksiia",
-        "корал":"korall",
-        "персиковий":"piersikovyi",
-        "графіт" : "ghrafit",
-        "бордовий" : "bordovyi", 
-        "молоко":"moloko"
-    }
 
 
     export default function MainPage() {
+  let isFetching = false;
   const [filters, setFilters] = useState(null);
   const [selectedFilters, setSelectedFilters] = useState({});
   const [priceIncrease, setPriceIncrease] = useState(300);
   const [perPage, setPerPage] = useState(24);
-  const [sizes, setSizes] = useState([]);
-  const [colors, setColors] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedSizes, setSelectedSizes] = useState([]);
-  const [selectedColors, setSelectedColors] = useState([]);
-  const [selectedMainCategory, setSelectedMainCategory] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [selectedMainCategory, setSelectedMainCategory] = useState("novinki");
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [page, setPage] = useState(1);
   const [photosData, setPhotosData] = useState([]);
@@ -319,138 +272,114 @@ function extractDressaPaths(data) {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const isFromScroll = useRef(false);
   const navigate = useNavigate();
 
-  const updateFilters = () => {
+  const updateSearchParams = () => {
     const params = {
-      main: selectedMainCategory ?? "",
+      main: selectedMainCategory ?? "novinki",
       category: selectedCategory ?? "",
-      colors: selectedColors.map(c => COLORS[c]).filter(Boolean).join(","),
-      sizes: selectedSizes.join(","),
-
     };
-    setSearchParams(params);
+    for (const key in selectedFilters) {
+      let raw = selectedFilters[key];
+      console.log("RAW for key", key, raw);
+
+      if (raw instanceof Set) raw = Array.from(raw);
+      if (!Array.isArray(raw)) raw = [raw];
+
+      if (raw.length === 0) continue;
+
+      const stringValues = raw.map(String);
+      params[key] =
+      stringValues.length === 1
+          ? stringValues[0]
+          : stringValues.join("-or-");
+    }
+    params["page"]=page;
+    if(params !== searchParams){
+      setSearchParams(params);
+    }
   };
 
-  const loadFirstPage = async (mainCategory, category, sizes, colors) => {
-  const data = await fetchPhotos(
-    category ?? mainCategory,
-    sizes ?? [],
-    colors ?? [],
-    1
-  );
-  const newPhotos = extractDressaPaths(data);
-  setPhotosData(newPhotos);
-  setFullData(data);
-  setPage(1);
-  localStorage.setItem('page', '1');
-};
+  const parseFiltersFromSearchParams = () => {
+      const filters = {};
+      for (const [key, value] of searchParams.entries()) {
+        if (value && !["main", "category", "page"].includes(key)) {
+          filters[key] = value.split("-or-");
+        }
+      }
+      return filters;
+  };
 
+  async function loadFilters(mainCategory, category, filters) { 
+    if (!loading){
+      const data = await fetchFilters(mainCategory, category, filters);
+      setFilters(data?.data);
+      console.log("Filters", data.data)
+      setLoading(false);
+    }
+  };
+    
+  const loadPhotos = async (main, category, page, filtersOverride = null) => {
+    const data = await fetchPhotos(
+      category ?? main,
+      filtersOverride ?? selectedFilters,
+      page
+    );
+    setPhotosData(extractDressaPaths(data));
+    setFullData(data);
+  };
 
-      async function loadData(mainCategory, category) { 
-        const data = await fetchFilters(mainCategory, category, selectedFilters);
-        setFilters(data?.data);
-        console.log(data.data)
-        setSizes(data?.data?.sizes ?? []);
-        setColors(data?.data?.colors ?? []);
-        setLoading(false);
-    };
-    const loadPhotos = async () => {
-        if (selectedMainCategory != null){ 
-        const data = await fetchPhotos(
-            selectedCategory ?? selectedMainCategory,
-            selectedSizes ?? [],
-            selectedColors ?? [],
-            page
-        );
-        console.log(fullData);
-        console.log(data)
-        if (fullData !== data){
-        setPhotosData(extractDressaPaths(data));
-        setFullData(data);
-    }}
-    };
+  const handleMainCategoryRadioChange = (slug) => {
+      setSelectedMainCategory(slug);
+      setSelectedCategory(null);
+      setSelectedFilters({})
+      setPage(1);
+      loadFilters(slug, null, {});
+  };
 
-    const handleSizesCheckboxChange = (taxon) => {
-        localStorage.setItem('page', '1');
-        setPage(1);
-        setSelectedSizes((prevSelected) =>
-        prevSelected[0] == '' ? [taxon] : prevSelected.includes(taxon)
-            ? prevSelected.filter((item) => item !== taxon)
-            : [...prevSelected, taxon]
-        );
-    };
-    const handleColorsCheckboxChange = (taxon) => {
-        localStorage.setItem('page', '1');
-        setPage(1);
-        setSelectedColors((prevSelected) =>
-        prevSelected.includes(taxon)
-            ? prevSelected.filter((item) => item !== taxon)
-            : [...prevSelected, taxon]
-        );
-    };
-    const handleMainCategoryRadioChange = (slug) => {
-        setSelectedMainCategory(slug);
-        setSelectedCategory(null);
-        localStorage.setItem('page', '1');
-        setPage(1);
-        loadData(slug, null);
-        setSelectedFilters({});
-        setSelectedColors([]);
-        setSelectedSizes([]);
-    };
-    const handleCategoryRadioChange = (slug) => {
-        localStorage.setItem('page', '1');
-        setPage(1);
-        setSelectedCategory(slug);
-        loadData(selectedMainCategory, slug)
-    };
+  const handleCategoryRadioChange = (slug) => {
+      setPage(1);
+      setSelectedCategory(slug);
+      loadFilters(selectedMainCategory, slug, selectedFilters)
+  };
 
+  useEffect(() => {
+    if (isReady){
+    updateSearchParams();
+  }
+  }, [selectedMainCategory, selectedCategory, selectedFilters, page, isReady]);
 
-  // 🧠 Завантаження даних з URL при першому відкритті сторінки
+  useEffect(() => {
+    localStorage.setItem('page', page);
+  }, [page]);
+
   useEffect(() => {
     const fetchDataFromUrl = async () => {
-      const main = searchParams.get("main") || null;
+      const main = searchParams.get("main") || "novinki";
       const category = searchParams.get("category") || null;
-      const colorsFromUrl = searchParams.get("colors")?.split(",") ?? [];
-      const selectedColorNames = Object.entries(COLORS)
-        .filter(([name, slug]) => colorsFromUrl.includes(slug))
-        .map(([name]) => name);
-
-      const sizesFromUrl = (searchParams.get("sizes")?.split(",").filter(s => s.trim() !== "") ?? []);
-      const pageFromUrl = localStorage.getItem("page") || 1;
+      const filters = parseFiltersFromSearchParams();
+      setSelectedFilters(filters);
+      const pageFromUrl = searchParams.get("page") || 1;
 
       setSelectedMainCategory(main);
       setSelectedCategory(category);
-      setSelectedColors(selectedColorNames);
-      setSelectedSizes(sizesFromUrl);
-      setPage(1);
-      localStorage.setItem('page', '1');
-      setPhotosData([]);
-      setFullData({ hits: { hits: [] } });
+
+      console.log("Page is loading", category ?? main, filters, pageFromUrl, perPage)
 
         const data = await fetchPhotos(
           category ?? main,
-          sizesFromUrl,
-          selectedColorNames,
-          1,
-          pageFromUrl*perPage,
+          filters,
+          pageFromUrl,
+          perPage,
         );
         const newPhotos = extractDressaPaths(data);
-        setPhotosData(prev => [...prev, ...newPhotos]);
-        setFullData(prev => {
-          const merged = { ...prev };
-          merged.hits = {
-            ...prev.hits,
-            hits: [...(prev.hits?.hits || []), ...(data?.hits?.hits || [])]
-          };
-          return merged;
-        });
+        setPhotosData(newPhotos);
+        setFullData(data);
 
       setPage(pageFromUrl);
       localStorage.setItem('page', `${pageFromUrl}`);
       setIsReady(true);
-      await loadData(main, category);
     };
 
     fetchDataFromUrl();
@@ -470,100 +399,101 @@ useEffect(() => {
 
 
   // 🖱 Інфініт скролінг
-const handleLoadMore = useCallback(async () => {
-  setIsLoadingMore(true);
+// const handleLoadMore = useCallback(async () => {
+//   if(!isLoadingMore){
+//   setIsLoadingMore(true);
 
-  const nextPage = page + 1;
+//   const nextPage = parseInt(page) + 1;
 
-  const data = await fetchPhotos(
-    selectedCategory ?? selectedMainCategory,
-    selectedSizes,
-    selectedColors,
-    nextPage
-  );
+//   const data = await fetchPhotos(
+//     selectedCategory ?? selectedMainCategory,
+//     selectedFilters,
+//     nextPage
+//   );
 
-  if (data.hits.hits.length != 0){
+//   if (data.hits.hits.length != 0){
 
-  const newPhotos = extractDressaPaths(data);
+//   const newPhotos = extractDressaPaths(data);
 
-  setPhotosData(prev => [...prev, ...newPhotos]);
-  setFullData(prev => {
-    const merged = { ...prev };
-    merged.hits = {
-      ...prev.hits,
-      hits: [...(prev.hits?.hits || []), ...(data.hits?.hits || [])],
-    };
-    return merged;
-  });
+//   setPhotosData(prev => [...prev, ...newPhotos]);
+//   setFullData(prev => {
+//     const merged = { ...prev };
+//     merged.hits = {
+//       ...prev.hits,
+//       hits: [...(prev.hits?.hits || []), ...(data.hits?.hits || [])],
+//     };
+//     return merged;
+//   });
 
-  setPage(nextPage);
-  localStorage.setItem('page', `${nextPage}`);
-  setIsLoadingMore(false);
-}}, [page, selectedMainCategory, selectedCategory, selectedSizes, selectedColors]);
+//   isFromScroll.current = true;
+//   setPage(nextPage);
+//   localStorage.setItem('page', `${nextPage}`);
+//   setIsLoadingMore(false);
+//     }}}, [page]);
 
-useEffect(() => {
-  let isFetching = false;
+// useEffect(() => {
+//   isFetching = false;
 
-  const handleScroll = () => {
-    if (
-      isFetching || // локальний захист
-      isLoadingMore ||
-      !isReady ||
-      photosData.length >= (fullData?.hits?.total || 0)
-    ) {
+//   const handleScroll = () => {
+//     if (
+//       isFetching || // локальний захист
+//       isLoadingMore ||
+//       !isReady ||
+//       photosData.length >= (fullData?.hits?.total || 0)
+//     ) {
+//       // console.log("useEffect returned :c\n[isLoadingMore, isReady, photosData, fullData?.hits?.total, handleLoadMore]", isFetching, isLoadingMore, !isReady, photosData.length >= (fullData?.hits?.total || 0));
+//       return;
+//     }
+
+//     const scrollTop = window.scrollY;
+//     const windowHeight = window.innerHeight;
+//     const fullHeight = document.documentElement.scrollHeight;
+
+//     if (scrollTop + windowHeight >= fullHeight - 300) {
+//       isFetching = true; // заблокували повторний виклик
+//       console.log("📦 Завантажуємо ще сторінку");
+//       handleLoadMore().finally(() => {
+//         isFetching = false;
+//       });
+//     }
+//   };
+
+//   window.addEventListener("scroll", handleScroll);
+//   return () => window.removeEventListener("scroll", handleScroll);
+// }, [isLoadingMore, isReady, photosData, fullData?.hits?.total, handleLoadMore]);
+
+
+  useEffect(() => {
+    if (isFetching){
       return;
     }
 
-    const scrollTop = window.scrollY;
-    const windowHeight = window.innerHeight;
-    const fullHeight = document.documentElement.scrollHeight;
-
-    if (scrollTop + windowHeight >= fullHeight - 300) {
-      isFetching = true; // заблокували повторний виклик
-      console.log("📦 Завантажуємо ще сторінку");
-      handleLoadMore().finally(() => {
-        isFetching = false;
-      });
+    if (isReady) {
+      if (isFromScroll.current) {
+        console.log("🔁 Пропущено запит із-за скролінгу");
+        isFromScroll.current = false;
+        return;
     }
-  };
+      const main = searchParams.get("main") || "novinki";
+      const category = searchParams.get("category") || null;
+      const pageFromUrl = parseInt(searchParams.get("page") || "1");
+      const filtersFromUrl = parseFiltersFromSearchParams();
 
-  window.addEventListener("scroll", handleScroll);
-  return () => window.removeEventListener("scroll", handleScroll);
-}, [isLoadingMore, isReady, photosData.length, fullData?.hits?.total, handleLoadMore]);
-
-
-
-    useEffect(() => {
-        updateFilters();
-    }, [selectedMainCategory, selectedCategory, selectedColors, selectedSizes]);
-
-  useEffect(() => {
-  const main = searchParams.get("main") || null;
-  const category = searchParams.get("category") || null;
-
-  const colors = searchParams.get("colors")?.split(",") ?? [];
-  const selectedColorNames = Object.entries(COLORS)
-    .filter(([key, value]) => colors.includes(value))
-    .map(([key]) => key);
-
-  const sizes = searchParams.get("sizes")?.split(",") ?? [];
-  const pageFromUrl = parseInt(searchParams.get("page") || "1");
-
-  setSelectedMainCategory(main);
-  setSelectedCategory(category);
-  setSelectedColors(selectedColorNames);
-  setSelectedSizes(sizes);
-  setPage(pageFromUrl);
-  localStorage.setItem('page', `${pageFromUrl}`);
-
-
-  loadData(main, category);
-  loadPhotos();
+      loadFilters(main, category, filtersFromUrl);
+      console.log("[searchParams, isReady]", main, category, pageFromUrl, filtersFromUrl)
+      loadPhotos(main, category, pageFromUrl, filtersFromUrl);
+  }
+  else{
+      const main = searchParams.get("main") || "novinki";
+      const category = searchParams.get("category") || null;
+      const filtersFromUrl = parseFiltersFromSearchParams();
+      loadFilters(main, category, filtersFromUrl);
+  }
 }, [searchParams]);
 
 
         if (!isReady) {
-        return <div>Завантаження...</div>;
+        return <div><Loading></Loading></div>;
         }
 
     return (
@@ -572,6 +502,7 @@ useEffect(() => {
             <button onClick={() => setIsSidebarVisible(!isSidebarVisible)} style={styles.toggleButton}>
             {isSidebarVisible ? "Сховати фільтри" : "Показати фільтри"}
             </button>
+            
             <div style={styles.logo}><img src={"/logo.png"} width={"80px"} ></img></div>
         </header>
         {isSidebarVisible && (
@@ -621,7 +552,7 @@ useEffect(() => {
                 <h2>Фільтри:</h2>
 
                 <div>
-                <Filters filters = {filters} selectedFilters= {selectedFilters} setSelectedFilters={setSelectedFilters}></Filters>
+                <Filters filters = {filters} selectedFilters= {selectedFilters} setSelectedFilters={setSelectedFilters} setPage={setPage}></Filters>
                 </div>
                 
                 <div style={{ marginTop: '1rem' }}>
@@ -632,10 +563,35 @@ useEffect(() => {
         </aside>)}
         <main style={styles.mainContent}>
             {photosData && <PhotoGallery products={photosData} priceIncrease={priceIncrease} />}
+            <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "20px" }}>
+            <button
+              onClick={() => {
+                setPage(prev => Math.max(prev - 1, 1));
+                window.scrollTo(0, parseInt(0, 10));}}
+              disabled={page <= 1}
+              style={{ padding: "8px 16px" }}
+            >
+              ← Назад
+            </button>
+            <span style={{ padding: "8px 16px" }}>Сторінка {page}/{Math.ceil((fullData?.hits?.total || 0) / perPage)}</span>
+            <button
+              onClick={() => {
+                const totalPages = Math.ceil((fullData?.hits?.total || 0) / perPage);
+                if (page < totalPages) {
+                  setPage(prev => parseInt(prev) + 1);
+                }
+                window.scrollTo(0, parseInt(0, 10));
+              }}
+              disabled={page >= Math.ceil((fullData?.hits?.total || 0) / perPage)}
+              style={{ padding: "8px 16px" }}
+            >
+              Вперед →
+            </button>
+          </div>
             <div ref={sentinelRef} style={{ height: "1px" }}></div>
             {isLoadingMore && (
                 <div style={{ textAlign: "center", margin: "10px" }}>
-                <span>Завантаження...</span>
+                <span></span>
                 </div>
             )}
                 <input type="button" value={isDataVisible ? "Сховати дані" : "Показати дані"}
