@@ -25,7 +25,7 @@ export default function PhotoGallery({ products, priceIncrease }) {
         while(images.length < 4){images.forEach(image =>images.push(image))}
 
         return (
-          <figure key={product.hash} style={styles.figure}>
+          <figure key={product.images} style={styles.figure}>
             <Swiper
               modules={[Navigation, Pagination, EffectCoverflow]}
               effect="coverflow"

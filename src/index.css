@@ -103,6 +103,13 @@ th.hover-cell {
   td {
     border: 1px solid #555;
   }
+  th{
+   padding : 0; 
+  }
+  th button{
+    border-radius: 0;
+    width:100%
+  }
 
   tr:hover {
     background-color: rgba(173, 216, 230, 0.067); /* світло-блакитний у темі */
@@ -113,8 +120,9 @@ th.hover-cell {
     background-color: rgba(0, 89, 255, 0.078); /* яскравіший жовтий */
   }
 
-  .selected-size-msg {
-    color: #90ee90; /* світло-зелений */
+  .param-name {
+    background-color: #242424; /* світло-зелений */
+    border-right: 1px solid #555;
   }
 }
 

@@ -29,13 +29,14 @@ const groupsConstantName = {
 }
 
 export default function Filters({ filters, selectedFilters, setSelectedFilters, setPage}) {
-  const [expandedGroups, setExpandedGroups] = useState({});
+  const [expandedGroups, setExpandedGroups] = useState(localStorage.getItem("expandedGroups")??{});
 
   const toggleGroup = (group) => {
     setExpandedGroups((prev) => ({
       ...prev,
       [group]: !prev[group],
-    }));
+    }))
+    localStorage.setItem("expandedGroups", (prev) => ({...prev,  [group]: !prev[group], }));
   };
 
   const handleCheckboxChange = (group, value) => {
@@ -54,14 +55,14 @@ export default function Filters({ filters, selectedFilters, setSelectedFilters, 
     console.log(groupValues);
   };
 
-  const sizes = filters.sizes;
-  const colors = filters.colors;
+  const sizes = filters?.sizes;
+  const colors = filters?.colors;
 
   return (
     <>
 
     <h3>Розмір</h3>
-    {sizes.map((size) => (
+    {sizes?.map((size) => (
     <label key={size.taxon} style={{ display: 'block' }}>
         <input
         type="checkbox"

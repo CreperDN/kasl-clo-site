@@ -28,7 +28,7 @@ export default function LargeImageGallery({ product }) {
   return (
     <>
       {/* Галерея */}
-      <div style={styles.galleryContainer}>
+      <div style={styles.galleryContainer} >
         <Swiper
           slidesPerView={"auto"}
           spaceBetween={10}

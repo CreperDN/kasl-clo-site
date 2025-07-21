@@ -273,6 +273,7 @@ function extractDressaPaths(data) {
   const [isReady, setIsReady] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const isFromScroll = useRef(false);
+  const [inputPage, setInputPage] = useState(page); 
   const navigate = useNavigate();
 
   const updateSearchParams = () => {
@@ -491,6 +492,11 @@ useEffect(() => {
   }
 }, [searchParams]);
 
+useEffect(() => {
+  setInputPage(page);
+}, [page]);
+
+
 
         if (!isReady) {
         return <div><Loading></Loading></div>;
@@ -506,9 +512,9 @@ useEffect(() => {
             <div style={styles.logo}><img src={"/logo.png"} width={"80px"} ></img></div>
         </header>
         {isSidebarVisible && (
-        <aside style={{...styles.sidebar, transform: isSidebarVisible ? 'translateX(0)' : 'translateX(-100%)',}} className={isSidebarVisible ? "show" : ""}>
+        <aside style={{...styles.sidebar,  transform: isSidebarVisible ? 'translateX(0)' : 'translateX(-100%)',}} className={isSidebarVisible ? "show" : ""}>
         <button onClick={() => setIsSidebarVisible(false)} style={styles.closeButton}>✖</button>
-        <div className="card">
+        <div className="card" style = {{paddingBottom: '120px'}}>
             <div className="filter-section">
                 <h3>Основні категорії</h3>
                 {Object.entries(MAIN_CATEGORIES).map(([name, [slug]]) => (
@@ -572,8 +578,43 @@ useEffect(() => {
               style={{ padding: "8px 16px" }}
             >
               ← Назад
-            </button>
-            <span style={{ padding: "8px 16px" }}>Сторінка {page}/{Math.ceil((fullData?.hits?.total || 0) / perPage)}</span>
+            </button>            
+            <span style={{ padding: "8px 16px" }}>
+            Сторінка:{" "}
+            <input
+                type="number"
+                min={1}
+                max={Math.ceil((fullData?.hits?.total || 0) / perPage)}
+                value={inputPage}
+                onChange={(e) => setInputPage(e.target.value)}
+                onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                    const num = parseInt(inputPage);
+                    if (num >= 1 && num <= Math.ceil((fullData?.hits?.total || 0) / perPage)) {
+                    setPage(num); // твоя функція оновлення сторінки
+                    } else {
+                    setInputPage(page); // якщо число некоректне — повернути назад
+                    }
+                }
+                }}
+                onBlur={() => {
+                const num = parseInt(inputPage);
+                if (num >= 1 && num <= Math.ceil((fullData?.hits?.total || 0) / perPage)) {
+                    setPage(num);
+                } else {
+                    setInputPage(page);
+                }
+                }}
+                style={{
+                width: "40px",
+                textAlign: "center",
+                margin: "0 5px",
+                verticalAlign: "middle",
+                lineHeight: "2"
+                }}
+            />
+            / {Math.ceil((fullData?.hits?.total || 0) / perPage)}
+            </span>
             <button
               onClick={() => {
                 const totalPages = Math.ceil((fullData?.hits?.total || 0) / perPage);

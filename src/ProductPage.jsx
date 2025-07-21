@@ -280,7 +280,7 @@ export default function ProductPage() {
     load();
   }, [slug]);
 
-  if (loading) return <p><Loading></Loading></p>;
+  if (loading) return <Loading></Loading>;
   if (!product) return <p>Товар не знайдено</p>;
 
   const allImages = [product.url, ...product.images.map(img =>
@@ -347,11 +347,11 @@ return (
         {Array.from(new Set(dimensionTable.flatMap(Object.keys))).length > 2 ? (
         <div className="size-table-container">
         <h3>Таблиця розмірів</h3>
-        <div className="size-table-wrapper">
+        <div className="size-table-wrapper" style={{    overflowX: "auto",    boxSizing: "border-box",    maxWidth: "100%",  }}>
           <table className="size-table">
             <thead>
               <tr>
-                <th className="param-header">Розмір</th>
+                <th className="param-name" style={{ position: "sticky", left: 0, zIndex: 2 }}>Розмір</th>
                 {dimensionTable.map((row, i) => (
                   <th key={i} className={`size-header ${row.isInStock ? '' : 'out-of-stock'}`}>
                     <button
@@ -360,6 +360,11 @@ return (
                       }}
                       disabled={!row.isInStock}
                       title={!row.isInStock ? "Розміру нема в наявності" : ""}
+                      style={{
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",         
+                        maxWidth: "100%",           
+                      }}
                     >
                       {row.size}
                     </button>
@@ -370,7 +375,7 @@ return (
             <tbody>
               {transposedKeys.map((key, rowIdx) => (
                 <tr key={rowIdx}>
-                  <td className="param-name">{key}</td>
+                  <td className="param-name" style={{ position: "sticky", left: 0, zIndex: 2 }}>{key}</td>
                   {dimensionTable.map((row, colIdx) => (
                     <td key={colIdx} className="param-value">
                       {row[key] ?? "-"}
