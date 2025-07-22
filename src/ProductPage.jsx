@@ -126,7 +126,11 @@ export default function ProductPage() {
     console.log(source.taxons)
     console.log(source.taxons.map(e => (e.taxonomy?.trans?.ua.name??e.taxonomy?.name) + ':' + (e.trans?.ua?.name??e.name)))
     console.log(source.attachedProducts[0]?.trans.ua.description) // Інші кольори
-    console.log(source.activeSingleSizes)
+
+    console.log(source.activeSingleSizes)//Available sizes
+    console.log(source.activeSingleSizes.filter(item => localStorage.getItem("selectedSize")?.includes(item)))
+    setSelectedSize(source.activeSingleSizes.filter(item => localStorage.getItem("selectedSize")?.includes(item)));
+
     console.log(source.variants.map(e => e.dimensions))
     let measures = [];
     source.variants.map(e => e.dimensions.map(ee => measures.push(TRANSLATE[ee.measure.name]+':'+ee.value)))
@@ -182,7 +186,7 @@ export default function ProductPage() {
 
     console.log(dimensionTable.find(e => e.size==selectedSize && e.isInStock))
     
-    if (!dimensionTable.find(e => e.size==selectedSize && e.isInStock)){setSelectedSize(null)}
+    if (!dimensionTable.find(e => selectedSize?.includes(e.size) && e.isInStock)){setSelectedSize(null)}
 
     if(Array.from(new Set(dimensionTable.flatMap(Object.keys))).length < 3){
       dimensionTable = source.variants?.map(v =>
@@ -324,7 +328,7 @@ return (
         <div style={{  maxWidth: "100%",  padding: "0 16px",  boxSizing: "border-box", alignSelf: "flex-start"}}>
           {selectedSize && (
             <div style={{ marginTop: "10px", fontSize: "14px" }}>
-              Обрано розмір: <strong>{selectedSize}</strong>
+              Обрано розмір: <strong>{selectedSize.toString()}</strong>
             </div>
           )}
           <a
@@ -333,7 +337,7 @@ return (
             rel="noopener noreferrer"
             className="order-button"
             onClick={()=>{
-              navigator.clipboard.writeText(`Замовлення: ${product.name}, ${selectedSize ? "Обраний розмір:"+selectedSize+"," : ""} Ціна: ${(product.price / 100 + priceIncrease).toFixed(2)} грн, Посилання: https://kasl-clo.onrender.com/product/${product.slug}`);
+              navigator.clipboard.writeText(`Замовлення: ${product.name}, ${selectedSize ? "Обраний розмір:"+selectedSize.toString()+"," : ""} Ціна: ${(product.price / 100 + priceIncrease).toFixed(2)} грн, Посилання: https://kasl-clo.onrender.com/product/${product.slug}`);
           }}
           >
             Замовити в Direct

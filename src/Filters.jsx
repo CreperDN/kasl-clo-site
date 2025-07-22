@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const filtersGroups = [
   "density", "details", "events", "fashions", "length", 
@@ -29,15 +29,25 @@ const groupsConstantName = {
 }
 
 export default function Filters({ filters, selectedFilters, setSelectedFilters, setPage}) {
-  const [expandedGroups, setExpandedGroups] = useState(localStorage.getItem("expandedGroups")??{});
+  if (!filters || Object.keys(filters).length === 0) {
+    return null;
+  }
+  const [expandedGroups, setExpandedGroups] = useState(JSON.parse(sessionStorage.getItem("expandedGroups"))??{});
 
   const toggleGroup = (group) => {
     setExpandedGroups((prev) => ({
       ...prev,
       [group]: !prev[group],
     }))
-    localStorage.setItem("expandedGroups", (prev) => ({...prev,  [group]: !prev[group], }));
   };
+
+  useEffect(()=>{
+    sessionStorage.setItem("expandedGroups", JSON.stringify(expandedGroups));
+  },[expandedGroups])
+
+  useEffect(()=>{
+    localStorage.setItem("selectedSize", selectedFilters["s"]);
+  },[selectedFilters["s"]])
 
   const handleCheckboxChange = (group, value) => {
     setPage(1);
@@ -61,20 +71,49 @@ export default function Filters({ filters, selectedFilters, setSelectedFilters, 
   return (
     <>
 
-    <h3>Розмір</h3>
-    {sizes?.map((size) => (
+    <div key={"Size"} style={{ marginBottom: "1em" }}>
+    <button
+        onClick={() => toggleGroup("Розмір")}
+        style={{
+          fontWeight: "bold",
+          cursor: "pointer",
+          background: "none",
+          border: "none",
+          padding: 0,
+          fontSize: "1em",
+        }}
+      >
+        {expandedGroups["Розмір"] ? "▼" : "▶"} Розмір
+      </button>
+    {expandedGroups["Розмір"] && <div style={{ marginLeft: "1em", marginTop: "0.5em" }}>{(sizes?.map((size) => (
     <label key={size.taxon} style={{ display: 'block' }}>
         <input
         type="checkbox"
         value={size.taxon}
         checked={Boolean(selectedFilters["s"]?.includes?.(String(size.taxon)))}
-        onChange={() => handleCheckboxChange("s",String(size.taxon))}
+        onChange={() => {handleCheckboxChange("s",String(size.taxon))}}
         />
         {` ${size.taxon} (${size.count})`}
     </label>
-    ))}
-    <h3>Колір</h3>
-    {colors.map((color) => (
+    )))}</div>}
+    </div>
+
+    <div key={"Color"} style={{ marginBottom: "1em" }}>
+    <button
+        onClick={() => toggleGroup("Колір")}
+        style={{
+          fontWeight: "bold",
+          cursor: "pointer",
+          background: "none",
+          border: "none",
+          padding: 0,
+          fontSize: "1em",
+        }}
+      >
+        {expandedGroups["Колір"] ? "▼" : "▶"} Колір
+      </button>
+      
+    {expandedGroups["Колір"] && <div style={{ marginLeft: "1em", marginTop: "0.5em" }}>{(colors.map((color) => (
     <label key={color.taxon.slug} style={{ display: 'block' }}>
     <input
         type="checkbox"
@@ -85,7 +124,8 @@ export default function Filters({ filters, selectedFilters, setSelectedFilters, 
         <span style={{display: 'inline-block', backgroundColor:`#${color.taxon.colorValue}`, height:16, width:16, border: '2px solid #000'}}></span>
         {` ${color.taxon.trans.ua.name} (${color.count})`}
     </label>
-    ))}
+    )))}</div>}
+    </div>
 
       {filtersGroups.map((filterGroup) => {
         const groupItems = filters[filterGroup];

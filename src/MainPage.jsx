@@ -267,7 +267,7 @@ function extractDressaPaths(data) {
   const [photosData, setPhotosData] = useState([]);
   const [fullData, setFullData] = useState({ hits: { hits: [] } });
   const [isDataVisible, setDataVisibility] = useState(false);
-  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(sessionStorage.getItem("isSidebarVisible")??false);;
   const sentinelRef = useRef(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isReady, setIsReady] = useState(false);
@@ -354,6 +354,11 @@ function extractDressaPaths(data) {
   useEffect(() => {
     localStorage.setItem('page', page);
   }, [page]);
+
+  useEffect(() => {
+    sessionStorage.setItem('isSidebarVisible', isSidebarVisible);
+  }, [isSidebarVisible]);
+
 
   useEffect(() => {
     const fetchDataFromUrl = async () => {
