@@ -118,6 +118,8 @@ const styles = {
     width: '100%',
     maxWidth: "350px",
     overflow: "hidden",
+    alignSelf: "center",
+    justifySelf: "center",
   },
   swiper: {
     width: "300px",

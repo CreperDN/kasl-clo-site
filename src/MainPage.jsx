@@ -700,7 +700,7 @@ const handleGoToProduct = () => {
             >
               ← Назад
             </button>            
-            <span style={{ padding: "8px 16px" }}>
+            <span style={{ padding: "8px 16px",     display: "flex",    alignItems: "center",    justifyContent: "center"}}>
             Сторінка:{" "}
             <input
                 type="number"
@@ -734,7 +734,7 @@ const handleGoToProduct = () => {
                 lineHeight: "2"
                 }}
             />
-            / {Math.ceil((fullData?.hits?.total || 0) / perPage)}
+            /{Math.ceil((fullData?.hits?.total || 0) / perPage)}
             </span>
             <button
               onClick={() => {

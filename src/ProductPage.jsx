@@ -444,13 +444,13 @@ return (
           {product.description && (
             <div style={styles.block}>
               <h3>Опис товару:</h3>
-              <div dangerouslySetInnerHTML={{ __html: product.description }} />
+              <div dangerouslySetInnerHTML={{ __html: product.description }} style = {{fontSize: "16px"}}/>
             </div>
           )}
 
           {/* Характеристика */}
           {characteristics.length > 0 && (
-            <div style={{ ...styles.block, marginTop: product.description ? 0 : "20px" }}>
+            <div style={{ ...styles.block, marginTop: product.description ? 0 : "20px", fontSize: "16px" }}>
               <h3>Характеристика:</h3>
               <ul>
                 {characteristics.map((m, i) =>
