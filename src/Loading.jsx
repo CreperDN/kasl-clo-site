@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 
 export default function Loading() {
+  return(null)
   useEffect(() => {
     const style = document.createElement("style");
     style.innerHTML = `
