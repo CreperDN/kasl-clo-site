@@ -267,7 +267,9 @@ function extractDressaPaths(data) {
   const [photosData, setPhotosData] = useState([]);
   const [fullData, setFullData] = useState({ hits: { hits: [] } });
   const [isDataVisible, setDataVisibility] = useState(false);
-  const [isSidebarVisible, setIsSidebarVisible] = useState(sessionStorage.getItem("isSidebarVisible")??false);;
+  const [isSidebarVisible, setIsSidebarVisible] = useState(() => {
+  return localStorage.getItem("isSidebarVisible") === "true";
+});
   const sentinelRef = useRef(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isReady, setIsReady] = useState(false);
@@ -357,11 +359,42 @@ function extractDressaPaths(data) {
   }, [page]);
 
   useEffect(() => {
-    sessionStorage.setItem('isSidebarVisible', isSidebarVisible);
-  }, [isSidebarVisible]);
+    const saved = sessionStorage.getItem("mainPageState");
+    if (saved) {
+  const fetchSavedData = async () => {
+    const state = JSON.parse(saved);
+    const main = searchParams.get("main") || "novinki";
+    const category = searchParams.get("category") || null;
+    const filters = parseFiltersFromSearchParams();
+    const pageFromUrl = searchParams.get("page") || 1;
 
+    setPhotosData(state.photosData); 
+    setFilters(state.filters);
+    setFullData(state.fullData);
+    setSelectedFilters(filters);
+    setPage(pageFromUrl);
+    setSelectedMainCategory(main);
+    setSelectedCategory(category);
 
-  useEffect(() => {
+    console.log(state)
+    console.log(state.filters)
+    console.log(filters)
+    console.log(pageFromUrl)
+    console.log( main, category)
+    console.log(state.fullData)
+
+    setTimeout(() => window.scrollTo(0, state.scroll), 0);
+
+    sessionStorage.removeItem("mainPageState");
+
+    window.addEventListener("beforeunload", () => {
+      sessionStorage.removeItem("mainPageState");
+    });
+  };
+
+  fetchSavedData();
+  setIsReady(true);
+} else {
     const fetchDataFromUrl = async () => {
       const main = searchParams.get("main") || "novinki";
       const category = searchParams.get("category") || null;
@@ -390,7 +423,8 @@ function extractDressaPaths(data) {
     };
 
     fetchDataFromUrl();
-  }, []);
+  }
+}, []);
 
 useEffect(() => {
     if (isReady){
@@ -553,6 +587,23 @@ useEffect(() => {
   syncFiltersFromURL();
 }, [searchParams]);
 
+  useEffect(() => {
+    localStorage.setItem('isSidebarVisible', isSidebarVisible);
+  }, [isSidebarVisible]);
+
+const handleGoToProduct = () => {
+  sessionStorage.setItem(
+    "mainPageState",
+    JSON.stringify({
+      photosData,
+      filters,
+      fullData,
+      scroll: window.scrollY,
+    })
+  );
+};
+
+
         if (!isReady) {
         return <div><Loading></Loading></div>;
         }
@@ -638,7 +689,7 @@ useEffect(() => {
         </aside>
         </>)}
         <main style={styles.mainContent}>
-            {photosData && <PhotoGallery products={photosData} priceIncrease={priceIncrease} />}
+            {photosData && <PhotoGallery products={photosData} priceIncrease={priceIncrease} handleGoToProduct={handleGoToProduct}/>}
             <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "20px" }}>
             <button
               onClick={() => {

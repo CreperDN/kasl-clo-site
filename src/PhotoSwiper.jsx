@@ -7,7 +7,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/effect-coverflow";
 
-export default function PhotoGallery({ products, priceIncrease }) {
+export default function PhotoGallery({ products, priceIncrease, handleGoToProduct=null }) {
 
   const location = useLocation();
   products = Array.isArray(products) ? products : [products];
@@ -55,6 +55,7 @@ export default function PhotoGallery({ products, priceIncrease }) {
                         (window.scrollY+0.7).toString()
                       )
                       window.scrollTo(0, parseInt(0, 10));
+                      if (handleGoToProduct()){handleGoToProduct()};
                     }}
                   >
                     <img
