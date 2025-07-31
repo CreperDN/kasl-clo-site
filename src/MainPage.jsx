@@ -341,6 +341,7 @@ function extractDressaPaths(data) {
 
   const handleCategoryRadioChange = (slug) => {
       setPage(1);
+      setSelectedFilters({})
       setSelectedCategory(slug);
       loadFilters(selectedMainCategory, slug, selectedFilters)
   };
@@ -501,7 +502,56 @@ useEffect(() => {
   setInputPage(page);
 }, [page]);
 
+useEffect(() => {
+  console.log(isSidebarVisible, window.innerWidth)
+  if (isSidebarVisible && window.innerWidth < 768) {
+    // Додаємо фіктивний запис до історії
+    history.pushState(null, document.title, location.pathname + location.search + "#!sidebar");
+  }
+}, [isSidebarVisible, searchParams]);
 
+useEffect(() => {
+  const onPopState = (e) => {
+    if (isSidebarVisible && window.innerWidth < 768) {
+      setIsSidebarVisible(false);
+
+      // Зберігаємо всі параметри (search)
+      history.replaceState(null, document.title, location.pathname + location.search);
+    }
+  };
+
+  window.addEventListener("popstate", onPopState);
+  return () => window.removeEventListener("popstate", onPopState);
+}, [isSidebarVisible]);
+
+useEffect(() => {
+  if (!isSidebarVisible && location.hash === "#!sidebar") {
+    history.back(); // повертаємось на попередній запис з усіма параметрами
+  }
+}, [isSidebarVisible]);
+
+useEffect(() => {
+  const onPopState = () => {
+    if (window.location.hash === "#!sidebar") {
+      history.back();
+    } else {
+    }
+  };
+  window.addEventListener("popstate", onPopState);
+  return () => window.removeEventListener("popstate", onPopState);
+}, []);
+
+useEffect(() => {
+  const syncFiltersFromURL = () => {
+    const main = searchParams.get("main") || "novinki";
+      const category = searchParams.get("category") || null;
+      const filters = parseFiltersFromSearchParams();
+      setSelectedFilters(filters);
+      setSelectedMainCategory(main);
+      setSelectedCategory(category);
+  };
+  syncFiltersFromURL();
+}, [searchParams]);
 
         if (!isReady) {
         return <div><Loading></Loading></div>;
@@ -516,7 +566,22 @@ useEffect(() => {
             
             <div style={styles.logo}><img src={"/logo.png"} width={"80px"} ></img></div>
         </header>
-        {isSidebarVisible && (
+        {isSidebarVisible && (    
+        <> 
+          {window.innerWidth <= 768 && (
+            <div
+              onClick={() => setIsSidebarVisible(false)}
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: "rgba(0,0,0,0.9)",
+                zIndex: 999,
+              }}
+            />
+          )}
         <aside style={{...styles.sidebar,  transform: isSidebarVisible ? 'translateX(0)' : 'translateX(-100%)',}} className={isSidebarVisible ? "show" : ""}>
         <button onClick={() => setIsSidebarVisible(false)} style={styles.closeButton}>✖</button>
         <div className="card" style = {{paddingBottom: '120px'}}>
@@ -536,7 +601,6 @@ useEffect(() => {
                 ))}
                 </div>
                 <div className="filter-section">
-                <h3>Підкатегорії</h3>
                 {Object.entries(CLOTHING_CATEGORIES).map(([type, categories]) => (
                     (Object.keys(MAIN_CATEGORIES).find(key => MAIN_CATEGORIES[key][0] === selectedMainCategory) === type ? (
                     <div key={type} style={{ marginBottom: "1rem" }}>
@@ -571,7 +635,8 @@ useEffect(() => {
             </div>
             )}
         </div>
-        </aside>)}
+        </aside>
+        </>)}
         <main style={styles.mainContent}>
             {photosData && <PhotoGallery products={photosData} priceIncrease={priceIncrease} />}
             <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "20px" }}>

@@ -32,8 +32,9 @@ const styles = {
     zIndex: 9999,
   },
   logo: {
-    width: "700px",
-    height: "700px",
+    width: "400px",
+    height: "400px",
     animation: "spin 10s linear infinite",
   },
 };
+
