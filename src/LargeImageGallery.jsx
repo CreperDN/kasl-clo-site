@@ -45,6 +45,27 @@ export default function LargeImageGallery({ product }) {
     };
   }, [isOpen]);
 
+  useEffect(() => {
+  const prev = document.querySelector(".swiper-button-prev");
+  const next = document.querySelector(".swiper-button-next");
+  [prev, next].forEach((btn) => {
+    if (btn) {
+      btn.style.width = "60px";
+      btn.style.height = "119%";
+      btn.style.top = "-20px";
+      btn.style.bottom = "0";
+      btn.style.background = "rgba(0,0,0,0.08)";
+      btn.style.display = "flex";
+      btn.style.alignItems = "center";
+      btn.style.justifyContent = "center";
+      btn.style.color = "#fff";
+      btn.style.fontSize = "24px";
+    }
+  });
+  if (prev) prev.style.left = "-7px";  // зміщення вліво
+  if (next) next.style.right = "-7px"; // зміщення вправо
+}, []);
+
 
   return (
     <>
@@ -85,8 +106,10 @@ export default function LargeImageGallery({ product }) {
       {/* Модалка */}
 {isOpen && (
   <div style={styles.modalOverlay} onClick={closeModal}>
-    <span style={styles.closeButton} onClick={closeModal}>
-      ×
+    <span style={{...styles.closeButton}} onClick={closeModal}>
+      <span style={{ display: "inline-block", transform: "translateY(-7%)" }}>
+        ×
+      </span>
     </span>
 
     <Swiper
@@ -142,23 +165,35 @@ export default function LargeImageGallery({ product }) {
       {/* Власні кнопки навігації */}
       <button
         style={{ ...styles.modalNavButton, left: 0 }}
+        onFocus={(e) => {
+          e.target.style.backgroundColor = "rgba(255,255,255,0.2)";
+        }}
+        onBlur={(e) => {
+          e.target.style.backgroundColor = "rgba(255,255,255,0.1)";
+        }}
         onClick={(e) => {
           e.stopPropagation();
           modalSwiperRef.current?.slidePrev();
         }}
         aria-label="Попередній слайд"
       >
-        ‹
+        <span style={{ display: "inline-block", transform: "translateY(-12%)" }}>‹</span>
       </button>
       <button
-        style={{ ...styles.modalNavButton, right: 0 }}
+        style={{ ...styles.modalNavButton, right: 0}}
+        onFocus={(e) => {
+          e.target.style.backgroundColor = "rgba(255,255,255,0.2)";
+        }}
+        onBlur={(e) => {
+          e.target.style.backgroundColor = "rgba(255,255,255,0.1)";
+        }}
         onClick={(e) => {
           e.stopPropagation();
           modalSwiperRef.current?.slideNext();
         }}
         aria-label="Наступний слайд"
       >
-        ›
+        <span style={{ display: "inline-block", transform: "translateY(-12%)" }}>›</span>
       </button>
     </Swiper>
   </div>
@@ -217,26 +252,43 @@ const styles = {
     position: "fixed",
     top: "20px",
     right: "30px",
-    fontSize: "40px",
+    fontSize: "50px",
+    width: "60px",
+    height: "60px",
     color: "#fff",
     cursor: "pointer",
     zIndex: 1001,
     userSelect: "none",
+    backgroundColor: "rgba(255,255,255,0.1)",
+    borderRadius: "15%",
+    textShadow: "2px 0 #222021, -2px 0 #222021, 0 2px #222021, 0 -2px #222021,  1px 1px #222021, -1px -1px #222021, 1px -1px #222021, -1px 1px #222021",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
-    modalNavButton: {
+  modalNavButton: {
     position: "absolute",
     top: "50%",
     transform: "translateY(-50%)",
     background: "transparent",
     border: "none",
     color: "#fff",
-    fontSize: "50px",
+    fontSize: "100px",
+    lineHeight: "1", // ➤ додай це, щоб символ був чітко по центру
+    outline: "none",
     cursor: "pointer",
-    padding: "0 10px",
     zIndex: 1002,
     userSelect: "none",
     boxShadow: "none",
+    padding: "0 10px",
+    backgroundColor: "rgba(255,255,255,0.1)",
+    textShadow: "2px 0 #222021, -2px 0 #222021, 0 2px #222021, 0 -2px #222021, 1px 1px #222021, -1px -1px #222021, 1px -1px #222021, -1px 1px #222021",
+
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
+
   modalPrevButton: {
     left: 0,
   },
