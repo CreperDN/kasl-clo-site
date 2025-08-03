@@ -205,7 +205,7 @@ export default function LargeImageGallery({ product }) {
 
 const styles = {
   galleryContainer: {
-    padding: "10px",
+    padding: "0px 10px",
     maxWidth: "1000px",
     margin: "0 auto",
   },

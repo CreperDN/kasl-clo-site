@@ -33,6 +33,11 @@ export default function Filters({ filters, selectedFilters, setSelectedFilters, 
     return null;
   }
   const [expandedGroups, setExpandedGroups] = useState(JSON.parse(sessionStorage.getItem("expandedGroups"))??{});
+  console.log("FILTERS!!!!!", filters)
+
+  let col = new Object;
+  filters.colors.map(filter => col[filter.taxon.colorValue]=filter.taxon.trans.ua.name)
+  console.log(JSON.stringify(col))
 
   const toggleGroup = (group) => {
     setExpandedGroups((prev) => ({

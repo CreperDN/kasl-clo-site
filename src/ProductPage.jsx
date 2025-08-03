@@ -4,6 +4,7 @@ import PhotoGallery from './PhotoSwiper';
 import Loading from './Loading';
 import "swiper/css";
 import LargeImageGallery from './LargeImageGallery';
+import SimilarProducts from "./SimilarProducts";
 
 const thStyle = { border: "1px solid #ccc", padding: "8px", textAlign: "left" };
 const tdStyle = { border: "1px solid #ccc", padding: "8px" };
@@ -138,6 +139,8 @@ export default function ProductPage() {
 
     console.log(source.variants.map(e => e.options[0].sizeDescription))
     console.log(source.attribures)
+    console.log("ДЛЯ SIMILAR PRODUCTS!!!!",source.attachedProducts)
+    console.log("ДЛЯ SIMILAR PRODUCTS!!!!",source.attachedProducts.map(o => console.log(o.taxons.find(oo => oo.colorValue !== null))))//HEX кольору
     
 
     const allMeasures = [];
@@ -153,7 +156,8 @@ export default function ProductPage() {
       const images = (src.images || []).map(img => img.dressaPath).slice(1);
       return {
         name: src.correctedName,
-        price: src.priceUAH??src.masterVariant.prices[0].value,
+        colorValue: src.taxons.find(oo => oo.colorValue !== null).colorValue,
+        price: src.priceUAH ?? src?.masterVariant?.prices[0]?.value,
         oldPrice: src.oldPriceUAH,
         slug: src.slug,
         images,
@@ -308,23 +312,8 @@ return (
       {/* Галерея — ліва частина */}
       <div style={styles.galleryWrapper}>
         {product && <LargeImageGallery product={product} />}
+        {difColored && <SimilarProducts data={difColored}/>}
 
-              {product.oldPrice != null ? (
-                <div key ={product.oldPrice} style={{ display: "flex", justifyContent: "center" }}>
-                  <s style={{ color: "gray", marginRight: "8px" }}>
-                    {(product.oldPrice / 100 + priceIncrease).toFixed(2)} грн
-                  </s>
-                  <strong>
-                    {(product.price / 100 + priceIncrease).toFixed(2)} грн
-                  </strong>
-                </div>
-              ) : (
-                <div key ={product.oldPrice} style={{ display: "flex", justifyContent: "center" }}>
-                  <strong style = {{}}>
-                    {(product.price / 100 + priceIncrease).toFixed(2)} грн
-                  </strong>
-                </div>
-              )}
         <div style={{  maxWidth: "100%",  padding: "0 16px",  boxSizing: "border-box", alignSelf: "flex-start"}}>
           {selectedSize && (
             <div style={{ marginTop: "10px", fontSize: "14px" }}>
@@ -347,6 +336,23 @@ return (
 
       {/* Інфо — права частина */}
       <div style={styles.infoWrapper}>
+        {/*Ціна*/ }
+        {product.oldPrice != null ? (
+                <div key ={product.oldPrice} style={{ display: "flex", justifyContent: "left" }}>
+                  <s style={{ color: "gray", marginRight: "8px" }}>
+                    {(product.oldPrice / 100 + priceIncrease).toFixed(2)} грн
+                  </s>
+                  <strong>
+                    {(product.price / 100 + priceIncrease).toFixed(2)} грн
+                  </strong>
+                </div>
+              ) : (
+                <div key ={product.oldPrice} style={{ display: "flex", justifyContent: "left" }}>
+                  <strong style = {{}}>
+                    {(product.price / 100 + priceIncrease).toFixed(2)} грн
+                  </strong>
+                </div>
+              )}
         {/* Таблиця розмірів */}
         {Array.from(new Set(dimensionTable.flatMap(Object.keys))).length > 2 ? (
         <div className="size-table-container">
