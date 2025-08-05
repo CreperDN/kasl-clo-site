@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, EffectCoverflow } from "swiper/modules";
 import { Link, useLocation } from "react-router-dom";
@@ -11,11 +11,12 @@ export default function PhotoGallery({ products, priceIncrease, handleGoToProduc
 
   const location = useLocation();
   products = Array.isArray(products) ? products : [products];
+
   return (
     <div className="photo-gallery" style={styles.galleryContainer}>
       <div className="photo-grid" style={styles.grid}>
     <>
-      {products.map((product) => {
+      {products.map((product, i) => {
         
 
         const images = [product.url, ...(product.images || []).map(img =>
@@ -25,10 +26,33 @@ export default function PhotoGallery({ products, priceIncrease, handleGoToProduc
         while(images.length < 4){images.forEach(image =>images.push(image))}
 
         return (
-          <figure key={product.images} style={styles.figure}>
+          <figure key={product.images[i]+`${i}`} style={styles.figure}>
             <Swiper
               modules={[Navigation, Pagination, EffectCoverflow]}
               effect="coverflow"
+              onInit={(swiper) => {
+                const prev = swiper.el.querySelector(".swiper-button-prev");
+                const next = swiper.el.querySelector(".swiper-button-next");
+
+                [prev, next].forEach((btn) => {
+                  if (btn) {
+                    btn.style.width = "60px";
+                    btn.style.height = "120%";
+                    btn.style.top = "-0px";
+                    btn.style.bottom = "0";
+                    btn.style.background = "rgba(0,0,0,0.08)";
+                    btn.style.display = "flex";
+                    btn.style.alignItems = "center";
+                    btn.style.justifyContent = "center";
+                    btn.style.color = "#fff";
+                    btn.style.fontSize = "8px";
+                    btn.style.pointerEvents = "auto";
+                    }
+                  });
+
+                if (prev) prev.style.left = "-14px";
+                if (next) next.style.right = "-14px";
+              }}
               grabCursor={true}
               centeredSlides={true}
               slidesPerView={1.2} // дозволяє частково показати сусідні

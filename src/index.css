@@ -13,6 +13,17 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+div > ul {
+  margin:10px;
+  padding-left: 20px;
+  list-style-type: square;
+}
+div > p {
+  margin-top:5px !important;
+  padding-left: 0px;
+  margin-bottom: 0;
+}
+
 a {
   font-weight: 500;
   color: #646cff;

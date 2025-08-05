@@ -58,7 +58,7 @@ const styles = {
   responsiveRow: {
     display: "flex",
     flexWrap: "wrap",
-    gap: "20px",
+    // gap: "20px",
     justifyContent: "space-between",
   },
   block: {
@@ -70,7 +70,7 @@ mainContainer: {
     flexWrap: "wrap",
     alignItems: "flex-start",
     justifyContent: "center",         
-    gap: "20px",                      
+    gap: "0px",                                         
     maxWidth: "1200px",              
     margin: "0 auto",                 
     padding: "0 10px",                
@@ -101,6 +101,8 @@ export default function ProductPage() {
   const [measures, setMeasures] = useState([]);
   const [dimensionTable, setDimensionTable] = useState([]);
   const [characteristics, setCharacteristics] = useState([]);
+  const [isTableVisible, setIsTableVisible] = useState(false);
+  const [activeSingleSizes, setActiveSingleSizes] = useState([]);
   const [hoveredRow, setHoveredRow] = useState(null);
   const [hoveredCol, setHoveredCol] = useState(null);
   const priceIncrease = 300;
@@ -129,6 +131,7 @@ export default function ProductPage() {
     console.log(source.attachedProducts[0]?.trans.ua.description) // Інші кольори
 
     console.log(source.activeSingleSizes)//Available sizes
+    setActiveSingleSizes(source.activeSingleSizes)
     console.log(source.activeSingleSizes.filter(item => localStorage.getItem("selectedSize")?.includes(item)))
     setSelectedSize(source.activeSingleSizes.filter(item => localStorage.getItem("selectedSize")?.includes(item)));
 
@@ -156,6 +159,7 @@ export default function ProductPage() {
       const images = (src.images || []).map(img => img.dressaPath).slice(1);
       return {
         name: src.correctedName,
+        isDark:src.taxons.find(oo => oo.colorValue !== null).isDark,
         colorValue: src.taxons.find(oo => oo.colorValue !== null).colorValue,
         price: src.priceUAH ?? src?.masterVariant?.prices[0]?.value,
         oldPrice: src.oldPriceUAH,
@@ -302,7 +306,7 @@ export default function ProductPage() {
 
 
 return (
-  <div style={{ padding: "20px" }}>
+  <div style={{ paddingTop:"10px", paddingRight: "20px", paddingLeft: "20px" }}>
     <button onClick={() => navigate(-1)}>
       ← Назад
     </button>
@@ -314,29 +318,14 @@ return (
         {product && <LargeImageGallery product={product} />}
         {difColored && <SimilarProducts data={difColored}/>}
 
-        <div style={{  maxWidth: "100%",  padding: "0 16px",  boxSizing: "border-box", alignSelf: "flex-start"}}>
-          {selectedSize && (
-            <div style={{ marginTop: "10px", fontSize: "14px" }}>
-              Обрано розмір: <strong>{selectedSize.toString()}</strong>
-            </div>
-          )}
-          <a
-            href={`https://www.instagram.com/kasl_clo/`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="order-button"
-            onClick={()=>{
-              navigator.clipboard.writeText(`Замовлення: ${product.name}, ${selectedSize ? "Обраний розмір:"+selectedSize.toString()+"," : ""} Ціна: ${(product.price / 100 + priceIncrease).toFixed(2)} грн, Посилання: https://kasl-clo.onrender.com/product/${product.slug}`);
-          }}
-          >
-            Замовити в Direct
-          </a>
-        </div>
       </div>
 
       {/* Інфо — права частина */}
       <div style={styles.infoWrapper}>
+        {/*Назва*/ }
+        {product.name && <h3 style={{marginTop:0, marginBottom:"3px"}}>{product.name}</h3>}
         {/*Ціна*/ }
+        <h6 style={{marginTop:0, marginBottom:"-7px", fontSize:"20px"}}>
         {product.oldPrice != null ? (
                 <div key ={product.oldPrice} style={{ display: "flex", justifyContent: "left" }}>
                   <s style={{ color: "gray", marginRight: "8px" }}>
@@ -353,10 +342,41 @@ return (
                   </strong>
                 </div>
               )}
+          </h6>
+          {/*Замовити в Дірект*/}
+              <a
+            href={`https://www.instagram.com/kasl_clo/`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="order-button"
+            onClick={()=>{
+              navigator.clipboard.writeText(`Замовлення: ${product.name}, ${selectedSize ? "Обраний розмір:"+selectedSize.toString()+"," : ""} Ціна: ${(product.price / 100 + priceIncrease).toFixed(2)} грн, Посилання: https://kasl-clo.onrender.com/product/${product.slug}`);
+          }}
+          >
+            Замовити в Direct
+          </a>
+
+        {/* Список розмірів */}
+        <div>
+        {dimensionTable.map((row, i) => (
+          <button
+          style={{marginLeft:"2px" }}
+          key = {Object.keys(row.sizeDescription ?? {})[0] ?? row.size+`${(i*2)}`}
+            onClick={() => {
+              if (row.isInStock) setSelectedSize(Object.keys(row.sizeDescription ?? {})[0] ?? row.size);
+            }}
+            disabled={!row.isInStock}
+            title={!row.isInStock ? "Розміру нема в наявності" : ""}
+          >
+            {Object.keys(row.sizeDescription ?? {})[0] ?? row.size}
+          </button>
+          ))}
+        </div>
         {/* Таблиця розмірів */}
-        {Array.from(new Set(dimensionTable.flatMap(Object.keys))).length > 2 ? (
+        <u onClick={()=>setIsTableVisible(!isTableVisible)} style={{cursor:"pointer"}}>{isTableVisible?"Закрити таблицю розмірів":"Відкрити таблицю розмірів"}</u>
+
+        {isTableVisible && (Array.from(new Set(dimensionTable.flatMap(Object.keys))).length > 2 ? (
         <div className="size-table-container">
-        <h3>Таблиця розмірів</h3>
         <div className="size-table-wrapper" style={{    overflowX: "auto",    boxSizing: "border-box",    maxWidth: "100%",  }}>
           <table className="size-table">
             <thead>
@@ -366,6 +386,7 @@ return (
                   <th key={i} className={`size-header ${row.isInStock ? '' : 'out-of-stock'}`}>
                     <button
                       onClick={() => {
+                        console.log(row.size);
                         if (row.isInStock) setSelectedSize(row.size);
                       }}
                       disabled={!row.isInStock}
@@ -443,21 +464,29 @@ return (
     </table>
   </div>
 </div>
-      }
+      )}
+       {/*Обраний розмір*/}
+        <div style={{  maxWidth: "100%",  padding: "0 16px",  boxSizing: "border-box", alignSelf: "flex-start"}}>
+          {selectedSize && (
+            <div style={{ marginTop: "10px", fontSize: "14px" }}>
+              Обрано розмір: <strong>{selectedSize.toString()}</strong>
+            </div>
+          )}
+        </div>
 
         <div style={styles.responsiveRow}>
           {/* Опис товару */}
           {product.description && (
-            <div style={styles.block}>
-              <h3>Опис товару:</h3>
-              <div dangerouslySetInnerHTML={{ __html: product.description }} style = {{fontSize: "16px"}}/>
+            <div style={{...styles.block, fontSize: "15px"}}>
+              <h3 style={{marginTop:"5px", marginBottom:"8px", fontSize:"20px"}}>Опис товару:</h3>
+              <div dangerouslySetInnerHTML={{ __html: product.description }} style = {{fontSize: "15px"}}/>
             </div>
           )}
 
           {/* Характеристика */}
           {characteristics.length > 0 && (
-            <div style={{ ...styles.block, marginTop: product.description ? 0 : "20px", fontSize: "16px" }}>
-              <h3>Характеристика:</h3>
+            <div style={{ ...styles.block, marginTop: product.description ? 0 : "20px", fontSize: "15px" }}>
+              <h3 style={{marginTop:"5px", marginBottom:"-4px", fontSize:"20px"}} >Характеристика:</h3>
               <ul>
                 {characteristics.map((m, i) =>
                   (!["Материал.сайт", undefined, "Одежда", "Фотомодель", "Метка на сайте"].includes(m.taxonomy?.trans?.ua?.name ?? m.taxonomy?.name)) && (
@@ -475,8 +504,8 @@ return (
 
     {/* Інші товари */}
     <hr />
-    {difColored.length > 0 && <div><h3>Інші кольори:</h3>
-    <PhotoGallery products={difColored} priceIncrease={300} /></div>}
+    {/* {difColored.length > 0 && <div><h3>Інші кольори:</h3>
+    <PhotoGallery products={difColored} priceIncrease={300} /></div>} */}
     <h3>Схожі товари:</h3>
     {similar.length > 0 && <PhotoGallery products={similar} priceIncrease={300} />}
   </div>

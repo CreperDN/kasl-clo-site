@@ -778,7 +778,7 @@ const handleGoToProduct = () => {
     top: 0,
     left: 0,
     zIndex: 1002,
-    minHeight: "90px",
+    minHeight: "45px",
     },
 
     logo: {
