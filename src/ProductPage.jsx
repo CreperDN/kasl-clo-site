@@ -130,10 +130,11 @@ export default function ProductPage() {
     console.log(source.taxons.map(e => (e.taxonomy?.trans?.ua.name??e.taxonomy?.name) + ':' + (e.trans?.ua?.name??e.name)))
     console.log(source.attachedProducts[0]?.trans.ua.description) // Інші кольори
 
-    console.log(source.activeSingleSizes)//Available sizes
-    setActiveSingleSizes(source.activeSingleSizes)
-    console.log(source.activeSingleSizes.filter(item => localStorage.getItem("selectedSize")?.includes(item)))
-    setSelectedSize(source.activeSingleSizes.filter(item => localStorage.getItem("selectedSize")?.includes(item)));
+    const activeSingleSizes = source.activeSingleSizes
+    console.log(activeSingleSizes)//Available sizes
+    setActiveSingleSizes(activeSingleSizes)
+    console.log(activeSingleSizes.filter(item => localStorage.getItem("selectedSize")?.includes(item)))
+    setSelectedSize(activeSingleSizes.filter(item => localStorage.getItem("selectedSize")?.includes(item)));
 
     console.log(source.variants.map(e => e.dimensions))
     let measures = [];
@@ -177,6 +178,8 @@ export default function ProductPage() {
       const size = v.options?.[0]?.value;
       const row = {};
       const isInStock = v.inStock;
+      console.log("size.split("-")",size.split("-"))
+      const isActive = size.split("-").every(val => activeSingleSizes.includes(parseInt(val)))
 
       v.dimensions?.forEach(dim => {
         const name = TRANSLATE[dim.measure?.name] || dim.measure?.name;
@@ -186,7 +189,7 @@ export default function ProductPage() {
       });
 
       if (size && Object.keys(row).length > 0) {
-        return { size, ...row, isInStock };
+        return { size, ...row, isInStock, isActive };
       }
 
       return null;
@@ -201,7 +204,9 @@ export default function ProductPage() {
         {
           let sizeDescription = v.options[0].sizeDescription
           const isInStock = v.inStock;
-          return{sizeDescription, isInStock}
+          console.log("Object.keys(sizeDescription)[0].split("-")",Object.keys((sizeDescription))[0].split("-"))
+          const isActive = Object.keys(sizeDescription)[0].split("-").every(val => activeSingleSizes.includes(parseInt(val)))
+          return{sizeDescription, isInStock, isActive}
         }
       )
     }
@@ -301,7 +306,7 @@ export default function ProductPage() {
 
   const paramKeys = Array.from(
   new Set(dimensionTable.flatMap(obj => Object.keys(obj)))
-  ).filter(key => !["size", "isInStock"].includes(key));
+  ).filter(key => !["size", "isInStock", "isActive"].includes(key));
   const transposedKeys = paramKeys.sort(); // Можна не сортувати, якщо важливий порядок
 
 
@@ -357,25 +362,26 @@ return (
           </a>
 
         {/* Список розмірів */}
-        <div>
+        <div style={{display:"flex", flexWrap:"wrap"}}>
         {dimensionTable.map((row, i) => (
           <button
           style={{marginLeft:"2px" }}
           key = {Object.keys(row.sizeDescription ?? {})[0] ?? row.size+`${(i*2)}`}
             onClick={() => {
-              if (row.isInStock) setSelectedSize(Object.keys(row.sizeDescription ?? {})[0] ?? row.size);
+              if (row.isActive) setSelectedSize(Object.keys(row.sizeDescription ?? {})[0] ?? row.size);
             }}
-            disabled={!row.isInStock}
-            title={!row.isInStock ? "Розміру нема в наявності" : ""}
+            disabled={!row.isActive}
+            title={!row.isActive ? "Розміру нема в наявності" : !row.isInStock ? "Готовність відправки до 5 робочих днів" : ""}
           >
-            {Object.keys(row.sizeDescription ?? {})[0] ?? row.size}
+            {Object.keys(row.sizeDescription ?? {})[0] ?? row.size}{(!row.isInStock && row.isActive) && <b>*</b>}
           </button>
           ))}
+        {dimensionTable.some(row => row.isActive !== row.isInStock) && <div style={{alignSelf: "end"}}>* - Готовність відправки до 5 робочих днів</div>}
         </div>
         {/* Таблиця розмірів */}
         <u onClick={()=>setIsTableVisible(!isTableVisible)} style={{cursor:"pointer"}}>{isTableVisible?"Закрити таблицю розмірів":"Відкрити таблицю розмірів"}</u>
 
-        {isTableVisible && (Array.from(new Set(dimensionTable.flatMap(Object.keys))).length > 2 ? (
+        {isTableVisible && (Array.from(new Set(dimensionTable.flatMap(Object.keys))).length > 3 ? (
         <div className="size-table-container">
         <div className="size-table-wrapper" style={{    overflowX: "auto",    boxSizing: "border-box",    maxWidth: "100%",  }}>
           <table className="size-table">
@@ -387,10 +393,10 @@ return (
                     <button
                       onClick={() => {
                         console.log(row.size);
-                        if (row.isInStock) setSelectedSize(row.size);
+                        if (row.isActive) setSelectedSize(row.size);
                       }}
-                      disabled={!row.isInStock}
-                      title={!row.isInStock ? "Розміру нема в наявності" : ""}
+                      disabled={!row.isActive}
+                      title={!row.isActive ? "Розміру нема в наявності" : !row.isInStock ? "Готовність відправки до 5 робочих днів" : ""}
                       style={{
                         whiteSpace: "nowrap",
                         overflow: "hidden",         
@@ -432,10 +438,10 @@ return (
             <th key={i}>
               <button
                       onClick={() => {
-                        if (row.isInStock) setSelectedSize(Object.keys(row.sizeDescription)[0]);
+                        if (row.isActive) setSelectedSize(Object.keys(row.sizeDescription)[0]);
                       }}
-                      disabled={!row.isInStock}
-                      title={!row.isInStock ? "Розміру нема в наявності" : ""}
+                      disabled={!row.isActive}
+                      title={!row.isActive ? "Розміру нема в наявності" : !row.isInStock ? "Готовність відправки до 5 робочих днів" : ""}
                     >
                       {Object.keys(row.sizeDescription)[0]}
                     </button>
