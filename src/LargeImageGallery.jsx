@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-import SetFavoriteButton from "./setFAvorite";
+import SetFavoriteButton from "./setFavorite";
 import "swiper/css";
 import "swiper/css/navigation";
 

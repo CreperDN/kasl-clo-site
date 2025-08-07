@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, EffectCoverflow } from "swiper/modules";
 import { Link, useLocation } from "react-router-dom";
-import SetFavoriteButton from "./setFAvorite";
+import SetFavoriteButton from "./setFavorite";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
