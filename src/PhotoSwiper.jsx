@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, EffectCoverflow } from "swiper/modules";
 import { Link, useLocation } from "react-router-dom";
+import SetFavoriteButton from "./setFAvorite";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -93,6 +94,7 @@ export default function PhotoGallery({ products, priceIncrease, handleGoToProduc
                   </Link>
                 </SwiperSlide>
               ))}
+              <SetFavoriteButton slug={product.slug}/>
             </Swiper>
             <figcaption style = {{lineHeight:"1.2"}}>
               <small>{product.name}</small>

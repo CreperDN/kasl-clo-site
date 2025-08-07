@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import SetFavoriteButton from "./setFAvorite";
 import "swiper/css";
 import "swiper/css/navigation";
 
@@ -100,6 +101,7 @@ export default function LargeImageGallery({ product }) {
               />
             </SwiperSlide>
           ))}
+          <SetFavoriteButton slug={product.slug}/>
         </Swiper>
       </div>
 
