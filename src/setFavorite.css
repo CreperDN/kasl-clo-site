@@ -1,0 +1,60 @@
+.tooltip-text {
+  visibility: hidden; /* Hides the tooltip by default */
+  width: 130px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  font-size: small;
+  position: absolute; /* Positions the tooltip relative to its container */
+  z-index: 1; /* Ensures the tooltip appears above other content */
+  bottom: 125%; /* Positions the tooltip above the container */
+  left: 40%;
+  margin-left: -60px; /* Centers the tooltip horizontally */
+  opacity: 0; /* Starts with zero opacity for fade-in effect */
+  transition: opacity 0.3s; /* Adds a smooth fade-in transition */
+}
+
+.to-favorite:hover .tooltip-text {
+  visibility: visible; /* Shows the tooltip on hover */
+  opacity: 1; /* Fades in the tooltip */
+}
+
+/* Optional: Add an arrow to the tooltip */
+.tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%; /* Positions the arrow below the tooltip text */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent; /* Creates the arrow shape */
+}
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  animation: fadeInOut 3s ease forwards;
+  z-index: 2000;
+}
+
+.favorites-link {
+  color: #ff6666;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translate(-50%, 20px); }
+  10% { opacity: 1; transform: translate(-50%, 0); }
+  90% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, 20px); }
+}

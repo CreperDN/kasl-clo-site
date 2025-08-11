@@ -101,7 +101,7 @@ export default function LargeImageGallery({ product }) {
               />
             </SwiperSlide>
           ))}
-          <SetFavoriteButton slug={product.slug}/>
+          <SetFavoriteButton url = {product.url} price ={product.price} name={product.name} slug={product.slug} images={product.images} oldPrice={product.oldPrice} />
         </Swiper>
       </div>
 

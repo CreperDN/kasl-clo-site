@@ -37,7 +37,6 @@ export default function Filters({ filters, selectedFilters, setSelectedFilters, 
 
   let col = new Object;
   filters.colors.map(filter => col[filter.taxon.colorValue]=filter.taxon.trans.ua.name)
-  console.log(JSON.stringify(col))
 
   const toggleGroup = (group) => {
     setExpandedGroups((prev) => ({

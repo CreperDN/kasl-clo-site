@@ -194,14 +194,14 @@ function extractDressaPaths(data) {
 
 
     const MAIN_CATEGORIES = {
-    "Новинки": ["novinki"],
-    "Сукні": ["plat-ia"],
-    "Жіночі костюми": ["zhienskaia-povsiednievnaia-odiezhda/zhienskiie-kostiumy"],
-    "Повсякденний одяг":["zhienskaia-povsiednievnaia-odiezhda"],
-    "Хіт продажу": ["khit-prodazh"],
-    "В'язаний одяг": ["viazanaia-odiezhda"],
-    "Верхній одяг": ["vierkhniaia-odiezhda"],
-    "Plus Size": ["bol-shiie-razmiery"],
+      "Новинки": ["novinki"],
+      "Сукні": ["plat-ia"],
+      "Жіночі костюми": ["zhienskaia-povsiednievnaia-odiezhda/zhienskiie-kostiumy"],
+      "Повсякденний одяг":["zhienskaia-povsiednievnaia-odiezhda"],
+      "Хіт продажу": ["khit-prodazh"],
+      "В'язаний одяг": ["viazanaia-odiezhda"],
+      "Верхній одяг": ["vierkhniaia-odiezhda"],
+      "Plus Size": ["bol-shiie-razmiery"],
     };
     const CLOTHING_CATEGORIES = {
     "Хіт продажу": {
@@ -276,6 +276,7 @@ function extractDressaPaths(data) {
   const [searchParams, setSearchParams] = useSearchParams();
   const isFromScroll = useRef(false);
   const [inputPage, setInputPage] = useState(page); 
+  const [hoveredMain, setHoveredMain] = useState(null);
   const navigate = useNavigate();
 
   const updateSearchParams = () => {
@@ -344,8 +345,12 @@ function extractDressaPaths(data) {
   const handleCategoryRadioChange = (slug) => {
       setPage(1);
       setSelectedFilters({})
+      const mainCategory = MAIN_CATEGORIES[Object.entries(CLOTHING_CATEGORIES).find(([mainCat, subCats]) =>
+    Object.values(subCats).some(([subSlug]) => subSlug === slug)
+  )?.[0]];
+      setSelectedMainCategory(mainCategory);
       setSelectedCategory(slug);
-      loadFilters(selectedMainCategory, slug, selectedFilters)
+      loadFilters(mainCategory, slug, selectedFilters)
   };
 
   useEffect(() => {
@@ -611,12 +616,86 @@ const handleGoToProduct = () => {
     return (
         <>
         <header style={styles.header}>
-            <button onClick={() => setIsSidebarVisible(!isSidebarVisible)} style={styles.toggleButton}>
-            {isSidebarVisible ? "Сховати фільтри" : "Показати фільтри"}
-            </button>
-            
-            <div style={styles.logo}><img src={"/logo.png"} width={"80px"} ></img></div>
-        </header>
+      <button
+        className='toggleButton'
+        onClick={() => setIsSidebarVisible(!isSidebarVisible)}
+        style={styles.toggleButton}
+      >
+        {isSidebarVisible ? "Сховати фільтри" : "Показати фільтри"}
+      </button>
+
+      <div style={{ display: "flex", gap: "20px" }}>
+        {Object.entries(MAIN_CATEGORIES).map(([name, [slug]]) => {
+          const categoryType = Object.keys(CLOTHING_CATEGORIES).find(
+            (key) => MAIN_CATEGORIES[name][0] === slug && key
+          );
+
+          return (
+            <div
+              key={slug}
+              style={{ position: "relative" }}
+              onMouseEnter={() => setHoveredMain(slug)}
+              onMouseLeave={() => setHoveredMain(null)}
+            >
+              {/* Основна категорія */}
+              <label style={{ cursor: "pointer" }}>
+                <input
+                  type="radio"
+                  name="main-category"
+                  value={slug}
+                  checked={selectedMainCategory === slug}
+                  onChange={() => handleMainCategoryRadioChange(slug)}
+                  style={{ appearance: "none" }}
+                />
+                {` ${name}`}
+              </label>
+
+              {/* Підкатегорії (випадаюче меню) */}
+              {hoveredMain === slug && (
+                <div
+                className='fallenMenu'
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    padding: "10px",
+                    minWidth: "150px",
+                    zIndex: 1000,
+                  }}
+                >
+                  {Object.entries(
+                    CLOTHING_CATEGORIES[
+                      Object.keys(MAIN_CATEGORIES).find(
+                        (key) => MAIN_CATEGORIES[key][0] === slug
+                      )
+                    ] || {}
+                  ).map(([subName, [subSlug]]) => (
+                    <label
+                      key={subSlug}
+                      style={{
+                        display: "block",
+                        padding: "5px 0",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name="sub-category"
+                        value={subSlug}
+                        checked={selectedCategory === subSlug}
+                        onChange={() => handleCategoryRadioChange(subSlug)}
+                        style={{ appearance: "none" }}
+                      />
+                      {` ${subName}`}
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </header>
         {isSidebarVisible && (    
         <> 
           {window.innerWidth <= 768 && (
@@ -636,7 +715,7 @@ const handleGoToProduct = () => {
         <aside style={{...styles.sidebar,  transform: isSidebarVisible ? 'translateX(0)' : 'translateX(-100%)',}} className={isSidebarVisible ? "show" : ""}>
         <button onClick={() => setIsSidebarVisible(false)} style={styles.closeButton}>✖</button>
         <div className="card" style = {{paddingBottom: '120px'}}>
-            <div className="filter-section">
+            {/* <div className="filter-section">
                 <h3>Основні категорії</h3>
                 {Object.entries(MAIN_CATEGORIES).map(([name, [slug]]) => (
                     <label key={slug} style={{ display: "block" }}>
@@ -670,7 +749,7 @@ const handleGoToProduct = () => {
                         ))} 
                     </div>):(<React.Fragment key={type} />))
                 ))}
-                </div>
+                </div> */}
             {loading ? (
             <p>Завантаження фільтрів...</p>
             ) : (
@@ -767,61 +846,58 @@ const handleGoToProduct = () => {
 
     const styles = {
     header: {
-    width: "100%",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "#333",
-    padding: "10px 20px",
-    color: "#fff",
-    position: "fixed",        
-    top: 0,
-    left: 0,
-    zIndex: 1002,
-    minHeight: "45px",
+      width: "100%",
+      display: "flex",
+      // justifyContent: "space-between",
+      alignItems: "center",
+      // backgroundColor: "#333",
+      padding: "10px 20px",
+      // color: "#fff",
+      position: "fixed",        
+      top: 0,
+      left: 0,
+      zIndex: 1002,
+      minHeight: "45px",
     },
 
     logo: {
-    paddingRight:"20px",
-    fontSize: "24px",
-    fontWeight: "bold",
-    display: "flex",
-    alignItems: "center",
-    overflow: "hidden",       
-    maxWidth: "100px",        
-    whiteSpace: "nowrap",
+      paddingRight:"20px",
+      fontSize: "24px",
+      fontWeight: "bold",
+      display: "flex",
+      alignItems: "center",
+      overflow: "hidden",       
+      maxWidth: "100px",        
+      whiteSpace: "nowrap",
     },
     toggleButton: {
         padding: "8px 16px",
-        backgroundColor: "#888",
-        color: "#fff",
         border: "none",
         cursor: "pointer",
         borderRadius: "4px",
         fontSize: "16px",
     },
     sidebar: {
-    position: 'fixed',
-    top: '90px',
-    paddingLeft: "10px",
-    left: 0,
-    width: '280px',
-    height: 'calc(100vh - 50px)', 
-    backgroundColor: '#282828',
-    borderRight: '1px solid #ccc',
-    overflowY: 'auto',
-    zIndex: 1001,
-    transform: 'translateX(-100%)',
-    transition: 'transform 0.3s ease-in-out',
+      position: 'fixed',
+      top: '60px',
+      paddingLeft: "10px",
+      left: 0,
+      width: '280px',
+      height: 'calc(100vh - 50px)', 
+      borderRight: '1px solid #ccc',
+      overflowY: 'auto',
+      zIndex: 1001,
+      transform: 'translateX(-100%)',
+      transition: 'transform 0.3s ease-in-out',
     },
     closeButton: {
-    position: 'absolute',
-    top: '10px',
-    right: '10px',
-    background: 'transparent',
-    border: 'none',
-    fontSize: '20px',
-    cursor: 'pointer',
+      position: 'absolute',
+      top: '10px',
+      right: '10px',
+      background: 'transparent',
+      border: 'none',
+      fontSize: '20px',
+      cursor: 'pointer',
     },
     mainContent: {
     flex: 1,

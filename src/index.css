@@ -13,6 +13,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+input[type="radio"] { /*removing circle near radio input*/
+    -webkit-appearance: none; 
+    -moz-appearance: none;    
+    appearance: none;         
+}
+
 div > ul {
   margin:10px;
   padding-left: 20px;
@@ -107,6 +113,13 @@ th.hover-cell {
   color: green;
   font-size: 14px;
 }
+aside, header, .fallenMenu{
+  background-color: #ffffff;
+  border-color:#1a1a1a;
+  border-width: 2px;
+} .toggleButton {
+    background-color: rgb(241, 235, 235);
+}
 
 /* Темна тема */
 @media (prefers-color-scheme: dark) {
@@ -135,5 +148,13 @@ th.hover-cell {
     background-color: #242424; /* світло-зелений */
     border-right: 1px solid #555;
   }
+  aside, header, .fallenMenu{
+    background-color: #282424;
+  }
+
+  .toggleButton{
+    background-color: #282828;
+  }
 }
+
 

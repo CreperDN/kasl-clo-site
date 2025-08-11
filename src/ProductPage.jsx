@@ -106,6 +106,9 @@ export default function ProductPage() {
   const [hoveredRow, setHoveredRow] = useState(null);
   const [hoveredCol, setHoveredCol] = useState(null);
   const priceIncrease = 300;
+  const [history, setHistory] = useState(() => {
+    return JSON.parse(localStorage.getItem("history")) ?? [];
+  });
 
   async function fetchProduct(slug) {
     const response = await fetch("https://modniy-ostrov.com/api/product_by_slug", {
@@ -160,8 +163,8 @@ export default function ProductPage() {
       const images = (src.images || []).map(img => img.dressaPath).slice(1);
       return {
         name: src.correctedName,
-        isDark:src.taxons.find(oo => oo.colorValue !== null).isDark,
-        colorValue: src.taxons.find(oo => oo.colorValue !== null).colorValue,
+        // isDark:src.taxons.find(oo => oo.colorValue !== null).isDark,
+        colorValue: src.taxons.find(oo => oo.colorValue !== null)?.colorValue??"ebc591",
         price: src.priceUAH ?? src?.masterVariant?.prices[0]?.value,
         oldPrice: src.oldPriceUAH,
         slug: src.slug,
@@ -289,6 +292,16 @@ export default function ProductPage() {
         return;
       }
       setProduct(prod);
+      setHistory((prevHistory) => {
+        let updated;
+        if (prevHistory.find((item) => item.slug == slug)) {
+          return prevHistory;
+        } else {
+          updated = [...prevHistory, {"url":prod.url, "price":prod.price, "name":prod.name, "slug":prod.slug, "images":prod.images, "oldPrice":prod.oldPrice}];
+          if (updated.length > 12){updated.shift()}
+        }
+        return updated;
+      });
       const sim = await fetchSimilarProducts(prod.similarParams);
       setSimilar(sim);
       setLoading(false);
@@ -296,6 +309,11 @@ export default function ProductPage() {
 
     load();
   }, [slug]);
+
+  useEffect(() => {
+    if(history)
+      localStorage.setItem("history", JSON.stringify(history));
+  }, [history]);
 
   if (loading) return <Loading></Loading>;
   if (!product) return <p>Товар не знайдено</p>;

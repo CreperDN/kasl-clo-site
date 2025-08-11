@@ -94,7 +94,7 @@ export default function PhotoGallery({ products, priceIncrease, handleGoToProduc
                   </Link>
                 </SwiperSlide>
               ))}
-              <SetFavoriteButton slug={product.slug}/>
+              <SetFavoriteButton url = {product.url} price ={product.price} name={product.name} slug={product.slug} images={product.images} oldPrice={product.oldPrice} />
             </Swiper>
             <figcaption style = {{lineHeight:"1.2"}}>
               <small>{product.name}</small>
