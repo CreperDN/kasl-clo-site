@@ -7,7 +7,7 @@ import Favorites from './Favorites';
 export default function App() {
   return (
     <Routes>
-      <Route path="/browsing" element={<MainPage />} />
+      <Route path="/" element={<MainPage />} />
       <Route path="/product/:slug" element={<ProductPage />} />
       <Route path="/favorites" element={<Favorites />} />
     </Routes>

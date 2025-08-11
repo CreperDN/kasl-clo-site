@@ -7,12 +7,18 @@ import "swiper/css";
 import "swiper/css/navigation";
 
 export default function LargeImageGallery({ product }) {
-  const images = [
+  let images=[];
+  if(product.url.includes("null")){
+    images = (product.images || []).map((img) => `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_extra_large/${img}`)
+  }
+  else{
+  images = [
     product.url.replace('medium',"extra_large"),
     ...(product.images || []).map(
       (img) => `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_extra_large/${img}`
     ),
   ];
+  }
   while(images.length < 4){images.forEach(image =>images.push(image))}
 
   const [isOpen, setIsOpen] = useState(false);
@@ -88,7 +94,7 @@ export default function LargeImageGallery({ product }) {
               onClick={() => openModal(i)}
             >
               <img
-                src={img}
+                src={img??'https://cdn.modniy-ostrov.com/ostrov-cache/sylius_extra_large/'+product.image.path}
                 alt={`Фото ${product.name} ${i}`}
                 style={{
                   ...styles.image,

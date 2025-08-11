@@ -126,7 +126,10 @@ export default function ProductPage() {
     const source = data?.hits?.hits?.find(hit => hit._source?.slug === slug)?._source;
     if (!source) return null;
 
-    const images = (source.images || []).map(img => img.dressaPath).slice(1);
+    let images = (source.images || []).map(img => img.dressaPath).slice(1);
+    if (images[0]==null){
+      images=[source.image.path]
+    }
 
     console.log(source)
     console.log(source.taxons)
@@ -160,19 +163,26 @@ export default function ProductPage() {
 
     setMeasures(allMeasures);
     let difColored = source.attachedProducts.map(src => {
-      const images = (src.images || []).map(img => img.dressaPath).slice(1);
+      const images = (src.images).map(img => {return img.dressaPath ?? img.path}).slice(1);
       return {
-        name: src.correctedName,
+        // name: src.correctedName, 
         // isDark:src.taxons.find(oo => oo.colorValue !== null).isDark,
-        colorValue: src.taxons.find(oo => oo.colorValue !== null)?.colorValue??"ebc591",
-        price: src.priceUAH ?? src?.masterVariant?.prices[0]?.value,
-        oldPrice: src.oldPriceUAH,
+        colorValue: src.taxons.find(oo => oo.colorValue !== null)?.colorValue??"ebc591", //(taxons.find(taxon => taxons.remalink.includes("tsviet"))).colorValue
+        // price: src.priceUAH ?? src?.masterVariant?.prices[0]?.value,
+        // oldPrice: src.oldPriceUAH,
         slug: src.slug,
         images,
-        url: `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${src.image?.dressaPath}`,
+        url: `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${src.image.dressaPath}`,
+        selected : false
       };
     });
-    setDifColored(difColored)
+    if (difColored.length !== 0){
+      difColored = [...difColored, {"colorValue":source.taxons.find(taxon => taxon.permalink.includes("tsviet")).colorValue, "slug":source.slug, 
+        "images":source.images, "url":`https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${source.image?.dressaPath}`, selected: true}]
+      setDifColored(difColored)
+    } else{
+      setDifColored(difColored)
+    }
     setCharacteristics(source.taxons)
 
     let i = 0;

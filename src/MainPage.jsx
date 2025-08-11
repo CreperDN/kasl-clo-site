@@ -277,6 +277,7 @@ function extractDressaPaths(data) {
   const isFromScroll = useRef(false);
   const [inputPage, setInputPage] = useState(page); 
   const [hoveredMain, setHoveredMain] = useState(null);
+  const isMobile = window.innerWidth <= 780;
   const navigate = useNavigate();
 
   const updateSearchParams = () => {
@@ -343,6 +344,7 @@ function extractDressaPaths(data) {
   };
 
   const handleCategoryRadioChange = (slug) => {
+      setHoveredMain(null)
       setPage(1);
       setSelectedFilters({})
       const mainCategory = MAIN_CATEGORIES[Object.entries(CLOTHING_CATEGORIES).find(([mainCat, subCats]) =>
@@ -615,7 +617,7 @@ const handleGoToProduct = () => {
 
     return (
         <>
-        <header style={styles.header}>
+    <header style={styles.header}>
       <button
         className='toggleButton'
         onClick={() => setIsSidebarVisible(!isSidebarVisible)}
@@ -624,7 +626,7 @@ const handleGoToProduct = () => {
         {isSidebarVisible ? "Сховати фільтри" : "Показати фільтри"}
       </button>
 
-      <div style={{ display: "flex", gap: "20px" }}>
+      {isMobile?<div></div>:<div style={{ display: "flex", gap: "20px", fontSize:"13px", fontWeight:"bold" }}>
         {Object.entries(MAIN_CATEGORIES).map(([name, [slug]]) => {
           const categoryType = Object.keys(CLOTHING_CATEGORIES).find(
             (key) => MAIN_CATEGORIES[name][0] === slug && key
@@ -638,15 +640,15 @@ const handleGoToProduct = () => {
               onMouseLeave={() => setHoveredMain(null)}
             >
               {/* Основна категорія */}
-              <label style={{ cursor: "pointer" }}>
-                <input
-                  type="radio"
-                  name="main-category"
-                  value={slug}
-                  checked={selectedMainCategory === slug}
-                  onChange={() => handleMainCategoryRadioChange(slug)}
-                  style={{ appearance: "none" }}
-                />
+              <label style={{ cursor: "pointer" }} onClick={() => handleMainCategoryRadioChange(slug)}>
+                {/* <label
+                  // type="radio"
+                  // name="main-category"
+                  // value={slug}
+                  // checked={selectedMainCategory === slug}
+                  
+                  // style={{ appearance: "none" }}
+                ></label>  */}
                 {` ${name}`}
               </label>
 
@@ -671,6 +673,7 @@ const handleGoToProduct = () => {
                     ] || {}
                   ).map(([subName, [subSlug]]) => (
                     <label
+                    onClick={() => handleCategoryRadioChange(subSlug)}
                       key={subSlug}
                       style={{
                         display: "block",
@@ -678,14 +681,14 @@ const handleGoToProduct = () => {
                         cursor: "pointer",
                       }}
                     >
-                      <input
+                      {/* <input
                         type="radio"
                         name="sub-category"
                         value={subSlug}
                         checked={selectedCategory === subSlug}
-                        onChange={() => handleCategoryRadioChange(subSlug)}
+                        
                         style={{ appearance: "none" }}
-                      />
+                      /> */}
                       {` ${subName}`}
                     </label>
                   ))}
@@ -694,7 +697,10 @@ const handleGoToProduct = () => {
             </div>
           );
         })}
-      </div>
+        <a href="/favorites">Вподобані</a>
+      </div>}
+      
+      {/* <a href="/favorites">Переглянуті</a> */}
     </header>
         {isSidebarVisible && (    
         <> 
@@ -846,9 +852,10 @@ const handleGoToProduct = () => {
 
     const styles = {
     header: {
-      width: "100%",
+      width: "97%",
+      // gap: "5px",
       display: "flex",
-      // justifyContent: "space-between",
+      justifyContent: "space-between",
       alignItems: "center",
       // backgroundColor: "#333",
       padding: "10px 20px",

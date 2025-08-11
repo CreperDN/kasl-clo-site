@@ -69,10 +69,10 @@ export default function SimilarProducts({ data }) {
           >
             <a href={`/product/${photo.slug}`} style={{ textAlign: "center", display: "block" }}>
               <img
-                src={photo.url}
+                src={photo.url.includes("null")?"https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/"+photo.images[0]:photo.url}
                 alt={`Фото ${photo.name}`}
                 onError={(e) => { e.target.src = "/placeholder.png"; }}
-                style={{ width: "100%", maxHeight: "140px", minHeight:"12   0px", objectFit: "contain" }}
+                style={{ width: "100%", maxHeight: "140px", minHeight:"12   0px", objectFit: "contain", outline: photo.selected ? "5px solid pink" : "none", }}
               />
               <label style={{ fontSize: "14px", marginTop: "5px", display: "block", color: "#"+photo.colorValue, 
                 textShadow: ["000000","050d4f", "02024d"].includes(photo.colorValue)
