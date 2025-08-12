@@ -64,24 +64,85 @@ export default function SimilarProducts({ data }) {
         style={{ padding: "0 20px" }}
       >
         {data.map((photo, idx) => (
-          <SwiperSlide 
-          key={photo.slug}
+          <SwiperSlide key={photo.slug}>
+  <a
+    href={`/product/${photo.slug}`}
+    style={{
+      textAlign: "center",
+      display: "block",
+      position: "relative", // щоб позиціонувати галочку
+    }}
+  >
+    <img
+      src={
+        photo.url.includes("null")
+          ? "https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/" +
+            photo.images[0]
+          : photo.url
+      }
+      alt={`Фото ${photo.name}`}
+      onError={(e) => {
+        e.target.src = "/placeholder.png";
+      }}
+      style={{
+        width: "100%",
+        maxHeight: "140px",
+        minHeight: "120px",
+        objectFit: "contain",
+        outline: photo.selected ? "4px solid #"+photo.colorValue : "none",
+      }}
+    />
+
+      {/* Маленька галочка у кутку */}
+      {photo.selected && (
+        <div
+          style={{
+            position: "absolute",
+            top: "61%",
+            right: "2px",
+            backgroundColor: "rgba(195, 195, 195, 0.85)",
+            borderRadius: "0%",
+            width: "30px",
+            height: "30px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            <a href={`/product/${photo.slug}`} style={{ textAlign: "center", display: "block" }}>
-              <img
-                src={photo.url.includes("null")?"https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/"+photo.images[0]:photo.url}
-                alt={`Фото ${photo.name}`}
-                onError={(e) => { e.target.src = "/placeholder.png"; }}
-                style={{ width: "100%", maxHeight: "140px", minHeight:"12   0px", objectFit: "contain", outline: photo.selected ? "5px solid pink" : "none", }}
-              />
-              <label style={{ fontSize: "14px", marginTop: "5px", display: "block", color: "#"+photo.colorValue, 
-                textShadow: ["000000","050d4f", "02024d"].includes(photo.colorValue)
-                  ? "2px 0 " + forDark + ", -2px 0 " + forDark + ", 0 2px " + forDark + ", 0 -2px " + forDark + ", 1px 1px " + forDark + ", -1px -1px " + forDark + ", 1px -1px " + forDark + ", -1px 1px " + forDark
-                  : "2px 0 " + forLight + ", -2px 0 " + forLight + ", 0 2px " + forLight + ", 0 -2px " + forLight + ", 1px 1px " + forLight + ", -1px -1px " + forLight + ", 1px -1px " + forLight + ", -1px 1px " + forLight,}}>
-                {colorsByValue[photo.colorValue]}
-              </label>
-            </a>
-          </SwiperSlide>
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+      )}
+
+      <label
+        style={{
+          fontSize: "14px",
+          marginTop: "5px",
+          display: "block",
+          color: "#" + photo.colorValue,
+          textShadow: ["000000", "050d4f", "02024d"].includes(photo.colorValue)
+            ? `2px 0 ${forDark}, -2px 0 ${forDark}, 0 2px ${forDark}, 0 -2px ${forDark}, 
+              1px 1px ${forDark}, -1px -1px ${forDark}, 1px -1px ${forDark}, -1px 1px ${forDark}`
+            : `2px 0 ${forLight}, -2px 0 ${forLight}, 0 2px ${forLight}, 0 -2px ${forLight}, 
+              1px 1px ${forLight}, -1px -1px ${forLight}, 1px -1px ${forLight}, -1px 1px ${forLight}`,
+        }}
+      >
+        {colorsByValue[photo.colorValue]}
+      </label>
+    </a>
+  </SwiperSlide>
+
         ))}
       </Swiper>
     </div>

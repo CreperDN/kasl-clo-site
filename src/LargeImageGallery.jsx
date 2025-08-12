@@ -95,6 +95,9 @@ export default function LargeImageGallery({ product }) {
             >
               <img
                 src={img??'https://cdn.modniy-ostrov.com/ostrov-cache/sylius_extra_large/'+product.image.path}
+                onError={(e) => {
+                  e.target.src = "/placeholder.png";
+                }}
                 alt={`Фото ${product.name} ${i}`}
                 style={{
                   ...styles.image,
@@ -161,6 +164,9 @@ export default function LargeImageGallery({ product }) {
             <TransformComponent>
               <img
                 src={img}
+                onError={(e) => {
+                  e.target.src = "/placeholder.png";
+                }}
                 alt={`Фото ${product.name} повний екран ${i}`}
                 style={styles.modalImage}
                 onClick={(e) => e.stopPropagation()} // Зупиняємо розповсюдження події, щоб не закривати модалку при кліку на зображення

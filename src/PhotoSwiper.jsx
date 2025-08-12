@@ -38,7 +38,7 @@ export default function PhotoGallery({ products, priceIncrease, handleGoToProduc
                 [prev, next].forEach((btn) => {
                   if (btn) {
                     btn.style.width = "60px";
-                    btn.style.height = "120%";
+                    btn.style.height = "122%";
                     btn.style.top = "-0px";
                     btn.style.bottom = "0";
                     btn.style.background = "rgba(0,0,0,0.08)";

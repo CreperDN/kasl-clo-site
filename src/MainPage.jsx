@@ -278,6 +278,7 @@ function extractDressaPaths(data) {
   const [inputPage, setInputPage] = useState(page); 
   const [hoveredMain, setHoveredMain] = useState(null);
   const isMobile = window.innerWidth <= 780;
+  const [areCategoriesVisible, setCategoriesVisible] = useState(false);
   const navigate = useNavigate();
 
   const updateSearchParams = () => {
@@ -621,12 +622,14 @@ const handleGoToProduct = () => {
       <button
         className='toggleButton'
         onClick={() => setIsSidebarVisible(!isSidebarVisible)}
-        style={styles.toggleButton}
+        style={{...styles.toggleButton, marginTop:"0px"}}
       >
         {isSidebarVisible ? "Сховати фільтри" : "Показати фільтри"}
       </button>
 
-      {isMobile?<div></div>:<div style={{ display: "flex", gap: "20px", fontSize:"13px", fontWeight:"bold" }}>
+      {isMobile
+      ?<div><button className='toggleButton' onClick={()=> setCategoriesVisible(!areCategoriesVisible)} style={{...styles.toggleButton, margin:"5px"}}>☰</button></div>
+      :<div style={{ display: "flex", gap: "20px", fontSize:"13px", fontWeight:"bold" }}>
         {Object.entries(MAIN_CATEGORIES).map(([name, [slug]]) => {
           const categoryType = Object.keys(CLOTHING_CATEGORIES).find(
             (key) => MAIN_CATEGORIES[name][0] === slug && key
@@ -773,6 +776,67 @@ const handleGoToProduct = () => {
         </div>
         </aside>
         </>)}
+        {/*ДЛЯ КАТЕГОРІЙ І ПІДКАТЕГОРІЙ*/}
+        {areCategoriesVisible && (    
+        <> 
+          {window.innerWidth <= 768 && (
+            <div
+              onClick={() => setCategoriesVisible(false)}
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: "rgba(0,0,0,0.9)",
+                zIndex: 999,
+              }}
+            />
+          )}
+        <aside style={{...styles.sidebar,  transform: isSidebarVisible ? 'translateX(0)' : 'translateX(-100%)', left:"100%", textAlign:"right"}} className={isSidebarVisible ? "show" : ""}>
+        <button onClick={() => setCategoriesVisible(false)} style={{...styles.closeButton, right:"75%"}}>✖</button>
+        <div className="card" style = {{paddingBottom: '120px', marginRight:"15px"}}>
+            <div className="filter-section">
+                <h3>Основні категорії</h3>
+                {Object.entries(MAIN_CATEGORIES).map(([name, [slug]]) => (
+                    <label key={slug} style={{ display: "block", cursor:"pointer" }}>
+                    <input
+                        type="radio"
+                        name="main-category"
+                        value={slug}
+                        checked={selectedMainCategory === slug}
+                        onChange={() => handleMainCategoryRadioChange(slug)}
+                    />
+                    {` ${name}`}
+                    </label>
+                ))}
+                </div>
+                <div className="filter-section">
+                {Object.entries(CLOTHING_CATEGORIES).map(([type, categories]) => (
+                    (Object.keys(MAIN_CATEGORIES).find(key => MAIN_CATEGORIES[key][0] === selectedMainCategory) === type ? (
+                    <div key={type} style={{ marginBottom: "1rem" }}>
+                    <strong>{type}</strong>
+                        {Object.entries(categories).map(([name, [slug]]) => (
+                        <label key={slug} style={{ display: "block", cursor:"pointer" }}>
+                            <input
+                            type="radio"
+                            name="sub-category"
+                            value={slug}
+                            checked={selectedCategory === slug}
+                            onChange={() => handleCategoryRadioChange(slug)}
+                            />
+                            {` ${name}`}
+                        </label>
+                        ))} 
+                    </div>):(<React.Fragment key={type} />))
+                ))}
+                </div>
+              </div>
+              <hr />
+                <a href="/favorites" style = {{marginRight:"15px"}}>Вподобані</a>
+          </aside>
+          </>)}
+
         <main style={styles.mainContent}>
             {photosData && <PhotoGallery products={photosData} priceIncrease={priceIncrease} handleGoToProduct={handleGoToProduct}/>}
             <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "20px" }}>
@@ -856,6 +920,7 @@ const handleGoToProduct = () => {
       // gap: "5px",
       display: "flex",
       justifyContent: "space-between",
+      flexDirection: "row",
       alignItems: "center",
       // backgroundColor: "#333",
       padding: "10px 20px",
@@ -907,10 +972,10 @@ const handleGoToProduct = () => {
       cursor: 'pointer',
     },
     mainContent: {
-    flex: 1,
-    padding: '10px',
-    paddingTop: '90px', 
-    overflowX: 'hidden',
+      flex: 1,
+      padding: '10px',
+      paddingTop: '90px', 
+      overflowX: 'hidden',
     },
     };
 

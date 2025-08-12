@@ -343,6 +343,45 @@ return (
     <button onClick={() => navigate(-1)}>
       ← Назад
     </button>
+<div
+  className="toggleButton"  style={{    width: "120px",    height: "40px",    borderRadius: "44px",
+    position: "fixed",    left: "90%",    top: "90%",    display: "flex",    justifyContent: "center",     
+    alignItems: "center",         
+  }}
+>
+  <a
+    href="https://www.instagram.com/kasl_clo/"
+    style={{
+      display: "flex",       alignItems: "center",        gap: "6px",                  
+      color: "inherit",      textDecoration: "none",
+    }}
+    onClick={() => {
+      navigator.clipboard.writeText(
+        `Замовлення: ${product.name}, ${
+          selectedSize ? "Обраний розмір:" + selectedSize.toString() + "," : ""
+        } Ціна: ${(product.price / 100 + priceIncrease).toFixed(2)} грн, Посилання: https://kasl-clo.onrender.com/product/${product.slug}`
+      );
+    }}
+  >
+    <svg
+      aria-label="Direct"      fill="currentColor"      height="24"
+      role="img"      viewBox="0 0 24 24"      width="24"
+    >
+      <title>Direct</title>
+      <line
+        fill="none"        stroke="currentColor"        strokeLinejoin="round"
+        strokeWidth="2"        x1="22"        x2="9.218"        y1="3"
+        y2="10.083"
+      ></line>
+      <polygon
+        fill="none"        points="11.698 20.334 22 3.001 2 3.001 9.218 10.084 11.698 20.334"
+        stroke="currentColor"        strokeLinejoin="round"        strokeWidth="2"
+      ></polygon>
+    </svg>
+    Direct
+  </a>
+</div>
+
 
     {/* Основний блок: фото + опис */}
     <div style={styles.mainContainer}>
@@ -386,7 +425,7 @@ return (
               navigator.clipboard.writeText(`Замовлення: ${product.name}, ${selectedSize ? "Обраний розмір:"+selectedSize.toString()+"," : ""} Ціна: ${(product.price / 100 + priceIncrease).toFixed(2)} грн, Посилання: https://kasl-clo.onrender.com/product/${product.slug}`);
           }}
           >
-            Замовити в Direct
+            Замовити в Direct 
           </a>
 
         {/* Список розмірів */}
