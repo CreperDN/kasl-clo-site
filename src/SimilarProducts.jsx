@@ -89,7 +89,7 @@ export default function SimilarProducts({ data }) {
         maxHeight: "140px",
         minHeight: "120px",
         objectFit: "contain",
-        outline: photo.selected ? "4px solid #"+photo.colorValue : "none",
+        // outline: photo.selected ? "4px solid #"+photo.colorValue : "none",
       }}
     />
 
@@ -125,21 +125,30 @@ export default function SimilarProducts({ data }) {
         </div>
       )}
 
-      <label
-        style={{
-          fontSize: "14px",
-          marginTop: "5px",
-          display: "block",
-          color: "#" + photo.colorValue,
-          textShadow: ["000000", "050d4f", "02024d"].includes(photo.colorValue)
-            ? `2px 0 ${forDark}, -2px 0 ${forDark}, 0 2px ${forDark}, 0 -2px ${forDark}, 
-              1px 1px ${forDark}, -1px -1px ${forDark}, 1px -1px ${forDark}, -1px 1px ${forDark}`
-            : `2px 0 ${forLight}, -2px 0 ${forLight}, 0 2px ${forLight}, 0 -2px ${forLight}, 
-              1px 1px ${forLight}, -1px -1px ${forLight}, 1px -1px ${forLight}, -1px 1px ${forLight}`,
-        }}
-      >
-        {colorsByValue[photo.colorValue]}
-      </label>
+      <div style={{ textAlign: "center" }}>
+        <label
+          className="colorFont"
+          style={{
+            cursor:"pointer",
+            fontSize: "14px",
+            display: "inline-flex",   // inline, щоб центрувалось через text-align
+            alignItems: "center",
+            gap: "6px",
+          }}
+        >
+          <span
+            style={{
+              width: "7px",
+              height: "7px",
+              backgroundColor: "#" + photo.colorValue,
+              border: "1px solid #ccc",
+              borderRadius: "2px",
+            }}
+          ></span>
+          {colorsByValue[photo.colorValue]}
+        </label>
+      </div>
+
     </a>
   </SwiperSlide>
 

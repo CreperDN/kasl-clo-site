@@ -98,6 +98,9 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+  .colorFont{  
+    color: black; /* width and color */
+  }
 }
 table {
   border-collapse: collapse;
@@ -174,6 +177,9 @@ aside, header, .fallenMenu{
 
   .toggleButton{
     background-color: #3f3f3f;
+  }
+  .colorFont{  
+    color: white; /* width and color */
   }
 }
 

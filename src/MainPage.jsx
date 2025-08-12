@@ -369,39 +369,39 @@ function extractDressaPaths(data) {
   useEffect(() => {
     const saved = sessionStorage.getItem("mainPageState");
     if (saved) {
-  const fetchSavedData = async () => {
-    const state = JSON.parse(saved);
-    const main = searchParams.get("main") || "novinki";
-    const category = searchParams.get("category") || null;
-    const filters = parseFiltersFromSearchParams();
-    const pageFromUrl = searchParams.get("page") || 1;
+    const fetchSavedData = async () => {
+      const state = JSON.parse(saved);
+      const main = searchParams.get("main") || "novinki";
+      const category = searchParams.get("category") || null;
+      const filters = parseFiltersFromSearchParams();
+      const pageFromUrl = searchParams.get("page") || 1;
 
-    setPhotosData(state.photosData); 
-    setFilters(state.filters);
-    setFullData(state.fullData);
-    setSelectedFilters(filters);
-    setPage(pageFromUrl);
-    setSelectedMainCategory(main);
-    setSelectedCategory(category);
+      setPhotosData(state.photosData); 
+      setFilters(state.filters);
+      setFullData(state.fullData);
+      setSelectedFilters(filters);
+      setPage(pageFromUrl);
+      setSelectedMainCategory(main);
+      setSelectedCategory(category);
 
-    console.log(state)
-    console.log(state.filters)
-    console.log(filters)
-    console.log(pageFromUrl)
-    console.log( main, category)
-    console.log(state.fullData)
+      console.log(state)
+      console.log(state.filters)
+      console.log(filters)
+      console.log(pageFromUrl)
+      console.log(main, category)
+      console.log(state.fullData)
 
-    setTimeout(() => window.scrollTo(0, state.scroll), 0);
+      setTimeout(() => window.scrollTo(0, state.scroll), 0);
 
-    sessionStorage.removeItem("mainPageState");
-
-    window.addEventListener("beforeunload", () => {
       sessionStorage.removeItem("mainPageState");
-    });
-  };
 
-  fetchSavedData();
-  setIsReady(true);
+      window.addEventListener("beforeunload", () => {
+        sessionStorage.removeItem("mainPageState");
+      });
+    };
+
+    fetchSavedData();
+    setIsReady(true);
 } else {
     const fetchDataFromUrl = async () => {
       const main = searchParams.get("main") || "novinki";
@@ -609,6 +609,7 @@ const handleGoToProduct = () => {
       scroll: window.scrollY,
     })
   );
+  sessionStorage.setItem("mainPageURL", window.location.href.replace(window.location.origin, ""))
 };
 
 
@@ -905,9 +906,9 @@ const handleGoToProduct = () => {
                 <span></span>
                 </div>
             )}
-                <input type="button" value={isDataVisible ? "Сховати дані" : "Показати дані"}
+                {/* <input type="button" value={isDataVisible ? "Сховати дані" : "Показати дані"}
                 onClick={() => setDataVisibility(!isDataVisible)}/>
-                {isDataVisible && <pre>{JSON.stringify(fullData, null, 2)}</pre>}
+                {isDataVisible && <pre>{JSON.stringify(fullData, null, 2)}</pre>} */}
             </main>
         </>
     );

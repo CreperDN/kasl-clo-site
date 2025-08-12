@@ -340,8 +340,8 @@ export default function ProductPage() {
 
 return (
   <div style={{ paddingTop:"10px", paddingRight: "20px", paddingLeft: "20px" }}>
-    <button onClick={() => navigate(-1)}>
-      ← Назад
+    <button onClick={() => navigate(sessionStorage.getItem("mainPageURL")??"/")}>
+      ← На Головну
     </button>
 <div
   className="toggleButton"  style={{    width: "120px",    height: "40px",    borderRadius: "44px",
