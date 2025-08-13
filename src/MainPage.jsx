@@ -341,6 +341,11 @@ function extractDressaPaths(data) {
       setSelectedMainCategory(slug);
       setSelectedCategory(null);
       setSelectedFilters({})
+      if(sessionStorage.getItem("sortingType")){
+        setSelectedFilters({
+        ...selectedFilters,
+        order: sessionStorage.getItem("sortingType"),
+      });}
       setPage(1);
       loadFilters(slug, null, {});
   };
@@ -349,6 +354,11 @@ function extractDressaPaths(data) {
       setHoveredMain(null)
       setPage(1);
       setSelectedFilters({})
+      if(sessionStorage.getItem("sortingType")){
+        setSelectedFilters({
+        ...selectedFilters,
+        order: sessionStorage.getItem("sortingType"),
+      });}
       const mainCategory = MAIN_CATEGORIES[Object.entries(CLOTHING_CATEGORIES).find(([mainCat, subCats]) =>
         Object.values(subCats).some(([subSlug]) => subSlug === slug)
       )?.[0]];
@@ -413,6 +423,7 @@ function extractDressaPaths(data) {
 
       setSelectedMainCategory(main);
       setSelectedCategory(category);
+
 
       console.log("Page is loading", category ?? main, filters, pageFromUrl, perPage)
 
@@ -567,11 +578,13 @@ const handleSortingListChange = (value) => {
   if (value === "0") {
     const { order, ...rest } = selectedFilters;
     setSelectedFilters(rest);
+    sessionStorage.removeItem("sortingType")
   } else {
     setSelectedFilters({
       ...selectedFilters,
       order: value,
     });
+    sessionStorage.setItem("sortingType", value)
   }
 };
 
@@ -658,7 +671,13 @@ const handleSortingListChange = (value) => {
             ) : (
             <div>
                 {/* <h2>Фільтри:</h2> */}
-                <div onClick={()=> setSelectedFilters({})} style={{cursor:"pointer", marginTop:"10px", fontSize:"14px"}}>Очистити фільтри</div>  
+                <div onClick={()=> {
+                  setSelectedFilters({});       
+                  if(sessionStorage.getItem("sortingType")){
+                    setSelectedFilters({
+                    ...selectedFilters,
+                    order: sessionStorage.getItem("sortingType"),});}}} 
+                  style={{cursor:"pointer", marginTop:"10px", fontSize:"14px"}}>Очистити фільтри</div>  
               
 
                 <div>
