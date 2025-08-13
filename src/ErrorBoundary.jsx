@@ -32,6 +32,10 @@ class ErrorBoundary extends React.Component {
             </>
           )}
           <button onClick={() => window.location.reload()}>Спробувати ще раз</button>
+          <button style={{ marginTop:"10px", marginLeft:"20px" }}
+            onClick={() => navigate(sessionStorage.getItem("mainPageURL")??"/")}>
+            ← На Головну
+        </button>
         </div>
       );
     }

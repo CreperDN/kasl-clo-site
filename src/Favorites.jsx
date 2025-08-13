@@ -26,12 +26,12 @@ export default function Favorites() {
           <h2>Уподобані</h2>
           {favorites.length > 0
           ? <PhotoGallery products={favorites} priceIncrease={priceIncrease} handleGoToProduct={handleGoToProduct}/>
-          : <div>Уподобаних товарів не знайдено, додайте їх <a href={sessionStorage.getItem("mainPageURL")??"/"}>переглядаючи товари</a></div>}
+          : <div>Уподобаних товарів не знайдено, додайте їх <a href={"/"}>переглядаючи товари</a></div>}
           <hr />
           <h2>Історія перегляду</h2>
           {history.length > 0
           ? <PhotoGallery products={history} priceIncrease={priceIncrease} handleGoToProduct={handleGoToProduct}/>
-          : <div>Жодного товару не <a href={sessionStorage.getItem("mainPageURL")??"/"}>переглянуто</a></div>}
+          : <div>Жодного товару не <a href={"/"}>переглянуто</a></div>}
         </div>
       </>
     )

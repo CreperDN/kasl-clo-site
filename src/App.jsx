@@ -8,8 +8,8 @@ import ErrorBoundary from './ErrorBoundary';
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<MainPage />} />
-      <Route path="/product/:slug" element={<ProductPage />} />
+      <Route path="/" element={<ErrorBoundary><MainPage /></ErrorBoundary>} />
+      <Route path="/product/:slug" element={<ErrorBoundary><ProductPage /></ErrorBoundary>} />
       <Route path="/favorites" element={<ErrorBoundary><Favorites /></ErrorBoundary>} />
     </Routes>
   );
