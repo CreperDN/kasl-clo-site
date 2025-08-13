@@ -66,7 +66,6 @@ export default function Filters({ filters, selectedFilters, setSelectedFilters, 
       ...selectedFilters,
       [group]: [...groupValues],
     });
-    console.log(groupValues);
   };
 
   const sizes = filters?.sizes;
@@ -87,7 +86,7 @@ export default function Filters({ filters, selectedFilters, setSelectedFilters, 
           fontSize: "1em",
         }}
       >
-        {expandedGroups["Розмір"] ? "▼" : "▶"} Розмір
+        {expandedGroups["Розмір"] ? "▼" : "▶"} Розмір {selectedFilters["s"]? (selectedFilters["s"].length>0 ? <sup style={{fontWeight:"normal", fontSize:"0.7em"}}>{selectedFilters["s"].length}</sup> : ""):""}
       </button>
     {expandedGroups["Розмір"] && <div style={{ marginLeft: "1em", marginTop: "0.5em" }}>{(sizes?.map((size) => (
     <label key={size.taxon} style={{ display: 'block' }}>
@@ -95,7 +94,7 @@ export default function Filters({ filters, selectedFilters, setSelectedFilters, 
         type="checkbox"
         value={size.taxon}
         checked={Boolean(selectedFilters["s"]?.includes?.(String(size.taxon)))}
-        onChange={() => {handleCheckboxChange("s",String(size.taxon))}}
+        onChange={() => {handleCheckboxChange("s",String(size.taxon)); console.log(selectedFilters);}}
         />
         {` ${size.taxon} (${size.count})`}
     </label>
@@ -114,7 +113,7 @@ export default function Filters({ filters, selectedFilters, setSelectedFilters, 
           fontSize: "1em",
         }}
       >
-        {expandedGroups["Колір"] ? "▼" : "▶"} Колір
+        {expandedGroups["Колір"] ? "▼" : "▶"} Колір {selectedFilters["tsvet"]? (selectedFilters["tsvet"].length>0 ? <sup style={{fontWeight:"normal", fontSize:"0.7em"}}>{selectedFilters["tsvet"].length}</sup> : ""):""}
       </button>
       
     {expandedGroups["Колір"] && <div style={{ marginLeft: "1em", marginTop: "0.5em" }}>{(colors.map((color) => (
@@ -150,7 +149,7 @@ export default function Filters({ filters, selectedFilters, setSelectedFilters, 
                 fontSize: "1em",
               }}
             >
-              {isExpanded ? "▼" : "▶"} {groupsTranslate[filterGroup] ?? filterGroup}
+              {isExpanded ? "▼" : "▶"} {groupsTranslate[filterGroup] ?? filterGroup} {selectedFilters[groupsConstantName[filterGroup]] ? (selectedFilters[groupsConstantName[filterGroup]].length>0 ? <sup style={{fontWeight:"normal", fontSize:"0.7em"}}>{selectedFilters[groupsConstantName[filterGroup]].length}</sup> : ""):""}
             </button>
 
             {isExpanded && (

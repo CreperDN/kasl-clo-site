@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, useNavigate } from "react-router-dom";
 import './App.css'
+import Header from "./Header";
 import PhotoGallery from './PhotoSwiper';
 import Filters from './Filters';
 import Loading from './Loading';
@@ -349,9 +350,9 @@ function extractDressaPaths(data) {
       setPage(1);
       setSelectedFilters({})
       const mainCategory = MAIN_CATEGORIES[Object.entries(CLOTHING_CATEGORIES).find(([mainCat, subCats]) =>
-    Object.values(subCats).some(([subSlug]) => subSlug === slug)
-  )?.[0]];
-      setSelectedMainCategory(mainCategory);
+        Object.values(subCats).some(([subSlug]) => subSlug === slug)
+      )?.[0]];
+      if (mainCategory[0] !== selectedMainCategory){setSelectedMainCategory(mainCategory);} 
       setSelectedCategory(slug);
       loadFilters(mainCategory, slug, selectedFilters)
   };
@@ -447,71 +448,6 @@ useEffect(() => {
 }, [isReady]);
 
 
-  // 🖱 Інфініт скролінг
-// const handleLoadMore = useCallback(async () => {
-//   if(!isLoadingMore){
-//   setIsLoadingMore(true);
-
-//   const nextPage = parseInt(page) + 1;
-
-//   const data = await fetchPhotos(
-//     selectedCategory ?? selectedMainCategory,
-//     selectedFilters,
-//     nextPage
-//   );
-
-//   if (data.hits.hits.length != 0){
-
-//   const newPhotos = extractDressaPaths(data);
-
-//   setPhotosData(prev => [...prev, ...newPhotos]);
-//   setFullData(prev => {
-//     const merged = { ...prev };
-//     merged.hits = {
-//       ...prev.hits,
-//       hits: [...(prev.hits?.hits || []), ...(data.hits?.hits || [])],
-//     };
-//     return merged;
-//   });
-
-//   isFromScroll.current = true;
-//   setPage(nextPage);
-//   localStorage.setItem('page', `${nextPage}`);
-//   setIsLoadingMore(false);
-//     }}}, [page]);
-
-// useEffect(() => {
-//   isFetching = false;
-
-//   const handleScroll = () => {
-//     if (
-//       isFetching || // локальний захист
-//       isLoadingMore ||
-//       !isReady ||
-//       photosData.length >= (fullData?.hits?.total || 0)
-//     ) {
-//       // console.log("useEffect returned :c\n[isLoadingMore, isReady, photosData, fullData?.hits?.total, handleLoadMore]", isFetching, isLoadingMore, !isReady, photosData.length >= (fullData?.hits?.total || 0));
-//       return;
-//     }
-
-//     const scrollTop = window.scrollY;
-//     const windowHeight = window.innerHeight;
-//     const fullHeight = document.documentElement.scrollHeight;
-
-//     if (scrollTop + windowHeight >= fullHeight - 300) {
-//       isFetching = true; // заблокували повторний виклик
-//       console.log("📦 Завантажуємо ще сторінку");
-//       handleLoadMore().finally(() => {
-//         isFetching = false;
-//       });
-//     }
-//   };
-
-//   window.addEventListener("scroll", handleScroll);
-//   return () => window.removeEventListener("scroll", handleScroll);
-// }, [isLoadingMore, isReady, photosData, fullData?.hits?.total, handleLoadMore]);
-
-
   useEffect(() => {
     if (isFetching){
       return;
@@ -546,17 +482,17 @@ useEffect(() => {
 
 useEffect(() => {
   console.log(isSidebarVisible, window.innerWidth)
-  if (isSidebarVisible && window.innerWidth < 768) {
+  if ((isSidebarVisible || areCategoriesVisible) && isMobile ) {
     // Додаємо фіктивний запис до історії
     history.pushState(null, document.title, location.pathname + location.search + "#!sidebar");
   }
-}, [isSidebarVisible, searchParams]);
+}, [isSidebarVisible, areCategoriesVisible, searchParams]);
 
 useEffect(() => {
   const onPopState = (e) => {
-    if (isSidebarVisible && window.innerWidth < 768) {
+    if ((isSidebarVisible || areCategoriesVisible) && isMobile) {
       setIsSidebarVisible(false);
-
+      setCategoriesVisible(false);  
       // Зберігаємо всі параметри (search)
       history.replaceState(null, document.title, location.pathname + location.search);
     }
@@ -564,13 +500,13 @@ useEffect(() => {
 
   window.addEventListener("popstate", onPopState);
   return () => window.removeEventListener("popstate", onPopState);
-}, [isSidebarVisible]);
+}, [isSidebarVisible, areCategoriesVisible]);
 
 useEffect(() => {
-  if (!isSidebarVisible && location.hash === "#!sidebar") {
+  if (!(isSidebarVisible || areCategoriesVisible) && location.hash === "#!sidebar") {
     history.back(); // повертаємось на попередній запис з усіма параметрами
   }
-}, [isSidebarVisible]);
+}, [isSidebarVisible, areCategoriesVisible]);
 
 useEffect(() => {
   const onPopState = () => {
@@ -612,6 +548,35 @@ const handleGoToProduct = () => {
   sessionStorage.setItem("mainPageURL", window.location.href.replace(window.location.origin, ""))
 };
 
+  const handleCheckboxChange = (group, value) => {
+    const groupValues = new Set(selectedFilters[group] || []);
+    if (groupValues.has(value)) {
+      groupValues.delete(value);
+    } else {
+      groupValues.add(value);
+    }
+    setSelectedFilters({
+      ...selectedFilters,
+      [group]: [...groupValues],
+    });
+  };
+
+const handleSortingListChange = (value) => {
+  setPage(1);
+
+  if (value === "0") {
+    const { order, ...rest } = selectedFilters;
+    setSelectedFilters(rest);
+  } else {
+    setSelectedFilters({
+      ...selectedFilters,
+      order: value,
+    });
+  }
+};
+
+
+
 
         if (!isReady) {
         return <div><Loading></Loading></div>;
@@ -619,96 +584,24 @@ const handleGoToProduct = () => {
 
     return (
         <>
-    <header style={styles.header}>
-      <button
-        className='toggleButton'
-        onClick={() => setIsSidebarVisible(!isSidebarVisible)}
-        style={{...styles.toggleButton, marginTop:"0px"}}
-      >
-        {isSidebarVisible ? "Сховати фільтри" : "Показати фільтри"}
-      </button>
-
-      {isMobile
-      ?<div><button className='toggleButton' onClick={()=> setCategoriesVisible(!areCategoriesVisible)} style={{...styles.toggleButton, margin:"5px"}}>☰</button></div>
-      :<div style={{ display: "flex", gap: "20px", fontSize:"13px", fontWeight:"bold" }}>
-        {Object.entries(MAIN_CATEGORIES).map(([name, [slug]]) => {
-          const categoryType = Object.keys(CLOTHING_CATEGORIES).find(
-            (key) => MAIN_CATEGORIES[name][0] === slug && key
-          );
-
-          return (
-            <div
-              key={slug}
-              style={{ position: "relative" }}
-              onMouseEnter={() => setHoveredMain(slug)}
-              onMouseLeave={() => setHoveredMain(null)}
-            >
-              {/* Основна категорія */}
-              <label style={{ cursor: "pointer" }} onClick={() => handleMainCategoryRadioChange(slug)}>
-                {/* <label
-                  // type="radio"
-                  // name="main-category"
-                  // value={slug}
-                  // checked={selectedMainCategory === slug}
-                  
-                  // style={{ appearance: "none" }}
-                ></label>  */}
-                {` ${name}`}
-              </label>
-
-              {/* Підкатегорії (випадаюче меню) */}
-              {hoveredMain === slug && (
-                <div
-                className='fallenMenu'
-                  style={{
-                    position: "absolute",
-                    top: "100%",
-                    left: 0,
-                    padding: "10px",
-                    minWidth: "150px",
-                    zIndex: 1000,
-                  }}
-                >
-                  {Object.entries(
-                    CLOTHING_CATEGORIES[
-                      Object.keys(MAIN_CATEGORIES).find(
-                        (key) => MAIN_CATEGORIES[key][0] === slug
-                      )
-                    ] || {}
-                  ).map(([subName, [subSlug]]) => (
-                    <label
-                    onClick={() => handleCategoryRadioChange(subSlug)}
-                      key={subSlug}
-                      style={{
-                        display: "block",
-                        padding: "5px 0",
-                        cursor: "pointer",
-                      }}
-                    >
-                      {/* <input
-                        type="radio"
-                        name="sub-category"
-                        value={subSlug}
-                        checked={selectedCategory === subSlug}
-                        
-                        style={{ appearance: "none" }}
-                      /> */}
-                      {` ${subName}`}
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })}
-        <a href="/favorites">Вподобані</a>
-      </div>}
-      
-      {/* <a href="/favorites">Переглянуті</a> */}
-    </header>
+    <Header
+        isMobile={isMobile}
+        areCategoriesVisible={areCategoriesVisible}
+        setCategoriesVisible={setCategoriesVisible}
+        isSidebarVisible={isSidebarVisible}
+        setIsSidebarVisible={setIsSidebarVisible}
+        MAIN_CATEGORIES={MAIN_CATEGORIES}
+        CLOTHING_CATEGORIES={CLOTHING_CATEGORIES}
+        hoveredMain={hoveredMain}
+        setHoveredMain={setHoveredMain}
+        selectedMainCategory={selectedMainCategory}
+        handleMainCategoryRadioChange={handleMainCategoryRadioChange}
+        handleCategoryRadioChange={handleCategoryRadioChange}
+        handleGoToProduct={handleGoToProduct}
+      />
         {isSidebarVisible && (    
         <> 
-          {window.innerWidth <= 768 && (
+          {isMobile && (
             <div
               onClick={() => setIsSidebarVisible(false)}
               style={{
@@ -764,7 +657,9 @@ const handleGoToProduct = () => {
             <p>Завантаження фільтрів...</p>
             ) : (
             <div>
-                <h2>Фільтри:</h2>
+                {/* <h2>Фільтри:</h2> */}
+                <div onClick={()=> setSelectedFilters({})} style={{cursor:"pointer", marginTop:"10px", fontSize:"14px"}}>Очистити фільтри</div>  
+              
 
                 <div>
                 <Filters filters = {filters} selectedFilters= {selectedFilters} setSelectedFilters={setSelectedFilters} setPage={setPage}></Filters>
@@ -780,7 +675,7 @@ const handleGoToProduct = () => {
         {/*ДЛЯ КАТЕГОРІЙ І ПІДКАТЕГОРІЙ*/}
         {areCategoriesVisible && (    
         <> 
-          {window.innerWidth <= 768 && (
+          {isMobile && (
             <div
               onClick={() => setCategoriesVisible(false)}
               style={{
@@ -796,49 +691,98 @@ const handleGoToProduct = () => {
           )}
         <aside style={{...styles.sidebar,  transform: isSidebarVisible ? 'translateX(0)' : 'translateX(-100%)', left:"100%", textAlign:"right"}} className={isSidebarVisible ? "show" : ""}>
         <button onClick={() => setCategoriesVisible(false)} style={{...styles.closeButton, right:"75%"}}>✖</button>
-        <div className="card" style = {{paddingBottom: '120px', marginRight:"15px"}}>
-            <div className="filter-section">
-                <h3>Основні категорії</h3>
-                {Object.entries(MAIN_CATEGORIES).map(([name, [slug]]) => (
-                    <label key={slug} style={{ display: "block", cursor:"pointer" }}>
+        <div className="card" style={{ marginRight: "15px" }}>
+  <div className="filter-section">
+    <h3>Категорії</h3>
+    {Object.entries(MAIN_CATEGORIES).map(([name, [slug]]) => {
+      const isActive = selectedMainCategory === slug;
+      const relatedType = Object.keys(CLOTHING_CATEGORIES).find(
+        (key) => MAIN_CATEGORIES[key][0] === slug
+      );
+
+      return (
+        <div key={slug} style={{ marginBottom: "0.5rem" }}>
+          {/* Основна категорія */}
+          <label
+            style={{
+              display: "block",
+              cursor: "pointer",
+              fontWeight: isActive ? "bold" : "normal",
+              borderBottom: isActive && !selectedCategory ? "2px solid #6d40ff" : "2px solid transparent",
+              padding: "5px 0",
+              transition: "border-color 0.3s ease",
+            }}
+          >
+            <input
+              type="radio"
+              name="main-category"
+              value={slug}
+              checked={isActive}
+              onChange = {() => null}
+              onClick={() => handleMainCategoryRadioChange(slug)}
+              style={{ marginRight: "6px" }}
+            />
+            {name}
+          </label>
+
+          {/* Підкатегорії */}
+          <div
+            style={{
+              textAlign:"left",
+              maxHeight: isActive ? "500px" : "0",
+              overflow: "hidden",
+              transition: "max-height 0.3s ease",
+              paddingLeft: "15px",
+              borderLeft: isActive ? "10px solid #ddd" : "none",
+              marginTop: isActive ? "5px" : "0",
+            }}
+          >
+            {isActive &&
+              Object.entries(CLOTHING_CATEGORIES[relatedType] || {}).map(
+                ([subName, [subSlug]]) => (
+                  <label
+                    key={subSlug}
+                    style={{
+                      display: "block",
+                      cursor: "pointer",
+                      padding: "3px 0",
+                      borderBottom: selectedCategory==subSlug ? "2px solid #6d40ff" : "2px solid transparent",
+                    }}
+                  >
                     <input
-                        type="radio"
-                        name="main-category"
-                        value={slug}
-                        checked={selectedMainCategory === slug}
-                        onChange={() => handleMainCategoryRadioChange(slug)}
+                      type="radio"
+                      name="sub-category"
+                      value={subSlug}
+                      checked={selectedCategory === subSlug}
+                      onChange={() => handleCategoryRadioChange(subSlug)}
+                      style={{ marginRight: "6px" }}
                     />
-                    {` ${name}`}
-                    </label>
-                ))}
-                </div>
-                <div className="filter-section">
-                {Object.entries(CLOTHING_CATEGORIES).map(([type, categories]) => (
-                    (Object.keys(MAIN_CATEGORIES).find(key => MAIN_CATEGORIES[key][0] === selectedMainCategory) === type ? (
-                    <div key={type} style={{ marginBottom: "1rem" }}>
-                    <strong>{type}</strong>
-                        {Object.entries(categories).map(([name, [slug]]) => (
-                        <label key={slug} style={{ display: "block", cursor:"pointer" }}>
-                            <input
-                            type="radio"
-                            name="sub-category"
-                            value={slug}
-                            checked={selectedCategory === slug}
-                            onChange={() => handleCategoryRadioChange(slug)}
-                            />
-                            {` ${name}`}
-                        </label>
-                        ))} 
-                    </div>):(<React.Fragment key={type} />))
-                ))}
-                </div>
-              </div>
+                    {subName}
+                  </label>
+                )
+              )}
+          </div>
+        </div>
+      );
+    })}
+  </div>
+</div>
+
               <hr />
-                <a href="/favorites" style = {{marginRight:"15px"}}>Вподобані</a>
+                <a href="/favorites" style = {{marginRight:"15px"}} onClick={()=>{handleGoToProduct()}}>Вподобані</a>
           </aside>
           </>)}
 
         <main style={styles.mainContent}>
+          <div className="photo-gallery" style={{    maxWidth: "1000px",    margin: "0 auto",}}>
+            <label htmlFor ="order" >Сортування:</label>
+              <select name="order" id="order" defaultValue={searchParams.get("order") ?? "0"} onChange={(e) => handleSortingListChange(e.target.value)}>
+                <option value="0">По популярності</option>
+                <option value="1">За зростанням ціни</option>
+                <option value="2">За зменшенням ціни</option>
+              </select>
+            </div>
+            {/* {Object.keys(MAIN_CATEGORIES).find(key => MAIN_CATEGORIES[key]==selectedMainCategory)} */}
             {photosData && <PhotoGallery products={photosData} priceIncrease={priceIncrease} handleGoToProduct={handleGoToProduct}/>}
             <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "20px" }}>
             <button
