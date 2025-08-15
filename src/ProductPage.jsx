@@ -345,7 +345,7 @@ return (
     </button>
 <div
   className="toggleButton"  style={{    width: "120px",    height: "40px",    borderRadius: "44px",
-    position: "fixed",    left: "90%",    top: "90%",    display: "flex",    justifyContent: "center",     
+    position: "fixed",    right: "5%",    top: "90%",    display: "flex",    justifyContent: "center",     
     alignItems: "center",         
   }}
 >
