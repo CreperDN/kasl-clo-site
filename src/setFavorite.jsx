@@ -39,8 +39,8 @@ export default function SetFavoriteButton({ url, price, name, slug, images, oldP
         top: "85%",
         cursor: "pointer",
         fontSize: "30px",
-        width: "40px",           // ✅ чітка ширина
-        height: "40px",          // ✅ чітка висота
+        width: "44px",           // ✅ чітка ширина
+        height: "44px",          // ✅ чітка висота
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
