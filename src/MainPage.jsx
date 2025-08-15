@@ -612,9 +612,9 @@ const handleSortingListChange = (value) => {
         handleCategoryRadioChange={handleCategoryRadioChange}
         handleGoToProduct={handleGoToProduct}
       />
-        {isSidebarVisible && (    
+        {(    
         <> 
-          {isMobile && (
+          {isMobile && isSidebarVisible && (
             <div
               onClick={() => setIsSidebarVisible(false)}
               style={{
@@ -628,7 +628,7 @@ const handleSortingListChange = (value) => {
               }}
             />
           )}
-        <aside style={{...styles.sidebar,  transform: isSidebarVisible ? 'translateX(0)' : 'translateX(-100%)',}} className={isSidebarVisible ? "show" : ""}>
+        <aside style={{...styles.sidebar,  transform: isSidebarVisible ? 'translateX(0)' : 'translateX(-101%)',}} className={isSidebarVisible ? "show" : ""}>
         <button onClick={() => setIsSidebarVisible(false)} style={styles.closeButton}>✖</button>
         <div className="card" style = {{paddingBottom: '120px'}}>
             {/* <div className="filter-section">
@@ -689,9 +689,9 @@ const handleSortingListChange = (value) => {
         </aside>
         </>)}
         {/*ДЛЯ КАТЕГОРІЙ І ПІДКАТЕГОРІЙ*/}
-        {areCategoriesVisible && (    
+        {(    
         <> 
-          {isMobile && (
+          {isMobile && areCategoriesVisible && (
             <div
               onClick={() => setCategoriesVisible(false)}
               style={{
@@ -705,7 +705,7 @@ const handleSortingListChange = (value) => {
               }}
             />
           )}
-        <aside style={{...styles.sidebar,  transform: isSidebarVisible ? 'translateX(0)' : 'translateX(-100%)', left:"100%", textAlign:"right"}} className={isSidebarVisible ? "show" : ""}>
+        <aside style={{...styles.sidebar,  transform: areCategoriesVisible ? 'translateX(-100%)' : 'translateX(-0%)', left:"100%", textAlign:"right"}} className={areCategoriesVisible ? "show" : ""}>
         <button onClick={() => setCategoriesVisible(false)} style={{...styles.closeButton, right:"75%"}}>✖</button>
         <div className="card" style={{ marginRight: "15px" }}>
   <div className="filter-section">
@@ -921,7 +921,7 @@ const handleSortingListChange = (value) => {
       overflowY: 'auto',
       zIndex: 1001,
       transform: 'translateX(-100%)',
-      transition: 'transform 0.3s ease-in-out',
+      transition: 'transform 0.1s ease-in-out',
     },
     closeButton: {
       position: 'absolute',

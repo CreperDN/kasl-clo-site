@@ -7,23 +7,16 @@
 .read-the-docs {
   color: #888;
 }
-.sidebar {
-  position: fixed;
-  top: 50px; /* або 90px, якщо хедер вищий */
-  left: 0;
-  width: 280px;
-  height: calc(100vh - 50px);
-  background-color: #282828;
-  border-right: 1px solid #ccc;
-  overflow-y: auto;
-  z-index: 1001;
-  transform: translateX(-100%);
-  transition: transform 0.3s ease-in-out;
+
+@keyframes slideInFromLeft {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
-.sidebar.show {
-  transform: translateX(0);
-}
 
 @media (max-width: 768px) {
   .sidebar.show {
