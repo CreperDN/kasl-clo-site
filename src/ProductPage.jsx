@@ -167,7 +167,7 @@ export default function ProductPage() {
       return {
         // name: src.correctedName, 
         // isDark:src.taxons.find(oo => oo.colorValue !== null).isDark,
-        colorValue: src.taxons.find(oo => oo.colorValue !== null)?.colorValue??"ebc591", //(taxons.find(taxon => taxons.remalink.includes("tsviet"))).colorValue
+        colorValue: src.taxons.find(oo => oo.colorValue !== null)?.colorValue??"f59989", //(taxons.find(taxon => taxons.remalink.includes("tsviet"))).colorValue
         // price: src.priceUAH ?? src?.masterVariant?.prices[0]?.value,
         // oldPrice: src.oldPriceUAH,
         slug: src.slug,
@@ -177,8 +177,8 @@ export default function ProductPage() {
       };
     });
     if (difColored.length !== 0){
-      difColored = [...difColored, {"colorValue":source.taxons.find(taxon => taxon.permalink.includes("tsviet")).colorValue, "slug":source.slug, 
-        "images":source.images, "url":`https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${source.image?.dressaPath}`, selected: true}]
+      difColored = [{"colorValue":source.taxons.find(taxon => taxon.permalink.includes("tsviet")).colorValue, "slug":source.slug, 
+        "images":source.images, "url":`https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${source.image?.dressaPath}`, selected: true}, ...difColored]
       setDifColored(difColored)
     } else{
       setDifColored(difColored)
@@ -346,7 +346,7 @@ return (
 <div
   className="toggleButton"  style={{    width: "120px",    height: "40px",    borderRadius: "44px",
     position: "fixed",    right: "5%",    top: "90%",    display: "flex",    justifyContent: "center",     
-    alignItems: "center",         
+    alignItems: "center",   zIndex: "999"         
   }}
 >
   <a

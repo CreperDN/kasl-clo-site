@@ -3,6 +3,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import SetFavoriteButton from "./setFavorite";
+import "./LargeImageGallery.css"
 import "swiper/css";
 import "swiper/css/navigation";
 
@@ -22,8 +23,26 @@ export default function LargeImageGallery({ product }) {
   while(images.length < 4){images.forEach(image =>images.push(image))}
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isGrabbing, setIsGrabbing] = useState(false);
+
+  const handlePointerDown = () => {
+    setIsGrabbing(true);
+
+    const stopGrabbing = () => {
+      setIsGrabbing(false);
+      window.removeEventListener("pointerup", stopGrabbing);
+      window.removeEventListener("mouseup", stopGrabbing);
+      window.removeEventListener("touchend", stopGrabbing);
+    };
+
+    window.addEventListener("pointerup", stopGrabbing);
+    window.addEventListener("mouseup", stopGrabbing);
+    window.addEventListener("touchend", stopGrabbing);
+  };
+
   const [activeIndex, setActiveIndex] = useState(0);
   const modalSwiperRef = useRef(null);
+  const isMobile = window.innerWidth <= 780;
 
   const openModal = (index) => {
     setActiveIndex(index);
@@ -72,6 +91,45 @@ export default function LargeImageGallery({ product }) {
   if (prev) prev.style.left = "-7px";  // зміщення вліво
   if (next) next.style.right = "-7px"; // зміщення вправо
 }, []);
+
+
+
+useEffect(() => {
+  if ( isOpen && isMobile) {
+    history.pushState(null, document.title, location.pathname + location.search + "#!modal");
+  }
+}, [isOpen]);
+
+useEffect(() => {
+  const onPopState = (e) => {
+    if ( isOpen && isMobile) {
+      closeModal();
+      history.replaceState(null, document.title, location.pathname + location.search);
+    }
+  };
+
+  window.addEventListener("popstate", onPopState);
+  return () => window.removeEventListener("popstate", onPopState);
+}, [isOpen]);
+
+useEffect(() => {
+  if (!(isOpen) && location.hash === "#!modal") {
+    history.back(); 
+  }
+}, [isOpen]);
+
+useEffect(() => {
+  const onPopState = () => {
+    if (window.location.hash === "#!modal") {
+      history.back();
+    } else {
+    }
+  };
+  window.addEventListener("popstate", onPopState);
+  return () => window.removeEventListener("popstate", onPopState);
+}, []);
+
+
 
 
   return (
@@ -141,39 +199,31 @@ export default function LargeImageGallery({ product }) {
       }}
     >
       {images.map((img, i) => (
-        <SwiperSlide
-          key={i}
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100%",
-          }}
-        >
-          {/* Цей блок відповідає за перетягування та масштабування */}
-          <TransformWrapper
-            wheel={{ step: 0.1 }}
-            pinch={{ step: 5 }}
-            doubleClick={{ disabled: false }}
-            minScale={0.5}
-            limitToBounds={false}
-            centerOnInit={true}
-            zoomAnimation={{ animationTime: 200 }}
-            style={{overflow: "visible"}}
-          >
-            <TransformComponent>
-              <img
-                src={img}
-                onError={(e) => {
-                  e.target.src = "/placeholder.png";
-                }}
-                alt={`Фото ${product.name} повний екран ${i}`}
-                style={styles.modalImage}
-                onClick={(e) => e.stopPropagation()} // Зупиняємо розповсюдження події, щоб не закривати модалку при кліку на зображення
-              />
-            </TransformComponent>
-          </TransformWrapper>
-        </SwiperSlide>
+        <SwiperSlide key={i} style={{ display:"flex", justifyContent:"center", alignItems:"center", height:"100%" }}>
+  <TransformWrapper
+    wheel={{ step: 0.1 }}
+    pinch={{ step: 5 }}
+    doubleClick={{ disabled: false }}
+    minScale={0.5}
+    limitToBounds={false}
+    centerOnInit={true}
+    zoomAnimation={{ animationTime: 200 }}
+    style={{ overflow: "visible" }}
+  >
+    <TransformComponent>
+      <img
+        src={img}
+        onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
+        alt={`Фото ${product.name} повний екран ${i}`}
+        className={isGrabbing ? "img-grabbing" : "img-grab"}
+        style={styles.modalImage}
+        draggable={false}
+        onPointerDown={handlePointerDown}
+        onClick={(e) => e.stopPropagation()}
+      />
+    </TransformComponent>
+  </TransformWrapper>
+</SwiperSlide>
       ))}
 
       {/* Власні кнопки навігації */}
@@ -256,6 +306,7 @@ const styles = {
   modalImage: {
     maxWidth: "140vw",
     maxHeight: "140vh",
+    // cursor: "grab",
     // objectFit: "contain",
     borderRadius: "8px",
     userSelect: "none",

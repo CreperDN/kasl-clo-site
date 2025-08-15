@@ -140,12 +140,12 @@ export default function SimilarProducts({ data }) {
             style={{
               width: "7px",
               height: "7px",
-              backgroundColor: "#" + photo.colorValue,
+              backgroundColor: "#" + (photo.colorValue??"f59989"),
               border: "1px solid #ccc",
               borderRadius: "2px",
             }}
           ></span>
-          {colorsByValue[photo.colorValue]}
+          {colorsByValue[photo.colorValue??"f59989"]}
         </label>
       </div>
 

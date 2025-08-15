@@ -39,7 +39,7 @@ export default function SetFavoriteButton({ url, price, name, slug, images, oldP
         top: "85%",
         cursor: "pointer",
         fontSize: "30px",
-        width: "auto",
+        aspectRatio: "1 / 1",
         color: isFavorited ? "red" : "#aaa",
         transition: "color 0.2s ease",
         userSelect: "none",

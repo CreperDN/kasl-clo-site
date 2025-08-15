@@ -1,0 +1,11 @@
+.img-grab { cursor: grab; }
+.img-grabbing { cursor: grabbing; }
+
+/* необов'язково, але корисно */
+.nodrag {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
