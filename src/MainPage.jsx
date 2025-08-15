@@ -556,7 +556,7 @@ const handleGoToProduct = () => {
       scroll: window.scrollY,
     })
   );
-  sessionStorage.setItem("mainPageURL", window.location.href.replace(window.location.origin, ""))
+  sessionStorage.setItem("mainPageURL", window.location.href.replace(window.location.origin, "").replace(window.location.hash, ""))
 };
 
   const handleCheckboxChange = (group, value) => {
@@ -785,7 +785,7 @@ const handleSortingListChange = (value) => {
 </div>
 
               <hr />
-                <a href="/favorites" style = {{marginRight:"15px", paddingBottom: '120px'}} onClick={()=>{handleGoToProduct()}}>Вподобані</a>
+                <a href="/favorites" style = {{marginRight:"15px", marginBottom: '120px'}} onClick={()=>{handleGoToProduct()}}>Вподобані</a>
           </aside>
           </>)}
 

@@ -45,6 +45,12 @@ export default function Favorites() {
     };
   }, []);
 
+    useEffect(() => {
+    document.body.style.overflow = "visible";
+    document.getElementById("root").style.overflow = "visible";
+    return () => { document.body.style.overflowX = "hidden"; document.getElementById("root").style.overflowX = "hidden"; }
+  }, []);
+
   // функції для скролу
   const scrollToFavorites = () => {
     favoritesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
