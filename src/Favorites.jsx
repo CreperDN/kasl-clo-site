@@ -81,7 +81,7 @@ export default function Favorites() {
         <button 
           style={{ position: "fixed", bottom: "20px", left: "5%", zIndex: 1000, opacity: "0.7" }}
           onClick={scrollToHistory}>
-          ↓Перейти до історії
+          ↓Перейти до переглянутих
         </button>
       )}
 
@@ -95,7 +95,7 @@ export default function Favorites() {
         </div>
         <hr />
           <div ref={historyRef}>
-          <h2 className='stickyH2'style={{position:"sticky", top: "0", zIndex:"1000"}}>Історія перегляду</h2>
+          <h2 className='stickyH2'style={{position:"sticky", top: "0", zIndex:"1000"}}>Переглянуті</h2>
           {history.length > 0
             ? <PhotoGallery products={history} priceIncrease={priceIncrease} handleGoToProduct={handleGoToProduct}/>
             : <div>Жодного товару не <a href={"/"}>переглянуто</a></div>

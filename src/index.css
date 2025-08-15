@@ -191,6 +191,9 @@ aside, header, .fallenMenu{
   .colorFont{  
     color: white; /* width and color */
   }
+  .stickyH2{
+    background-color: #24242480
+  }
 }
 
 
