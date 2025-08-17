@@ -785,7 +785,9 @@ const handleSortingListChange = (value) => {
 </div>
 
               <hr />
-                <a href="/favorites" style = {{marginRight:"15px", marginBottom: '120px'}} onClick={()=>{handleGoToProduct()}}>Вподобані</a>
+                <div style={{paddingBottom:"120px"}}>
+                  <a href="/favorites" style = {{marginRight:"15px", marginBottom: '120px'}} onClick={()=>{handleGoToProduct()}}>Вподобані</a>
+                </div>
           </aside>
           </>)}
 
