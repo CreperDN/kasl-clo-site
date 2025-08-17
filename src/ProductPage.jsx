@@ -344,7 +344,7 @@ return (
       ← На Головну
     </button>
 <div
-  className="toggleButton"  style={{    width: "120px",    height: "40px",    borderRadius: "44px",
+  className="directButton"  style={{    width: "120px",    height: "40px",    borderRadius: "44px",
     position: "fixed",    right: "5%",    top: "90%",    display: "flex",    justifyContent: "center",     
     alignItems: "center",   zIndex: "999"         
   }}
