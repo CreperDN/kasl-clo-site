@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import ThemeToggle from "./toggleTheme";
 
 export default function Header({
   isMobile,
@@ -54,8 +55,10 @@ export default function Header({
         {isSidebarVisible ? "Сховати фільтри" : "Показати фільтри"}
       </button>
 
+
       {isMobile ? (
-        <div>
+        <div style={{display:"flex", alignItems: "center", gap:"7px"}}>
+          <ThemeToggle></ThemeToggle>
           <button
             // className="toggleButton"
             onClick={() => setCategoriesVisible(!areCategoriesVisible)}
@@ -65,6 +68,8 @@ export default function Header({
           </button>
         </div>
       ) : (
+        <div style={{display:"flex", alignItems: "center", gap:"7px"}}>
+          <ThemeToggle></ThemeToggle>
         <div
           style={{
             display: "flex",
@@ -134,6 +139,7 @@ export default function Header({
             );
           })}
           <a href="/favorites" onClick={()=>{handleGoToProduct()}}>Вподобані</a>
+        </div>
         </div>
       )}
     </header>

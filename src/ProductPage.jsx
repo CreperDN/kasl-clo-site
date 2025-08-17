@@ -326,7 +326,7 @@ export default function ProductPage() {
   }, [history]);
 
   if (loading) return <Loading></Loading>;
-  if (!product) return <p>Товар не знайдено</p>;
+  if (!product) return <div style={{ padding: "20px"}}><p>Товар не знайдено</p><button onClick={() => navigate(sessionStorage.getItem("mainPageURL")??"/")}>← На Головну</button></div>;
 
   const allImages = [product.url, ...product.images.map(img =>
     `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${img}`
@@ -434,8 +434,8 @@ return (
           <button
           style={{
             marginLeft:"2px", 
-            outline:Object.keys(row.sizeDescription ?? {})[0] ?? row.size == selectedSize ? "2px solid black" :  "0px solid transparent",
-            color: Object.keys(row.sizeDescription ?? {})[0] ?? row.size == selectedSize ? "#646cff" :  ""}}
+            outline:(Object.keys(row.sizeDescription ?? {})[0] ?? row.size) == selectedSize ? "2px solid black" :  "0px solid transparent",
+            color: (Object.keys(row.sizeDescription ?? {})[0] ?? row.size) == selectedSize ? "#646cff" :  ""}}
           key = {Object.keys(row.sizeDescription ?? {})[0] ?? row.size+`${(i*2)}`}
             onClick={() => {
               if (row.isActive) setSelectedSize(Object.keys(row.sizeDescription ?? {})[0] ?? row.size);

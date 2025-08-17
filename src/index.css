@@ -1,11 +1,8 @@
+/* ===== Базові стилі (спільні для обох тем) ===== */
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -19,6 +16,11 @@ input[type="radio"] { /*removing circle near radio input*/
     appearance: none;         
 }
 
+.toggleButton {
+  width: 40px;
+  height: 40px;
+}
+
 div > ul {
   margin:10px;
   padding-left: 20px;
@@ -30,10 +32,11 @@ div > p {
   margin-bottom: 0;
 }
 
+th, td { border: 1px solid #555; } 
+th{ padding : 0; }
 
 a {
   font-weight: 500;
-  color: #646cff;
   text-decoration: inherit;
 }
 a:hover {
@@ -46,9 +49,9 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
-  overflow-x: "hidden"
+  overflow-x: hidden;
 }
-#root{overflow-x: "hidden"}
+#root{overflow-x: hidden}
 
 h1 {
   font-size: 3.2em;
@@ -62,7 +65,6 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -87,31 +89,6 @@ button:focus-visible {
   background-color: #555;
 }
 
-@media (prefers-color-scheme: light) {
-  .swiper-button-next, .swiper-button-prev{
-    background-color: rgba(255, 255, 255, 0.4) !important;
-    color: #213547 !important;
-  }
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  ::-webkit-scrollbar-track {
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-  .stickyH2{
-    background-color: #f9f9f969;
-  }
-  .colorFont{  
-    color: black
-  }
-}
 table {
   border-collapse: collapse;
   width: 100%;
@@ -120,80 +97,156 @@ table {
 
 th,
 td {
-  border: 1px solid #ccc;
   padding: 8px;
   text-align: center;
 }
 
 /* Рядки на hover */
 tr:hover {
-  background-color: rgba(100, 149, 237, 0.1); /* світло-синій */
+  background-color: rgba(100, 149, 237, 0.1);
 }
 
-/* Клас для підсвічення клітинки (додається JS-ом) */
+/* Клас для підсвічення клітинки */
 td.hover-cell,
 th.hover-cell {
-  background-color: rgba(255, 215, 0, 0.15); /* м’який жовтий */
+  background-color: rgba(255, 215, 0, 0.15);
 }
 
-/* Повідомлення під таблицею */
 .selected-size-msg {
   margin-top: 10px;
   color: green;
   font-size: 14px;
 }
-aside, header, .fallenMenu{
+
+.toggleButton {
+  background-color: rgb(225, 219, 219);
+}
+
+th button{ width:100% }
+
+/* ================== Тема Light ================== */
+body.light {
+  color: #213547;
+  background-color: #ffffff;
+}
+
+body.light a {
+  color: #646cff;
+}
+body.light a:hover {
+  color: #747bff;
+}
+
+body.light button {
+  background-color: #f9f9f9;
+}
+
+body.light .stickyH2{
+  background-color: #f9f9f969;
+}
+
+body.light .colorFont{  
+  color: black;
+}
+
+body.light aside, 
+body.light header, 
+body.light .fallenMenu {
   background-color: #ffffff;
   border-color:#1a1a1a;
   border-width: 2px;
-} .toggleButton {
-    background-color: rgb(241, 235, 235);
 }
 
-/* Темна тема */
-@media (prefers-color-scheme: dark) {
-  th,
-  td {
-    border: 1px solid #555;
-  }
-  th{
+body.light ::-webkit-scrollbar-track {
+  background-color: #ffffff;
+}
+
+body.light th,
+body.light td {
+  border: 1px solid #ccc;
+}
+
+body.light .swiper-button-next, 
+body.light .swiper-button-prev{ background-color: rgba(255, 255, 255, 0.4) !important; color: #213547 !important; }
+
+
+/* ================== Тема Dark ================== */
+body.dark {
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+}
+
+body.dark a {
+  color: #646cff;
+}
+body.dark a:hover {
+  color: #535bf2;
+}
+
+body.dark button {
+  background-color: #1a1a1a;
+}
+body.dark input[type=number]{
+  color-scheme: dark;
+}
+
+body.dark .stickyH2{
+  background-color: #24242480;
+}
+
+body.dark .colorFont{  
+  color: white;
+}
+
+body.dark aside, 
+body.dark header, 
+body.dark .fallenMenu {
+  background-color: #282424;
+  border-color:#1a1a1a;
+  border-width: 2px;
+}
+
+body.dark ::-webkit-scrollbar-track {
+  background-color: #282424;
+  width:4px;
+}
+
+body.dark .toggleButton {
+    cursor: pointer;
+    color: #ffffff; /* Change arrow color here */
+}
+
+body.dark th,
+body.dark td {
+  border: 1px solid #555;
+}
+
+body.dark th{
    padding : 0; 
-  }
-  th button{
-    border-radius: 0;
-    width:100%
-  }
-
-  tr:hover {
-    background-color: rgba(173, 216, 230, 0.067); /* світло-блакитний у темі */
-  }
-
-  td.hover-cell,
-  th.hover-cell {
-    background-color: rgba(0, 89, 255, 0.078); /* яскравіший жовтий */
-  }
-
-  .param-name {
-    background-color: #242424; /* світло-зелений */
-    border-right: 1px solid #555;
-  }
-  aside, header, .fallenMenu{
-    background-color: #282424;
-  }
-  ::-webkit-scrollbar-track {
-    background-color: #282424;
-    width:4px;
-  }
-
-  .toggleButton{
-    background-color: #3f3f3f;
-  }
-  .colorFont{  
-    color: white; /* width and color */
-  }
-  .stickyH2{
-    background-color: #24242480
-  }
+}
+body.dark th button{
+  border-radius: 0;
+  width:100%
 }
 
+body.dark button, body.dark select, body.dark input[type="number"] {
+  color: #ffffff
+}
 
+body.dark select, body.dark input[type="number"] {
+  background-color: rgb(59, 59, 59);
+}
+
+body.dark tr:hover {
+  background-color: rgba(173, 216, 230, 0.067);
+}
+
+body.dark td.hover-cell,
+body.dark th.hover-cell {
+  background-color: rgba(0, 89, 255, 0.078);
+}
+
+body.dark .param-name {
+  background-color: #242424;
+  border-right: 1px solid #555;
+}

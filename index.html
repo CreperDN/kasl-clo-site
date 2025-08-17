@@ -13,6 +13,17 @@
     <meta property="og:image" content="https://kasl-clo.onrender.com/logo.png" />
   </head>
   <body style="margin:0; padding:0; overflow-x: hidden;">
+    <!-- у public/index.html, ПЕРЕД підключенням твого бандла -->
+    <script>
+      (function () {
+        const saved = localStorage.getItem('theme');
+        const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        const theme = saved || (prefersLight ? 'light' : 'dark');
+        document.documentElement.classList.remove('light','dark'); // на всяк випадок
+        document.body.classList.add(theme);
+      })();
+    </script>
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

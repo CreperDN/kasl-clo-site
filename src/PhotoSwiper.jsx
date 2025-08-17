@@ -85,7 +85,7 @@ export default function PhotoGallery({ products, priceIncrease, handleGoToProduc
                   >
                     <div style={{
                       backgroundColor: "rgb(59, 59, 59)",
-                      borderRadius: "3%",
+                      borderRadius: "4%",
                       position: "relative",
                       width: "100%",
                       aspectRatio: "464 / 616", // пропорції фото
