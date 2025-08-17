@@ -27,6 +27,14 @@ export default function PhotoGallery({ products, priceIncrease, handleGoToProduc
         while(images.length < 4){images.forEach(image =>images.push(image))}
 
         return (
+          <div key = {product.images[i]+`${i}`} style={{
+                      backgroundColor: "transparent",
+                      // borderRadius: "4%",
+                      // position: "relative",
+                      // // width: "100%",
+                      aspectRatio: "350 / 422", // пропорції фото
+                      // overflow: "hidden",
+                    }}>
           <figure key={product.images[i]+`${i}`} style={styles.figure}>
             <Swiper
               modules={[Navigation, Pagination, EffectCoverflow]}
@@ -124,6 +132,7 @@ export default function PhotoGallery({ products, priceIncrease, handleGoToProduc
               )}
             </figcaption>
           </figure>
+          </div>
         );
       })}
       <style>{responsiveStyles}</style>
