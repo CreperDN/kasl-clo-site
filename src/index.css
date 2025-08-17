@@ -10,6 +10,13 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+button:disabled {
+  background-color: #cccccc; /* Example: Gray background */
+  color: #666666; /* Example: Darker text color */
+  cursor: not-allowed; /* Changes cursor to a "no-entry" symbol */
+  opacity: 0.7; /* Reduces opacity to visually indicate disabled state */
+}
+
 input[type="radio"] { /*removing circle near radio input*/
     -webkit-appearance: none; 
     -moz-appearance: none;    
