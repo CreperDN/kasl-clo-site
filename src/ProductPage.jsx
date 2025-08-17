@@ -432,7 +432,10 @@ return (
         <div style={{display:"flex", flexWrap:"wrap"}}>
         {dimensionTable.map((row, i) => (
           <button
-          style={{marginLeft:"2px" }}
+          style={{
+            marginLeft:"2px", 
+            outline:Object.keys(row.sizeDescription ?? {})[0] ?? row.size == selectedSize ? "2px solid black" :  "0px solid transparent",
+            color: Object.keys(row.sizeDescription ?? {})[0] ?? row.size == selectedSize ? "#646cff" :  ""}}
           key = {Object.keys(row.sizeDescription ?? {})[0] ?? row.size+`${(i*2)}`}
             onClick={() => {
               if (row.isActive) setSelectedSize(Object.keys(row.sizeDescription ?? {})[0] ?? row.size);
@@ -467,7 +470,8 @@ return (
                       style={{
                         whiteSpace: "nowrap",
                         overflow: "hidden",         
-                        maxWidth: "100%",           
+                        maxWidth: "100%",      
+                        color: Object.keys(row.sizeDescription ?? {})[0] ?? row.size == selectedSize ? "#646cff" :  ""     
                       }}
                     >
                       {row.size}

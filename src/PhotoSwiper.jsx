@@ -83,14 +83,23 @@ export default function PhotoGallery({ products, priceIncrease, handleGoToProduc
                       if (handleGoToProduct()){handleGoToProduct()};
                     }}
                   >
-                    <img
-                      src={img}
-                      alt={`Фото ${product.name}-${imgIdx}`}
-                      style={styles.image}
-                      onError={(e) => {
-                        e.target.src = "/placeholder.png";
-                      }}
-                    />
+                    <div style={{
+                      backgroundColor: "rgb(59, 59, 59)",
+                      borderRadius: "3%",
+                      position: "relative",
+                      width: "100%",
+                      aspectRatio: "464 / 616", // пропорції фото
+                      overflow: "hidden",
+                    }}>
+                      <img
+                        src={img}
+                        alt={`Фото ${product.name}-${imgIdx}`}
+                        style={styles.image}
+                        onError={(e) => {
+                          e.target.src = "/placeholder.png";
+                        }}
+                      />
+                    </div>
                   </Link>
                 </SwiperSlide>
               ))}
