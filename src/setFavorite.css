@@ -33,7 +33,8 @@
   border-color: #333 transparent transparent transparent; /* Creates the arrow shape */
 }
 .toast {
-  position: fixed;
+  /* position: fixed; */
+  position:absolute ;
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
@@ -43,7 +44,7 @@
   border-radius: 8px;
   font-size: 14px;
   animation: fadeInOut 3s ease forwards;
-  z-index: 2000;
+  z-index: 1000000;
 }
 
 .favorites-link {

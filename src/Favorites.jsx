@@ -24,6 +24,9 @@ export default function Favorites() {
   // стани для видимості галерей
   const [favoritesVisible, setFavoritesVisible] = useState(true);
   const [historyVisible, setHistoryVisible] = useState(true);
+  useEffect(()=>{
+    window.scrollTo(0, 0);
+  }, [])
 
   useEffect(() => {
     const observerOptions = { threshold: 0.1 };

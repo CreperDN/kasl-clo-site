@@ -8,7 +8,7 @@ import Loading from './Loading';
 import LZString, { compress } from 'lz-string';
 
 async function fetchFilters(mainCategory, category, filters) {
-    console.log("fetchFilters", mainCategory, category, filters);
+    //console.log("fetchFilters", mainCategory, category, filters);
 
     let url = "";
     let cacheKey = "";
@@ -43,12 +43,12 @@ async function fetchFilters(mainCategory, category, filters) {
       url = url + '?locale=ua'
     }
 
-    console.log(params)
+    //console.log(params)
     cacheKey = cacheKey + params.join("")
 
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
-      console.log("Взято з localStorage:", cacheKey);
+      //console.log("Взято з localStorage:", cacheKey);
       return JSON.parse(LZString.decompress(cached));
     }
 
@@ -124,8 +124,8 @@ async function fetchPhotos(category, filters = {}, page = 1, perPage = 24) {
     siteVersion: "ua_UA",
   };
 
-  console.log("📦 POST payload:", payload);
-  console.log("parsedFilters:",parsedFilters)
+  //console.log("📦 POST payload:", payload);
+  //console.log("parsedFilters:",parsedFilters)
 
   // Унікальний cacheKey
   const filtersStr = Object.entries(parsedFilters)
@@ -138,7 +138,7 @@ async function fetchPhotos(category, filters = {}, page = 1, perPage = 24) {
   if (cached) {
     try {
       const parsed = JSON.parse(cached);
-      console.log("Взято з localStorage:", cacheKey);
+      //console.log("Взято з localStorage:", cacheKey);
       return parsed;
     } catch (e) {
       console.warn("⚠️ Не вдалося прочитати кеш:", cacheKey);
@@ -289,7 +289,7 @@ function extractDressaPaths(data) {
     };
     for (const key in selectedFilters) {
       let raw = selectedFilters[key];
-      console.log("RAW for key", key, raw);
+      //console.log("RAW for key", key, raw);
 
       if (raw instanceof Set) raw = Array.from(raw);
       if (!Array.isArray(raw)) raw = [raw];
@@ -322,7 +322,7 @@ function extractDressaPaths(data) {
     if (!loading){
       const data = await fetchFilters(mainCategory, category, filters);
       setFilters(data?.data);
-      console.log("Filters", data.data)
+      //console.log("Filters", data.data)
       setLoading(false);
     }
   };
@@ -395,12 +395,12 @@ function extractDressaPaths(data) {
       setSelectedMainCategory(main);
       setSelectedCategory(category);
 
-      console.log(state)
-      console.log(state.filters)
-      console.log(filters)
-      console.log(pageFromUrl)
-      console.log(main, category)
-      console.log(state.fullData)
+      //console.log(state)
+      //console.log(state.filters)
+      //console.log(filters)
+      //console.log(pageFromUrl)
+      //console.log(main, category)
+      //console.log(state.fullData)
 
       setTimeout(() => window.scrollTo(0, state.scroll), 0);
 
@@ -425,7 +425,7 @@ function extractDressaPaths(data) {
       setSelectedCategory(category);
 
 
-      console.log("Page is loading", category ?? main, filters, pageFromUrl, perPage)
+      //console.log("Page is loading", category ?? main, filters, pageFromUrl, perPage)
 
         const data = await fetchPhotos(
           category ?? main,
@@ -466,7 +466,7 @@ useEffect(() => {
 
     if (isReady) {
       if (isFromScroll.current) {
-        console.log("🔁 Пропущено запит із-за скролінгу");
+        //console.log("🔁 Пропущено запит із-за скролінгу");
         isFromScroll.current = false;
         return;
     }
@@ -476,7 +476,7 @@ useEffect(() => {
       const filtersFromUrl = parseFiltersFromSearchParams();
 
       loadFilters(main, category, filtersFromUrl);
-      console.log("[searchParams, isReady]", main, category, pageFromUrl, filtersFromUrl)
+      //console.log("[searchParams, isReady]", main, category, pageFromUrl, filtersFromUrl)
       loadPhotos(main, category, pageFromUrl, filtersFromUrl);
   }
   else{
@@ -492,7 +492,7 @@ useEffect(() => {
 }, [page]);
 
 useEffect(() => {
-  console.log(isSidebarVisible, window.innerWidth)
+  //console.log(isSidebarVisible, window.innerWidth)
   if ((isSidebarVisible || areCategoriesVisible) && isMobile ) {
     // Додаємо фіктивний запис до історії
     history.pushState(null, document.title, location.pathname + location.search + "#!sidebar");

@@ -272,6 +272,7 @@ const styles = {
     padding: "0px 10px",
     maxWidth: "1000px",
     margin: "0 auto",
+    zIndex: "200000"
   },
   swiper: {
     width: "100%",

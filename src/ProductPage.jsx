@@ -126,7 +126,7 @@ export default function ProductPage() {
     const source = data?.hits?.hits?.find(hit => hit._source?.slug === slug)?._source;
     if (!source) return null;
 
-    let images = (source.images || []).map(img => img.dressaPath).slice(1);
+    let images = (source.images || []).map(img => img.dressaPath ?? img.path).slice(1);
     if (images[0]==null){
       images=[source.image.path]
     }
@@ -163,7 +163,7 @@ export default function ProductPage() {
 
     setMeasures(allMeasures);
     let difColored = source.attachedProducts.map(src => {
-      const images = (src.images).map(img => {return img.dressaPath ?? img.path}).slice(1);
+      const images = (src.images).map(img => {return (img.dressaPath ?? img.path)}).slice(1);
       return {
         // name: src.correctedName, 
         // isDark:src.taxons.find(oo => oo.colorValue !== null).isDark,
@@ -172,13 +172,13 @@ export default function ProductPage() {
         // oldPrice: src.oldPriceUAH,
         slug: src.slug,
         images,
-        url: `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${src.image.dressaPath}`,
+        url: `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${src.image.dressaPath ?? src.image.path}`,
         selected : false
       };
     });
     if (difColored.length !== 0){
       difColored = [{"colorValue":source.taxons.find(taxon => taxon.permalink.includes("tsviet")).colorValue, "slug":source.slug, 
-        "images":source.images, "url":`https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${source.image?.dressaPath}`, selected: true}, ...difColored]
+        "images":source.images, "url":`https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${source.image?.dressaPath??source.image?.path}`, selected: true}, ...difColored]
       setDifColored(difColored)
     } else{
       setDifColored(difColored)
@@ -229,7 +229,7 @@ export default function ProductPage() {
 
     return {
       id: source.id,
-      url: `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${source.image?.dressaPath}`,
+      url: `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${source.image?.dressaPath??source.image?.path}`,
       price: source.priceUAH,
       name: source.correctedName,
       slug: source.slug,
@@ -280,14 +280,14 @@ export default function ProductPage() {
     const hits = data?.hits?.hits || [];
     return hits.map(hit => {
       const src = hit._source;
-      const images = (src.images || []).map(img => img.dressaPath).slice(1);
+      const images = (src.images || []).map(img => img.dressaPath ?? img.path).slice(1);
       return {
         name: src.correctedName,
         price: src.priceUAH,
         oldPrice: src.oldPriceUAH,
         slug: src.slug,
         images,
-        url: `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${src.image?.dressaPath}`,
+        url: `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${src.image?.dressaPath ?? src.image.path}`,
       };
     });
   }
@@ -304,11 +304,22 @@ export default function ProductPage() {
       setProduct(prod);
       setHistory((prevHistory) => {
         let updated;
-        if (prevHistory.find((item) => item.slug == slug)) {
-          return prevHistory;
+        if (prevHistory.find((item) => item.slug === slug)) {
+          // Якщо товар вже є → переміщаємо на початок
+          updated = [
+            {"url": prod.url, "price": prod.price, "name": prod.name, "slug": prod.slug, "images": prod.images, "oldPrice": prod.oldPrice},
+            ...prevHistory.filter((item) => item.slug !== slug)
+          ];
         } else {
-          updated = [...prevHistory, {"url":prod.url, "price":prod.price, "name":prod.name, "slug":prod.slug, "images":prod.images, "oldPrice":prod.oldPrice}];
-          if (updated.length > 12){updated.shift()}
+          // Якщо товар новий → додаємо на початок
+          updated = [
+            {"url": prod.url, "price": prod.price, "name": prod.name, "slug": prod.slug, "images": prod.images, "oldPrice": prod.oldPrice},
+            ...prevHistory
+          ];
+        }
+        // Якщо більше 12 → обрізаємо З КІНЦЯ
+        if (updated.length > 12) {
+          updated = updated.slice(0, 12);
         }
         return updated;
       });
@@ -324,7 +335,7 @@ export default function ProductPage() {
     if(history)
       localStorage.setItem("history", JSON.stringify(history));
   }, [history]);
-
+  
   if (loading) return <Loading></Loading>;
   if (!product) return <div style={{ padding: "20px"}}><p>Товар не знайдено</p><button onClick={() => navigate(sessionStorage.getItem("mainPageURL")??"/")}>← На Головну</button></div>;
 
