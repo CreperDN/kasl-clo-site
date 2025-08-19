@@ -32,7 +32,7 @@ export default function PhotoGallery({ products, priceIncrease, handleGoToProduc
                       // borderRadius: "4%",
                       // position: "relative",
                       // // width: "100%",
-                      aspectRatio: "350 / 422", // пропорції фото
+                      // aspectRatio: "350 / 422", // пропорції фото
                       // overflow: "hidden",
                     }}>
           <figure key={product.images[i]+`${i}`} style={styles.figure}>
