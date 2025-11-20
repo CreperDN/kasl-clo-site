@@ -530,6 +530,21 @@ useEffect(() => {
   window.addEventListener("popstate", onPopState);
   return () => window.removeEventListener("popstate", onPopState);
 }, []);
+useEffect(() => {
+  sessionStorage.setItem("isBannerSeen", false)
+  if (sessionStorage.getItem("isBannerSeen")){
+  setTimeout(() => {
+    const el = document.querySelector(".banner");
+    if (el) {
+      window.scrollTo({
+        top: el.offsetHeight - 1.2*document.querySelector("header").offsetHeight,
+        behavior: "smooth"
+      });
+    }
+  }, 700); // 700ms найнадійніше
+  }
+  sessionStorage.setItem("isBannerSeen", true)
+}, []);
 
 useEffect(() => {
   const syncFiltersFromURL = () => {
@@ -588,7 +603,6 @@ const handleSortingListChange = (value) => {
     sessionStorage.setItem("sortingType", value)
   }
 };
-
 
 
 
@@ -791,7 +805,7 @@ const handleSortingListChange = (value) => {
                 </div>
           </aside>
           </>)}
-        <div style={{ display: "flex", paddingTop: "90px", justifyContent: "center", gap: "10px", marginTop: "-20px" }}><a href="/?main=samyie-bol-shiie-skidki-tut-sale-do-50-ot-opta&category=&page=1"><img width = "100%" height = "auto;" src="/BlackFriday1.png"></img></a></div>
+        <div className="banner" style={{ display: "flex", paddingTop: "90px", justifyContent: "center", gap: "10px", marginTop: "-20px" }}><a href="/?main=samyie-bol-shiie-skidki-tut-sale-do-50-ot-opta&category=&page=1"><img width = "100%" height = "auto;" src="/BlackFriday1.png"></img></a></div>
         <main style={styles.mainContent}>
           <div className="photo-gallery" style={{    maxWidth: "1000px",    margin: "0 auto",}}>
             <label htmlFor ="order" >Сортування:</label>
