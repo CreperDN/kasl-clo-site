@@ -195,6 +195,7 @@ function extractDressaPaths(data) {
 
 
     const MAIN_CATEGORIES = {
+      "Black Friday Sale":["samyie-bol-shiie-skidki-tut-sale-do-50-ot-opta"],
       "Новинки": ["novinki"],
       "Сукні": ["plat-ia"],
       "Жіночі костюми": ["zhienskaia-povsiednievnaia-odiezhda/zhienskiie-kostiumy"],
@@ -790,7 +791,7 @@ const handleSortingListChange = (value) => {
                 </div>
           </aside>
           </>)}
-
+        <div style={{ display: "flex", paddingTop: "90px", justifyContent: "center", gap: "10px", marginTop: "-20px" }}><a href="/?main=samyie-bol-shiie-skidki-tut-sale-do-50-ot-opta&category=&page=1"><img width = "100%" height = "auto;" src="/BlackFriday1.png"></img></a></div>
         <main style={styles.mainContent}>
           <div className="photo-gallery" style={{    maxWidth: "1000px",    margin: "0 auto",}}>
             <label htmlFor ="order" >Сортування:</label>
@@ -937,7 +938,7 @@ const handleSortingListChange = (value) => {
     mainContent: {
       flex: 1,
       padding: '10px',
-      paddingTop: '90px', 
+      paddingTop: '5px', 
       overflowX: 'hidden',
     },
     };
