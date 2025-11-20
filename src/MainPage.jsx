@@ -530,21 +530,6 @@ useEffect(() => {
   window.addEventListener("popstate", onPopState);
   return () => window.removeEventListener("popstate", onPopState);
 }, []);
-useEffect(() => {
-  sessionStorage.setItem("isBannerSeen", false)
-  if (sessionStorage.getItem("isBannerSeen")){
-  setTimeout(() => {
-    const el = document.querySelector(".banner");
-    if (el) {
-      window.scrollTo({
-        top: el.offsetHeight - 1.2*document.querySelector("header").offsetHeight,
-        behavior: "smooth"
-      });
-    }
-  }, 700); // 700ms найнадійніше
-  }
-  sessionStorage.setItem("isBannerSeen", true)
-}, []);
 
 useEffect(() => {
   const syncFiltersFromURL = () => {
@@ -821,7 +806,12 @@ const handleSortingListChange = (value) => {
             <button
               onClick={() => {
                 setPage(prev => Math.max(prev - 1, 1));
-                window.scrollTo(0, parseInt(0, 10));}}
+                const el = document.querySelector(".banner");
+                if (el) {
+                  window.scrollTo({
+                    top: el.offsetHeight - 1.2*document.querySelector("header").offsetHeight,
+                  });
+                };}}
               disabled={page <= 1}
               style={{ padding: "8px 16px" }}
             >
@@ -869,7 +859,12 @@ const handleSortingListChange = (value) => {
                 if (page < totalPages) {
                   setPage(prev => parseInt(prev) + 1);
                 }
-                window.scrollTo(0, parseInt(0, 10));
+                const el = document.querySelector(".banner");
+                if (el) {
+                  window.scrollTo({
+                    top: el.offsetHeight - 1.2*document.querySelector("header").offsetHeight,
+                  });
+                }
               }}
               disabled={page >= Math.ceil((fullData?.hits?.total || 0) / perPage)}
               style={{ padding: "8px 16px" }}
