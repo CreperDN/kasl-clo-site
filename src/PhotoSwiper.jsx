@@ -11,6 +11,7 @@ import "swiper/css/effect-coverflow";
 export default function PhotoGallery({ products, priceIncrease, handleGoToProduct=null }) {
 
   const location = useLocation();
+  const priceDecrease = 100;
   products = Array.isArray(products) ? products : [products];
 
   return (
@@ -116,19 +117,34 @@ export default function PhotoGallery({ products, priceIncrease, handleGoToProduc
             <figcaption style = {{lineHeight:"1.2"}}>
               <small>{product.name}</small>
               <br />
-              {product.oldPrice != null ? (
+              {
+              product.oldPrice != null ? (
+                product.slug.includes("shapka") ? (
                 <>
+                  <s style={{ color: "gray", marginRight: "8px" }}>
+                    {(product.oldPrice / 100 + priceIncrease-priceDecrease).toFixed(2)} грн
+                  </s>
+                  <strong>
+                    {(product.price / 100 + priceIncrease-priceDecrease).toFixed(2)} грн
+                  </strong>
+                </>
+              ) :
+              (<>
                   <s style={{ color: "gray", marginRight: "8px" }}>
                     {(product.oldPrice / 100 + priceIncrease).toFixed(2)} грн
                   </s>
                   <strong>
                     {(product.price / 100 + priceIncrease).toFixed(2)} грн
                   </strong>
-                </>
-              ) : (
-                <strong>
-                  {(product.price / 100 + priceIncrease).toFixed(2)} грн
-                </strong>
+                </>))
+                : (     
+                  product.slug.includes("shapka") ? (  
+                  <strong>
+                    {(product.price / 100 + priceIncrease-priceDecrease).toFixed(2)} грн
+                  </strong>):(  
+                    <strong>
+                    {(product.price / 100 + priceIncrease).toFixed(2)} грн
+                  </strong>)
               )}
             </figcaption>
           </figure>

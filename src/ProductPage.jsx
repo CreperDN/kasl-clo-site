@@ -106,6 +106,7 @@ export default function ProductPage() {
   const [hoveredRow, setHoveredRow] = useState(null);
   const [hoveredCol, setHoveredCol] = useState(null);
   const priceIncrease = 300;
+  const priceDecrease = 100;
   const [history, setHistory] = useState(() => {
     return JSON.parse(localStorage.getItem("history")) ?? [];
   });
@@ -415,6 +416,16 @@ return (
         {/*Ціна*/ }
         <h6 style={{marginTop:0, marginBottom:"-7px", fontSize:"20px"}}>
         {product.oldPrice != null ? (
+            product.slug.includes("shapka") ? (
+                <div key ={product.oldPrice} style={{ display: "flex", justifyContent: "left" }}>
+                  <s style={{ color: "gray", marginRight: "8px" }}>
+                    {(product.oldPrice / 100 + priceIncrease - priceDecrease).toFixed(2)} грн
+                  </s>
+                  <strong>
+                    {(product.price / 100 + priceIncrease - priceDecrease).toFixed(2)} грн
+                  </strong>
+                </div>
+              ) : (
                 <div key ={product.oldPrice} style={{ display: "flex", justifyContent: "left" }}>
                   <s style={{ color: "gray", marginRight: "8px" }}>
                     {(product.oldPrice / 100 + priceIncrease).toFixed(2)} грн
@@ -422,14 +433,18 @@ return (
                   <strong>
                     {(product.price / 100 + priceIncrease).toFixed(2)} грн
                   </strong>
-                </div>
-              ) : (
-                <div key ={product.oldPrice} style={{ display: "flex", justifyContent: "left" }}>
-                  <strong style = {{}}>
-                    {(product.price / 100 + priceIncrease).toFixed(2)} грн
-                  </strong>
-                </div>
-              )}
+                </div>)) : (
+                  product.slug.includes("shapka") ? (
+                    <div key ={product.oldPrice} style={{ display: "flex", justifyContent: "left" }}>
+                      <strong style = {{}}>
+                        {(product.price / 100 + priceIncrease-priceDecrease).toFixed(2)} грн
+                      </strong>
+                    </div>
+              ):(<div key ={product.oldPrice} style={{ display: "flex", justifyContent: "left" }}>
+                      <strong style = {{}}>
+                        {(product.price / 100 + priceIncrease).toFixed(2)} грн
+                      </strong>
+                    </div>))}
           </h6>
           {/*Замовити в Дірект*/}
               <a
