@@ -87,6 +87,15 @@ mainContainer: {
   }
 };
 
+function isCheaper(slug){
+  let list = ["shapka","panama","khomut","bieriet","kiepka","navushniki","sharf","kapor"];
+  for(let el of list){
+    if(slug.includes(el)){
+      return true;
+    }
+  }
+  return false;
+}
 
 
 export default function ProductPage() {
@@ -377,7 +386,7 @@ return (
       navigator.clipboard.writeText(
         `Замовлення: ${product.name}, ${
           selectedSize ? "Обраний розмір:" + selectedSize.toString() + "," : ""
-        } Ціна: ${product.slug.includes("shapka") ? ((product.price / 100 + priceIncrease-priceDecrease).toFixed(2)):((product.price / 100 + priceIncrease).toFixed(2))} грн, Посилання: https://kasl-clo.onrender.com/product/${product.slug}`
+        } Ціна: ${isCheaper(product.slug) ? ((product.price / 100 + priceIncrease-priceDecrease).toFixed(2)):((product.price / 100 + priceIncrease).toFixed(2))} грн, Посилання: https://kasl-clo.onrender.com/product/${product.slug}`
       );
     }}
   >
@@ -417,7 +426,7 @@ return (
         {/*Ціна*/ }
         <h6 style={{marginTop:0, marginBottom:"-7px", fontSize:"20px"}}>
         {product.oldPrice != null ? (
-            product.slug.includes("shapka") ? (
+            isCheaper(product.slug) ? (
                 <div key ={product.oldPrice} style={{ display: "flex", justifyContent: "left" }}>
                   <s style={{ color: "gray", marginRight: "8px" }}>
                     {(product.oldPrice / 100 + priceIncrease - priceDecrease).toFixed(2)} грн
@@ -435,7 +444,7 @@ return (
                     {(product.price / 100 + priceIncrease).toFixed(2)} грн
                   </strong>
                 </div>)) : (
-                  product.slug.includes("shapka") ? (
+                  isCheaper(product.slug) ? (
                     <div key ={product.oldPrice} style={{ display: "flex", justifyContent: "left" }}>
                       <strong style = {{}}>
                         {(product.price / 100 + priceIncrease-priceDecrease).toFixed(2)} грн
@@ -454,7 +463,7 @@ return (
             rel="noopener noreferrer"
             className="order-button"
             onClick={()=>{
-              navigator.clipboard.writeText(`Замовлення: ${product.name}, ${selectedSize ? "Обраний розмір:"+selectedSize.toString()+"," : ""} Ціна: ${product.slug.includes("shapka") ? ((product.price / 100 + priceIncrease-priceDecrease).toFixed(2)):((product.price / 100 + priceIncrease).toFixed(2))} грн, Посилання: https://kasl-clo.onrender.com/product/${product.slug}`);
+              navigator.clipboard.writeText(`Замовлення: ${product.name}, ${selectedSize ? "Обраний розмір:"+selectedSize.toString()+"," : ""} Ціна: ${isCheaper(product.slug) ? ((product.price / 100 + priceIncrease-priceDecrease).toFixed(2)):((product.price / 100 + priceIncrease).toFixed(2))} грн, Посилання: https://kasl-clo.onrender.com/product/${product.slug}`);
           }}
           >
             Замовити в Direct 

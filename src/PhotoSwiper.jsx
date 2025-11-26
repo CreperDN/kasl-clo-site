@@ -14,6 +14,17 @@ export default function PhotoGallery({ products, priceIncrease, handleGoToProduc
   const priceDecrease = 100;
   products = Array.isArray(products) ? products : [products];
 
+  function isCheaper(slug){
+  let list = ["shapka","panama","khomut","bieriet","kiepka","navushniki","sharf","kapor"];
+  for(let el of list){
+    if(slug.includes(el)){
+      return true;
+    }
+  }
+  return false;
+}
+
+
   return (
     <div className="photo-gallery" style={styles.galleryContainer}>
       <div className="photo-grid" style={styles.grid}>
@@ -119,7 +130,7 @@ export default function PhotoGallery({ products, priceIncrease, handleGoToProduc
               <br />
               {
               product.oldPrice != null ? (
-                product.slug.includes("shapka") ? (
+                isCheaper(product.slug) ? (
                 <>
                   <s style={{ color: "gray", marginRight: "8px" }}>
                     {(product.oldPrice / 100 + priceIncrease-priceDecrease).toFixed(2)} грн
@@ -138,7 +149,7 @@ export default function PhotoGallery({ products, priceIncrease, handleGoToProduc
                   </strong>
                 </>))
                 : (     
-                  product.slug.includes("shapka") ? (  
+                  isCheaper(product.slug) ? (  
                   <strong>
                     {(product.price / 100 + priceIncrease-priceDecrease).toFixed(2)} грн
                   </strong>):(  
