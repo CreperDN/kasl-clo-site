@@ -147,7 +147,7 @@ export default function ProductPage() {
     source.variants.map(e => e.dimensions.map(ee => measures.push(TRANSLATE[ee.measure.name]+':'+ee.value)))
     console.log(measures);
 
-    console.log(source.variants.map(e => e.options[0].sizeDescription))
+    //console.log(source.variants.map(e => e.options[0].sizeDescription))
     console.log(source.attribures)
     console.log("ДЛЯ SIMILAR PRODUCTS!!!!",source.attachedProducts)
     console.log("ДЛЯ SIMILAR PRODUCTS!!!!",source.attachedProducts.map(o => console.log(o.taxons.find(oo => oo.colorValue !== null))))//HEX кольору
@@ -191,8 +191,10 @@ export default function ProductPage() {
       const size = v.options?.[0]?.value;
       const row = {};
       const isInStock = v.inStock;
-      console.log("size.split("-")",size.split("-"))
-      const isActive = size.split("-").every(val => activeSingleSizes.includes(parseInt(val)))
+      //console.log("size.split("-")",size.split("-"))
+      let isActive;
+      if (size){
+        isActive = size.split("-").every(val => activeSingleSizes.includes(parseInt(val)))}
 
       v.dimensions?.forEach(dim => {
         const name = TRANSLATE[dim.measure?.name] || dim.measure?.name;
@@ -215,10 +217,13 @@ export default function ProductPage() {
     if(Array.from(new Set(dimensionTable.flatMap(Object.keys))).length < 3){
       dimensionTable = source.variants?.map(v =>
         {
-          let sizeDescription = v.options[0].sizeDescription
+          let sizeDescription = v.options[0]?.sizeDescription
           const isInStock = v.inStock;
-          console.log("Object.keys(sizeDescription)[0].split("-")",Object.keys((sizeDescription))[0].split("-"))
-          const isActive = Object.keys(sizeDescription)[0].split("-").every(val => activeSingleSizes.includes(parseInt(val)))
+          //console.log("Object.keys(sizeDescription)[0].split("-")",Object.keys((sizeDescription))[0].split("-"))
+          let isActive = false;
+          if (sizeDescription){
+            isActive = Object.keys(sizeDescription)[0].split("-").every(val => activeSingleSizes.includes(parseInt(val)))
+          }
           return{sizeDescription, isInStock, isActive}
         }
       )
