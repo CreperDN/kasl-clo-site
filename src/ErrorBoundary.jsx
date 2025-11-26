@@ -1,5 +1,6 @@
 import React from "react";
 
+
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -17,8 +18,9 @@ class ErrorBoundary extends React.Component {
     // Також можна логувати на сервер
     console.error("Помилка у компоненті:", error);
     console.error("Деталі помилки:", errorInfo);
+    
   }
-
+  
   render() {
     if (this.state.hasError) {
       return (
@@ -33,7 +35,10 @@ class ErrorBoundary extends React.Component {
           )}
           <button onClick={() => window.location.reload()}>Спробувати ще раз</button>
           <button style={{ marginTop:"10px", marginLeft:"20px" }}
-            onClick={() => navigate(sessionStorage.getItem("mainPageURL")??"/")}>
+            onClick={() => {
+              const url = sessionStorage.getItem("mainPageURL") ?? "/";
+              window.location.href = url;
+            }}>
             ← На Головну
         </button>
         </div>
