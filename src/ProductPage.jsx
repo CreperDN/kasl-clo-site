@@ -368,6 +368,7 @@ return (
 >
   <a
     href="https://www.instagram.com/kasl_clo/"
+    target="_blank"
     style={{
       display: "flex",       alignItems: "center",        gap: "6px",                  
       color: "inherit",      textDecoration: "none",
@@ -376,7 +377,7 @@ return (
       navigator.clipboard.writeText(
         `Замовлення: ${product.name}, ${
           selectedSize ? "Обраний розмір:" + selectedSize.toString() + "," : ""
-        } Ціна: ${(product.price / 100 + priceIncrease).toFixed(2)} грн, Посилання: https://kasl-clo.onrender.com/product/${product.slug}`
+        } Ціна: ${product.slug.includes("shapka") ? ((product.price / 100 + priceIncrease-priceDecrease).toFixed(2)):((product.price / 100 + priceIncrease).toFixed(2))} грн, Посилання: https://kasl-clo.onrender.com/product/${product.slug}`
       );
     }}
   >
@@ -453,7 +454,7 @@ return (
             rel="noopener noreferrer"
             className="order-button"
             onClick={()=>{
-              navigator.clipboard.writeText(`Замовлення: ${product.name}, ${selectedSize ? "Обраний розмір:"+selectedSize.toString()+"," : ""} Ціна: ${(product.price / 100 + priceIncrease).toFixed(2)} грн, Посилання: https://kasl-clo.onrender.com/product/${product.slug}`);
+              navigator.clipboard.writeText(`Замовлення: ${product.name}, ${selectedSize ? "Обраний розмір:"+selectedSize.toString()+"," : ""} Ціна: ${product.slug.includes("shapka") ? ((product.price / 100 + priceIncrease-priceDecrease).toFixed(2)):((product.price / 100 + priceIncrease).toFixed(2))} грн, Посилання: https://kasl-clo.onrender.com/product/${product.slug}`);
           }}
           >
             Замовити в Direct 
