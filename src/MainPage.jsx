@@ -675,7 +675,7 @@ const handleSortingListChange = (value) => {
                   if(sessionStorage.getItem("sortingType")){
                     setSelectedFilters({order: sessionStorage.getItem("sortingType")})}
                   }} 
-                  style={{cursor:"pointer", marginTop:"10px", fontSize:"14px"}}>Очистити фільтри</div>  
+                  style={{cursor:"pointer", marginTop:"10px", fontSize:"14px", textDecoration:"underline"}}>Очистити фільтри</div>  
                 <div>
                 <Filters filters = {filters} selectedFilters= {selectedFilters} setSelectedFilters={setSelectedFilters} setPage={setPage}></Filters>
                 </div>
