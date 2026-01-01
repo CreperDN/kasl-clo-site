@@ -805,6 +805,7 @@ const handleSortingListChange = (value) => {
             <button
               onClick={() => {
                 setPage(prev => Math.max(prev - 1, 1));
+                window.scrollTo(0, parseInt(0, 10));
                 const el = document.querySelector(".banner");
                 if (el) {
                   window.scrollTo({
@@ -858,6 +859,7 @@ const handleSortingListChange = (value) => {
                 if (page < totalPages) {
                   setPage(prev => parseInt(prev) + 1);
                 }
+                window.scrollTo(0, parseInt(0, 10));
                 const el = document.querySelector(".banner");
                 if (el) {
                   window.scrollTo({
@@ -946,7 +948,7 @@ const handleSortingListChange = (value) => {
     mainContent: {
       flex: 1,
       padding: '10px',
-      paddingTop: '5px', 
+      paddingTop: '90px', 
       overflowX: 'hidden',
     },
     };
