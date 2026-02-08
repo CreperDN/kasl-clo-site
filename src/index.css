@@ -229,10 +229,10 @@ body.dark td {
   border: 1px solid #555;
 }
 
-body.dark th{
+th{
    padding : 0; 
 }
-body.dark th button{
+th button{
   border-radius: 0;
   width:100%
 }

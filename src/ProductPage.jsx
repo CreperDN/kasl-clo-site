@@ -120,6 +120,9 @@ export default function ProductPage() {
     return JSON.parse(localStorage.getItem("history")) ?? [];
   });
 
+  const tableWrapperRef = React.useRef(null);
+  const columnRefs = React.useRef([]);
+
   async function fetchProduct(slug) {
     const response = await fetch("https://modniy-ostrov.com/api/product_by_slug", {
       method: "POST",
@@ -350,6 +353,25 @@ export default function ProductPage() {
     if(history)
       localStorage.setItem("history", JSON.stringify(history));
   }, [history]);
+
+
+  useEffect(() => {
+  if (isTableVisible && selectedSize) {
+    const index = dimensionTable.findIndex(row => 
+      (Object.keys(row.sizeDescription ?? {})[0] ?? row.size) === selectedSize
+    );
+
+    if (index !== -1 && columnRefs.current[index]) {
+      setTimeout(() => {
+        columnRefs.current[index].scrollIntoView({
+          behavior: "smooth", 
+          inline: "center",   
+          block: "nearest"    
+        });
+      }, 100);
+    }
+  }
+}, [selectedSize, isTableVisible, dimensionTable]);
   
   if (loading) return <Loading></Loading>;
   if (!product) return <div style={{ padding: "20px"}}><p>Товар не знайдено</p><button onClick={() => navigate(sessionStorage.getItem("mainPageURL")??"/")}>← На Головну</button></div>;
@@ -496,45 +518,67 @@ return (
 
         {isTableVisible && (Array.from(new Set(dimensionTable.flatMap(Object.keys))).length > 3 ? (
         <div className="size-table-container">
-        <div className="size-table-wrapper" style={{    overflowX: "auto",    boxSizing: "border-box",    maxWidth: "100%",  }}>
+        <div className="size-table-wrapper" ref={tableWrapperRef} style={{    overflowX: "auto",    boxSizing: "border-box",    maxWidth: "100%",  }}>
           <table className="size-table">
             <thead>
               <tr>
                 <th className="param-name" style={{ position: "sticky", left: 0, zIndex: 2 }}>Розмір</th>
-                {dimensionTable.map((row, i) => (
-                  <th key={i} className={`size-header ${row.isInStock ? '' : 'out-of-stock'}`}>
-                    <button
-                      onClick={() => {
-                        console.log(row.size);
-                        if (row.isActive) setSelectedSize(row.size);
-                      }}
-                      disabled={!row.isActive}
-                      title={!row.isActive ? "Розміру нема в наявності" : !row.isInStock ? "Готовність відправки до 5 робочих днів" : ""}
-                      style={{
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",         
-                        maxWidth: "100%",      
-                        color: Object.keys(row.sizeDescription ?? {})[0] ?? row.size == selectedSize ? "#646cff" :  ""     
-                      }}
-                    >
-                      {row.size}
-                    </button>
-                  </th>
-                ))}
+                {dimensionTable.map((row, i) => { 
+                  const isCurrentSelected = (Object.keys(row.sizeDescription ?? {})[0] ?? row.size) === selectedSize;
+                  return (                  
+                    <th key={i} ref={el => columnRefs.current[i] = el} className={`size-header ${row.isInStock ? '' : 'out-of-stock'}`}
+                    style={{
+                      // borderLeft: isCurrentSelected ? "2px solid #6d40ff" : "1px solid #ccc",
+                      // borderRight: isCurrentSelected ? "2px solid #6d40ff" : "1px solid #ccc",
+                      transition: "background-color 0.3s"
+                    }}>
+                      <button
+                        onClick={() => {
+                          console.log(row.size);
+                          if (row.isActive) setSelectedSize(row.size);
+                        }}
+                        disabled={!row.isActive}
+                        title={!row.isActive ? "Розміру нема в наявності" : !row.isInStock ? "Готовність відправки до 5 робочих днів" : ""}
+                        style={{
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",         
+                          maxWidth: "100%",      
+                          // color: Object.keys(row.sizeDescription ?? {})[0] ?? row.size == selectedSize ? "#6d40ff" :  "",     
+                          // border: Object.keys(row.sizeDescription ?? {})[0] ?? row.size == selectedSize ? "2px solid #6d40ff" :  "", 
+                        }}
+                      >
+                        {row.size}
+                      </button>
+                    </th>
+                )})}
               </tr>
             </thead>
             <tbody>
-              {transposedKeys.map((key, rowIdx) => (
-                <tr key={rowIdx}>
-                  <td className="param-name" style={{ position: "sticky", left: 0, zIndex: 2 }}>{key}</td>
-                  {dimensionTable.map((row, colIdx) => (
-                    <td key={colIdx} className="param-value">
-                      {row[key] ?? "-"}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
+    {transposedKeys.map((key, rowIdx) => (
+      <tr key={rowIdx}>
+        <td className="param-name" style={{ position: "sticky", left: 0, zIndex: 2 }}>
+          {key}
+        </td>
+        {dimensionTable.map((row, colIdx) => {
+          const isCurrentSelected = (Object.keys(row.sizeDescription ?? {})[0] ?? row.size) === selectedSize;
+          
+          return (
+            <td 
+              key={colIdx} 
+              style={{
+                background: isCurrentSelected ? "#646cff18" : "",
+                // borderLeft: isCurrentSelected ? "2px solid #6d40ff" : "1px solid #ccc",
+                // borderRight: isCurrentSelected ? "2px solid #6d40ff" : "1px solid #ccc",
+                textAlign: "center"
+              }}
+            >
+              {row[key] ?? "-"}
+            </td>
+          );
+        })}
+      </tr>
+    ))}
+  </tbody>
           </table>
         </div>
       </div>
