@@ -514,7 +514,7 @@ return (
         {dimensionTable.some(row => row.isActive !== row.isInStock) && (dimensionTable[0].sizeDescription || dimensionTable[0].size) && <div style={{alignSelf: "end"}}>* - Готовність відправки до 5 робочих днів</div>}
         </div>
         {/* Таблиця розмірів */}
-        {(dimensionTable[0].sizeDescription || dimensionTable[0].size) && <u onClick={()=>setIsTableVisible(!isTableVisible)} style={{cursor:"pointer"}}>{isTableVisible?"Закрити таблицю розмірів":"Відкрити таблицю розмірів"}</u>}
+        {(dimensionTable[0].sizeDescription || dimensionTable[0].size) && <u onClick={()=>setIsTableVisible(!isTableVisible)} style={{cursor:"pointer", userSelect:"none"}}>{isTableVisible?"Закрити таблицю розмірів":"Відкрити таблицю розмірів"}</u>}
 
         {isTableVisible && (Array.from(new Set(dimensionTable.flatMap(Object.keys))).length > 3 ? (
         <div className="size-table-container">
