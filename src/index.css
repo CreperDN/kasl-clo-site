@@ -258,6 +258,10 @@ body.dark .param-name {
   background-color: #242424;
   border-right: 1px solid #555;
 }
+body.light .param-name {
+  background-color: #fff;
+  border-right: 0.8px solid rgb(204, 204, 204);
+}
 body.dark .directButton {background-color: rgb(26, 26, 26)}
 
 

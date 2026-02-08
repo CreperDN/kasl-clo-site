@@ -479,7 +479,9 @@ return (
             color: (Object.keys(row.sizeDescription ?? {})[0] ?? row.size) == selectedSize ? "#646cff" :  ""}}
           key = {Object.keys(row.sizeDescription ?? {})[0] ?? row.size+`${(i*2)}`}
             onClick={() => {
-              if (row.isActive) setSelectedSize(Object.keys(row.sizeDescription ?? {})[0] ?? row.size);
+              if (row.isActive) 
+                setSelectedSize(Object.keys(row.sizeDescription ?? {})[0] ?? row.size);
+                setIsTableVisible(true)
             }}
             disabled={!row.isActive}
             title={!row.isActive ? "Розміру нема в наявності" : !row.isInStock ? "Готовність відправки до 5 робочих днів" : ""}
