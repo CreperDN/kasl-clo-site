@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, EffectCoverflow } from "swiper/modules";
 import { Link, useLocation } from "react-router-dom";
@@ -6,49 +5,35 @@ import SetFavoriteButton from "./setFavorite";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import "swiper/css/effect-coverflow";
 
-export default function PhotoGallery({ products, priceIncrease, handleGoToProduct=null }) {
-
+export default function PhotoGallery({ products, priceIncrease, handleGoToProduct }) {
   const location = useLocation();
   const priceDecrease = 100;
+
   products = Array.isArray(products) ? products : [products];
 
-  function isCheaper(slug){
-  let list = ["shapka","panama","khomut","bieriet","kiepka","navushniki","sharf","kapor"];
-  for(let el of list){
-    if(slug.includes(el)){
-      return true;
-    }
+  function isCheaper(slug) {
+    let list = ["shapka","panama","khomut","bieriet","kiepka","navushniki","sharf","kapor"];
+    return list.some(el => slug.includes(el));
   }
-  return false;
-}
-
 
   return (
-    <div className="photo-gallery" style={styles.galleryContainer}>
-      <div className="photo-grid" style={styles.grid}>
-    <>
-      {products.map((product, i) => {
-        
+    <div style={styles.galleryContainer}>
+      <div style={styles.grid}>
+        {products.map((product, i) => {
 
-        const images = [product.url, ...(product.images || []).map(img =>
-          `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${img}`
-        )];
+          const images = [
+            product.url,
+            ...(product.images || []).map(
+              img => `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${img}`
+            )
+          ];
+          while(images.length < 4){images.forEach(image =>images.push(image))}
 
-        while(images.length < 4){images.forEach(image =>images.push(image))}
+          return (
+            <figure key={product.slug + i} style={styles.figure}>
 
-        return (
-          <div key = {product.images[i]+`${i}`} style={{
-                      backgroundColor: "transparent",
-                      // borderRadius: "4%",
-                      // position: "relative",
-                      // // width: "100%",
-                      // aspectRatio: "350 / 422", // пропорції фото
-                      // overflow: "hidden",
-                    }}>
-          <figure key={product.images[i]+`${i}`} style={styles.figure}>
-            <Swiper
+              <Swiper
               modules={[Navigation, Pagination, EffectCoverflow]}
               effect="coverflow"
               onInit={(swiper) => {
@@ -87,85 +72,86 @@ export default function PhotoGallery({ products, priceIncrease, handleGoToProduc
                 modifier: 0,
                 slideShadows: true,
               }}
-              style={{ overflow: "visible" }}
             >
 
-              {images.map((img, imgIdx) => (
-                <SwiperSlide key={imgIdx} style={styles.swiperSlide}>
-                  <Link
-                    to={`/product/${product.slug}`}
-                    onClick={() => {location.pathname === "/" &&
-                      sessionStorage.setItem(
-                        "scrollPosition",
-                        (window.scrollY+0.7).toString()
-                      )
-                      window.scrollTo(0, parseInt(0, 10));
-                      if (handleGoToProduct()){handleGoToProduct()};
-                    }}
-                  >
-                    <div style={{
-                      backgroundColor: "rgb(59, 59, 59)",
-                      borderRadius: "4%",
-                      position: "relative",
-                      width: "100%",
-                      aspectRatio: "464 / 616", // пропорції фото
-                      overflow: "hidden",
-                    }}>
-                      <img
-                        src={img}
-                        alt={`Фото ${product.name}-${imgIdx}`}
-                        style={styles.image}
-                        onError={(e) => {
-                          e.target.src = "/placeholder.png";
-                        }}
-                      />
-                    </div>
-                  </Link>
-                </SwiperSlide>
-              ))}
-              <SetFavoriteButton url = {product.url} price ={product.price} name={product.name} slug={product.slug} images={product.images} oldPrice={product.oldPrice} />
-            </Swiper>
-            <figcaption style = {{lineHeight:"1.2"}}>
-              <small>{product.name}</small>
-              <br />
-              {
-              product.oldPrice != null ? (
-                isCheaper(product.slug) ? (
-                <>
-                  <s style={{ color: "gray", marginRight: "8px" }}>
-                    {(product.oldPrice / 100 + priceIncrease-priceDecrease).toFixed(2)} грн
-                  </s>
-                  <strong>
-                    {(product.price / 100 + priceIncrease-priceDecrease).toFixed(2)} грн
-                  </strong>
-                </>
-              ) :
-              (<>
-                  <s style={{ color: "gray", marginRight: "8px" }}>
-                    {(product.oldPrice / 100 + priceIncrease).toFixed(2)} грн
-                  </s>
-                  <strong>
-                    {(product.price / 100 + priceIncrease).toFixed(2)} грн
-                  </strong>
-                </>))
-                : (     
-                  isCheaper(product.slug) ? (  
-                  <strong>
-                    {(product.price / 100 + priceIncrease-priceDecrease).toFixed(2)} грн
-                  </strong>):(  
+              {images.map((img, idx) => (
+                  <SwiperSlide key={idx}>
+                    <Link
+                      to={`/product/${product.slug}`}
+                      onClick={() => {
+                        if (location.pathname === "/") {
+                          sessionStorage.setItem("scrollPosition", window.scrollY.toString());
+                        }
+                        if (handleGoToProduct) handleGoToProduct();
+                      }}
+                    >
+                      <div style={styles.imageWrapper}>
+                        <img
+                          src={img}
+                          width="464"
+                          height="616"
+                          loading="lazy"
+                          decoding="async"
+                          alt={`Фото ${product.name}`}
+                          onError={(e) => e.currentTarget.src = "/placeholder.png"}
+                          style={styles.image}
+                        />
+                      </div>
+                    </Link>
+                  </SwiperSlide>
+                ))}
+
+                <SetFavoriteButton
+                  url={product.url}
+                  price={product.price}
+                  name={product.name}
+                  slug={product.slug}
+                  images={product.images}
+                  oldPrice={product.oldPrice}
+                />
+              </Swiper>
+
+              <figcaption style={styles.caption}>
+                <small>{product.name}</small><br />
+
+                {product.oldPrice != null ? (
+                  isCheaper(product.slug) ? (
+                    <>
+                      <s style={styles.oldPrice}>
+                        {(product.oldPrice / 100 + priceIncrease - priceDecrease).toFixed(2)} грн
+                      </s>
+                      <strong>
+                        {(product.price / 100 + priceIncrease - priceDecrease).toFixed(2)} грн
+                      </strong>
+                    </>
+                  ) : (
+                    <>
+                      <s style={styles.oldPrice}>
+                        {(product.oldPrice / 100 + priceIncrease).toFixed(2)} грн
+                      </s>
+                      <strong>
+                        {(product.price / 100 + priceIncrease).toFixed(2)} грн
+                      </strong>
+                    </>
+                  )
+                ) : (
+                  isCheaper(product.slug) ? (
                     <strong>
-                    {(product.price / 100 + priceIncrease).toFixed(2)} грн
-                  </strong>)
-              )}
-            </figcaption>
-          </figure>
-          </div>
-        );
-      })}
-      <style>{responsiveStyles}</style>
-    </>
-          </div>
+                      {(product.price / 100 + priceIncrease - priceDecrease).toFixed(2)} грн
+                    </strong>
+                  ) : (
+                    <strong>
+                      {(product.price / 100 + priceIncrease).toFixed(2)} грн
+                    </strong>
+                  )
+                )}
+              </figcaption>
+
+            </figure>
+          );
+        })}
       </div>
+    </div>
   );
 }
 
@@ -175,55 +161,48 @@ const styles = {
     maxWidth: "1000px",
     margin: "0 auto",
   },
+
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
     gap: "16px",
   },
+
   figure: {
     border: "1px solid #ccc",
     padding: "10px",
-    margin: "0",
+    margin: 0,
     textAlign: "center",
     boxSizing: "border-box",
-    width: '100%',
+    width: "100%",
     maxWidth: "350px",
-    overflow: "hidden",
-    alignSelf: "center",
     justifySelf: "center",
+    overflow: "hidden"
   },
-  swiper: {
-    width: "300px",
-    margin: "0 auto 5px",
+
+  imageWrapper: {
+    width: "100%",
+    aspectRatio: "464 / 616",
+    backgroundColor: "#2a2a2a",
+    borderRadius: "12px",
+    overflow: "hidden",
   },
-  swiperSlide: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    width: "250px",
-    transformStyle: "preserve-3d", 
-    backfaceVisibility: "hidden",
-  },
+
   image: {
     width: "100%",
-    height: "auto",
-    maxWidth: "250px",
-    borderRadius: "10px",
+    height: "100%",
+    objectFit: "cover",
+    display: "block",
+    userSelect:"none"
+  },
+
+  caption: {
+    lineHeight: "1.2",
+    marginTop: "6px",
+  },
+
+  oldPrice: {
+    color: "gray",
+    marginRight: "8px",
   },
 };
-
-const responsiveStyles = `
-  @media (max-width: 600px) {
-    .photo-grid {
-      grid-template-columns: repeat(1, 1fr) !important;
-    }
-
-    .photo-grid figure {
-      width: 100% !important;
-    }
-
-    .photo-grid img {
-      max-width: 100% !important;
-    }
-  }
-`;

@@ -607,6 +607,7 @@ const handleSortingListChange = (value) => {
         hoveredMain={hoveredMain}
         setHoveredMain={setHoveredMain}
         selectedMainCategory={selectedMainCategory}
+        selectedCategory={selectedCategory}
         handleMainCategoryRadioChange={handleMainCategoryRadioChange}
         handleCategoryRadioChange={handleCategoryRadioChange}
         handleGoToProduct={handleGoToProduct}

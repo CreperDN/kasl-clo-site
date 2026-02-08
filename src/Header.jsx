@@ -12,6 +12,7 @@ export default function Header({
   hoveredMain,
   setHoveredMain,
   selectedMainCategory,
+  selectedCategory,
   handleMainCategoryRadioChange,
   handleCategoryRadioChange,
   handleGoToProduct,
@@ -83,7 +84,13 @@ export default function Header({
             return (
               <div
                 key={slug}
-                style={{ position: "relative" }}
+                style={{ 
+                  position: "relative",
+                  textDecoration: 
+                    hoveredMain === slug
+                      ? "underline"
+                      : "none",
+                   }}
                 onMouseEnter={() => setHoveredMain(slug)}
                 onMouseLeave={() => setHoveredMain(null)}
               >
@@ -102,7 +109,7 @@ export default function Header({
                   {` ${name}`}
                 </label>
 
-                {hoveredMain === slug && (
+                {hoveredMain === slug && Object.keys(CLOTHING_CATEGORIES).includes(Object.keys(MAIN_CATEGORIES).find((key) => MAIN_CATEGORIES[key][0] === slug)) && (
                   <div
                     className="fallenMenu"
                     style={{
@@ -128,6 +135,14 @@ export default function Header({
                           display: "block",
                           padding: "5px 0",
                           cursor: "pointer",
+                          textDecoration: 
+                            selectedCategory === subSlug
+                              ? "underline"
+                              : "none",
+                          // textShadow:
+                          //   selectedCategory === subSlug
+                          //     ? "0 0 10px #6d40ff"
+                          //     : "0 0 0 transparent",
                         }}
                       >
                         {` ${subName}`}

@@ -259,3 +259,45 @@ body.dark .param-name {
   border-right: 1px solid #555;
 }
 body.dark .directButton {background-color: rgb(26, 26, 26)}
+
+
+
+
+input[type="checkbox"] {
+  appearance: none;
+  border: 1px solid #838383;
+  width: 11px;
+  height: 11px;
+  cursor: pointer;
+  margin-bottom: 1px;
+}
+input[type="checkbox"]:checked {
+  background-color: #6d40ff;
+}
+label:has(input[type="checkbox"]):hover {
+  text-decoration: underline;
+}
+
+aside *:focus, 
+aside *:active {
+  outline: none !important;
+}
+
+.fallenMenu label:hover {
+  color: #838383;
+}
+
+select {
+  background-color: transparent;
+  border-radius: 3px;
+  padding: 0 1em 0 2px;
+  margin: 0;
+  width: auto;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  line-height: inherit;
+
+  z-index: 1;
+  outline: none;
+}
