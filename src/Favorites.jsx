@@ -1,11 +1,43 @@
 import PhotoGallery from './PhotoSwiper';
 import { useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
-import "./Favorites.css"
+import "./Favorites.css";
+import { PRICE_INCREASE as priceIncrease } from "./priceHelper";
 
 const handleGoToProduct = () => {
   return;
 };
+
+async function fetchProduct(slug) {
+  const response = await fetch("https://modniy-ostrov.com/api/product_by_slug", {
+    method: "POST",
+    headers: {
+      "accept": "application/json, text/plain, */*",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ slug, siteVersion: "ua_UA" }),
+  });
+
+  if (!response.ok) return null;
+  const data = await response.json();
+
+  const source = data?.hits?.hits?.find(hit => hit._source?.slug === slug)?._source;
+  if (!source) return null;
+
+  let images = (source.images || []).map(img => img.dressaPath ?? img.path).slice(1);
+  if (images[0] == null) {
+    images = [source.image.path];
+  }
+
+  return {
+    url: `https://cdn.modniy-ostrov.com/ostrov-cache/sylius_medium/${source.image?.dressaPath ?? source.image?.path}`,
+    price: source.priceUAH,
+    name: source.correctedName,
+    slug: source.slug,
+    images,
+    oldPrice: source.oldPriceUAH,
+  };
+}
 
 export default function Favorites() {
   const navigate = useNavigate();
@@ -15,7 +47,6 @@ export default function Favorites() {
   const [history, setHistory] = useState(() => {
     return JSON.parse(localStorage.getItem("history")) ?? [];
   }); 
-  const priceIncrease = 300;  
 
   // refs для заголовків
   const favoritesRef = useRef(null);
@@ -24,9 +55,48 @@ export default function Favorites() {
   // стани для видимості галерей
   const [favoritesVisible, setFavoritesVisible] = useState(true);
   const [historyVisible, setHistoryVisible] = useState(true);
+  
   useEffect(()=>{
     window.scrollTo(0, 0);
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    async function syncFavorites() {
+      if (favorites.length === 0) return;
+
+      try {
+        const promises = favorites.map(async (item) => {
+          try {
+            const freshData = await fetchProduct(item.slug);
+            if (freshData) {
+              return {
+                ...item,
+                url: freshData.url,
+                price: freshData.price,
+                name: freshData.name,
+                images: freshData.images,
+                oldPrice: freshData.oldPrice,
+              };
+            }
+            return null; // Product removed from store
+          } catch (error) {
+            console.error(`Failed to update favorite product ${item.slug}:`, error);
+            return item; // Keep cached item on network failure
+          }
+        });
+
+        const results = await Promise.all(promises);
+        const updated = results.filter(Boolean);
+
+        setFavorites(updated);
+        localStorage.setItem("favorites", JSON.stringify(updated));
+      } catch (e) {
+        console.error("Error syncing favorites:", e);
+      }
+    }
+
+    syncFavorites();
+  }, []);
 
   useEffect(() => {
     const observerOptions = { threshold: 0.1 };

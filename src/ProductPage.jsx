@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import PhotoGallery from './PhotoSwiper';
 import Loading from './Loading';
+import { PRICE_INCREASE as priceIncrease, PRICE_DECREASE as priceDecrease, isCheaper } from "./priceHelper";
 import "swiper/css";
 import LargeImageGallery from './LargeImageGallery';
 import SimilarProducts from "./SimilarProducts";
@@ -87,16 +88,6 @@ mainContainer: {
   }
 };
 
-function isCheaper(slug){
-  let list = ["shapka","panama","khomut","bieriet","kiepka","navushniki","sharf","kapor"];
-  for(let el of list){
-    if(slug.includes(el)){
-      return true;
-    }
-  }
-  return false;
-}
-
 
 export default function ProductPage() {
   const { slug } = useParams();
@@ -114,8 +105,6 @@ export default function ProductPage() {
   const [activeSingleSizes, setActiveSingleSizes] = useState([]);
   const [hoveredRow, setHoveredRow] = useState(null);
   const [hoveredCol, setHoveredCol] = useState(null);
-  const priceIncrease = 300;
-  const priceDecrease = 100;
   const [history, setHistory] = useState(() => {
     return JSON.parse(localStorage.getItem("history")) ?? [];
   });
@@ -671,7 +660,7 @@ return (
     {/* {difColored.length > 0 && <div><h3>Інші кольори:</h3>
     <PhotoGallery products={difColored} priceIncrease={300} /></div>} */}
     <h3>Схожі товари:</h3>
-    {similar.length > 0 && <PhotoGallery products={similar} priceIncrease={300} />}
+    {similar.length > 0 && <PhotoGallery products={similar} priceIncrease={priceIncrease} />}
   </div>
 );
 }

@@ -6,6 +6,7 @@ import PhotoGallery from './PhotoSwiper';
 import Filters from './Filters';
 import Loading from './Loading';
 import LZString, { compress } from 'lz-string';
+import { PRICE_INCREASE as priceIncrease } from "./priceHelper";
 
 async function fetchFilters(mainCategory, category, filters) {
     //console.log("fetchFilters", mainCategory, category, filters);
@@ -259,7 +260,6 @@ function extractDressaPaths(data) {
   let isFetching = false;
   const [filters, setFilters] = useState(null);
   const [selectedFilters, setSelectedFilters] = useState({});
-  const [priceIncrease, setPriceIncrease] = useState(300);
   const [perPage, setPerPage] = useState(24);
   const [loading, setLoading] = useState(false);
   const [selectedMainCategory, setSelectedMainCategory] = useState("novinki");

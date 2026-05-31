@@ -5,17 +5,12 @@ import SetFavoriteButton from "./setFavorite";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import { PRICE_INCREASE, PRICE_DECREASE as priceDecrease, isCheaper } from "./priceHelper";
 
-export default function PhotoGallery({ products, priceIncrease, handleGoToProduct }) {
+export default function PhotoGallery({ products, priceIncrease = PRICE_INCREASE, handleGoToProduct }) {
   const location = useLocation();
-  const priceDecrease = 100;
 
   products = Array.isArray(products) ? products : [products];
-
-  function isCheaper(slug) {
-    let list = ["shapka","panama","khomut","bieriet","kiepka","navushniki","sharf","kapor"];
-    return list.some(el => slug.includes(el));
-  }
 
   return (
     <div style={styles.galleryContainer}>
