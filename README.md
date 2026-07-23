@@ -1,12 +1,31 @@
-# React + Vite
+# Kasl-clo 
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A frontend application for a clothing e-commerce platform. This is an independent, solo project built to showcase frontend development skills, integrating with a third-party API to deliver a seamless shopping experience.
 
-Currently, two official plugins are available:
+## Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Kasl-clo is a frontend application designed to consume an external API and present a dynamic product catalog.
 
-## Expanding the ESLint configuration
+## Key Features & Implementations
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Here is a summary of the technical features implemented in this project:
+
+- **Third-Party API Integration**: Fetches and displays product data dynamically from an external API, handling loading states and data processing on the client side.
+- **Dynamic Routing & Navigation**: Implemented robust client-side routing using `react-router-dom` to navigate between the Main Page, Product Pages, and Favorites.
+- **Advanced Product Filtering (`Filters.jsx`)**: Built a comprehensive filtering system allowing users to sort and narrow down clothing items based on various criteria.
+- **Interactive Image Galleries**:
+  - **Carousels (`PhotoSwiper.jsx`)**: Integrated `Swiper` for smooth, touch-friendly product image sliders.
+  - **Zoom & Pan (`LargeImageGallery.jsx`)**: Utilized `react-zoom-pan-pinch` to allow users to inspect clothing details up close in a dedicated gallery view.
+- **Favorites System (`Favorites.jsx`, `setFavorite.jsx`)**: Implemented local state management to allow users to like and save products for later viewing.
+- **Theme Customization (`toggleTheme.jsx`)**: Added support for Light/Dark mode transitions to enhance accessibility and user preference.
+- **Optimized Performance**: Leveraged **Vite** for lightning-fast HMR (Hot Module Replacement) and optimized production builds.
+
+## Tech Stack
+
+- **Core**: React 19, Vite
+- **Routing**: React Router v7
+- **UI / Interactions**: 
+  - `swiper` (for modern carousels)
+  - `react-zoom-pan-pinch` (for image zooming capabilities)
+- **Styling**: Vanilla CSS (modular and responsive design)
+- **Data Handling**: `lz-string` 
